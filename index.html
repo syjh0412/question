@@ -126,6 +126,9 @@
   table.st td.l{text-align:left;}
   .del{background:#fff;border:1.5px solid #e6c9c5;color:#a8322a;font-size:12px;
     font-weight:700;padding:4px 10px;border-radius:20px;}
+  h3.lhead{font-size:14px;font-weight:800;color:#fff;background:var(--ink-2);
+    border-radius:8px;padding:8px 12px;margin:20px 0 10px;}
+  h3.lhead span{float:right;font-weight:700;color:#b9c8d8;font-size:12.5px;}
   .tq{border:1px solid var(--hair);border-radius:10px;background:#fff;padding:13px;margin-bottom:9px;}
   .tq .m{font-size:11.5px;color:var(--soft);display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:5px;}
   .tq .m .an{background:#fdecea;color:#a8322a;border-radius:20px;padding:1px 8px;font-weight:700;}
@@ -554,48 +557,64 @@ function tLoad(){
 function drawTQ(items){
   var box=$('tBody'); box.innerHTML='';
   if(!items.length){ box.innerHTML='<div class="empty">질문이 없습니다.</div>'; return; }
+
   var head=document.createElement('div');
   head.className='count';
   head.textContent='질문 '+items.length+'건';
   box.appendChild(head);
 
-  items.forEach(function(it){
-    var d=document.createElement('div'); d.className='tq';
-    var m=document.createElement('div'); m.className='m';
-    m.innerHTML='<span>'+it.cls+'반 '+it.num+'번 '+it.name+'</span>'+
-      (it.anon?'<span class="an">익명</span>':'')+
-      '<span>'+it.lesson+'차시 · '+title(it.lesson)+'</span>'+
-      '<span>'+it.stage+'</span>'+
-      '<span>💧 '+(it.water||0)+'</span>';
-    var del=document.createElement('button');
-    del.className='del'; del.textContent='삭제';
-    del.style.marginLeft='auto';
-    del.addEventListener('click',function(){
-      if(!confirm('이 질문과 답변을 모두 지울까요?')) return;
-      call({action:'delq',pin:PIN,qid:it.id}, function(){ d.remove(); },
+  if($('tLesson').value){
+    items.forEach(function(it){ box.appendChild(tCard(it)); });
+    return;
+  }
+
+  LESSONS.forEach(function(L){
+    var arr=items.filter(function(x){ return String(x.lesson)===String(L.n); });
+    if(!arr.length) return;
+    var h3=document.createElement('h3');
+    h3.className='lhead';
+    h3.innerHTML=L.n+'차시 · '+L.t+'<span>'+arr.length+'건</span>';
+    box.appendChild(h3);
+    arr.forEach(function(it){ box.appendChild(tCard(it)); });
+  });
+}
+
+function tCard(it){
+  var d=document.createElement('div'); d.className='tq';
+  var m=document.createElement('div'); m.className='m';
+  m.innerHTML='<span>'+it.cls+'반 '+it.num+'번 '+it.name+'</span>'+
+    (it.anon?'<span class="an">익명</span>':'')+
+    '<span>'+it.stage+'</span>'+
+    '<span>💧 '+(it.water||0)+'</span>';
+
+  var del=document.createElement('button');
+  del.className='del'; del.textContent='삭제';
+  del.style.marginLeft='auto';
+  del.addEventListener('click',function(){
+    if(!confirm('이 질문과 답변을 모두 지울까요?')) return;
+    call({action:'delq',pin:PIN,qid:it.id}, function(){ d.remove(); },
+      function(err){ alert(err); });
+  });
+  m.appendChild(del);
+
+  var p=document.createElement('p'); p.textContent=it.text;
+  d.appendChild(m); d.appendChild(p);
+
+  (it.answers||[]).forEach(function(a){
+    var e=document.createElement('div'); e.className='ta';
+    var b=document.createElement('b'); b.textContent=a.cls+'-'+a.num+' '+a.name;
+    var sp=document.createElement('span'); sp.textContent=a.text;
+    var db=document.createElement('button');
+    db.className='del'; db.textContent='×';
+    db.addEventListener('click',function(){
+      if(!confirm('이 답변을 지울까요?')) return;
+      call({action:'dela',pin:PIN,aid:a.id}, function(){ e.remove(); },
         function(err){ alert(err); });
     });
-    m.appendChild(del);
-
-    var p=document.createElement('p'); p.textContent=it.text;
-    d.appendChild(m); d.appendChild(p);
-
-    (it.answers||[]).forEach(function(a){
-      var e=document.createElement('div'); e.className='ta';
-      var b=document.createElement('b'); b.textContent=a.cls+'-'+a.num+' '+a.name;
-      var sp=document.createElement('span'); sp.textContent=a.text;
-      var db=document.createElement('button');
-      db.className='del'; db.textContent='×';
-      db.addEventListener('click',function(){
-        if(!confirm('이 답변을 지울까요?')) return;
-        call({action:'dela',pin:PIN,aid:a.id}, function(){ e.remove(); },
-          function(err){ alert(err); });
-      });
-      e.appendChild(b); e.appendChild(sp); e.appendChild(db);
-      d.appendChild(e);
-    });
-    box.appendChild(d);
+    e.appendChild(b); e.appendChild(sp); e.appendChild(db);
+    d.appendChild(e);
   });
+  return d;
 }
 
 function drawStats(items){
