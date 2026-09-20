@@ -242,6 +242,21 @@
   .rf .g{font-size:14.5px;line-height:1.5;}
   .rf .s{font-size:13.5px;line-height:1.5;color:#a8322a;background:#fdf6f5;
     border-radius:6px;padding:6px 9px;margin-top:6px;}
+  .mynote{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:10px;padding:13px;
+    margin-bottom:10px;box-shadow:0 3px 12px rgba(0,0,0,.24);}
+  .mynote .t{font-size:11px;color:var(--soft);margin-bottom:5px;}
+  .mynote .mine{font-size:14.5px;line-height:1.5;}
+  .mynote .rep{margin-top:9px;background:var(--blue-soft);border-left:3px solid var(--blue);
+    border-radius:0 8px 8px 0;padding:9px 11px;}
+  .mynote .rep b{display:block;font-size:11px;color:var(--blue);font-weight:800;margin-bottom:2px;}
+  .mynote .rep p{font-size:14.5px;line-height:1.5;color:var(--ink);}
+  .mynote .wait{margin-top:8px;font-size:12px;color:var(--soft);}
+  .repbox{display:flex;gap:7px;margin-top:9px;}
+  .repbox textarea{min-height:40px;font-size:14px;padding:8px 10px;}
+  .repbox button{flex-shrink:0;background:var(--blue);color:#fff;padding:0 15px;font-size:13.5px;}
+  .nt .done{margin-top:8px;background:var(--blue-soft);border-left:3px solid var(--blue);
+    border-radius:0 8px 8px 0;padding:8px 11px;font-size:14px;line-height:1.5;}
+
   .nt{border-left:4px solid #c0392b;border-radius:8px;background:#fff;padding:12px;margin-bottom:9px;}
   .nt .m{font-size:11px;color:var(--soft);margin-bottom:4px;}
   .nt p{font-size:15px;line-height:1.5;}
@@ -370,6 +385,8 @@
         <div style="height:14px"></div>
         <button class="primary" id="btnNote">보내기</button>
       </div>
+
+      <div id="myNotes"></div>
     </div>
 
     <div id="paneList" class="hide">
@@ -603,6 +620,7 @@ function tab(which){
   });
   if(which==='Mat') loadMat();
   if(which==='List') render();
+  if(which==='Ref') loadMyNotes();
 }
 ['Mat','Write','List','Ref','Teach'].forEach(function(k){
   $('tab'+k).addEventListener('click', function(){ tab(k); });
@@ -894,10 +912,37 @@ $('btnNote').addEventListener('click', function(){
   var b=this; b.disabled=true; b.textContent='보내는 중...';
   call({action:'note',cls:me.cls,num:me.num,name:me.name,text:t},
     function(){ b.disabled=false; b.textContent='보내기'; $('noteText').value='';
-      msg($('noteMsg'),'선생님께 전달되었습니다.','ok'); },
+      msg($('noteMsg'),'선생님께 전달되었습니다.','ok'); loadMyNotes(); },
     function(err){ b.disabled=false; b.textContent='보내기';
       msg($('noteMsg'),'보내지 못했습니다. '+err,'err'); });
 });
+
+function loadMyNotes(){
+  call({action:'mynotes',cls:me.cls,num:me.num}, function(res){
+    var box=$('myNotes'); box.innerHTML='';
+    var items=res.items||[];
+    if(!items.length) return;
+    var h=document.createElement('div');
+    h.className='count'; h.textContent='선생님과 주고받은 쪽지 '+items.length+'건';
+    box.appendChild(h);
+    items.forEach(function(n){
+      var d=document.createElement('div'); d.className='mynote';
+      var t=document.createElement('div'); t.className='t'; t.textContent=n.time+' · 내가 보낸 쪽지';
+      var p=document.createElement('div'); p.className='mine'; p.textContent=n.text;
+      d.appendChild(t); d.appendChild(p);
+      if(n.reply){
+        var r=document.createElement('div'); r.className='rep';
+        var b=document.createElement('b'); b.textContent='선생님 답장';
+        var rp=document.createElement('p'); rp.textContent=n.reply;
+        r.appendChild(b); r.appendChild(rp); d.appendChild(r);
+      } else {
+        var w=document.createElement('div'); w.className='wait';
+        w.textContent='아직 답장이 오지 않았어요'; d.appendChild(w);
+      }
+      box.appendChild(d);
+    });
+  }, function(){});
+}
 
 /* 자료 */
 function loadMat(){
@@ -1076,9 +1121,33 @@ function drawNotes(items){
   items.forEach(function(n){
     var d=document.createElement('div'); d.className='nt';
     var m=document.createElement('div'); m.className='m';
-    m.textContent=n.time+' · '+n.cls+'반 '+n.num+'번 '+n.name;
+    m.textContent=n.time+' · '+n.cls+'반 '+n.num+'번 '+n.name+(n.reply?' · 답장함':'');
     var p=document.createElement('p'); p.textContent=n.text;
     d.appendChild(m); d.appendChild(p);
+
+    var done=document.createElement('div');
+    done.className='done';
+    if(n.reply) done.textContent='답장 · '+n.reply; else done.style.display='none';
+    d.appendChild(done);
+
+    var rb=document.createElement('div'); rb.className='repbox';
+    var ta=document.createElement('textarea');
+    ta.placeholder=n.reply?'답장을 고치려면 새로 쓰세요':'답장을 써 주세요';
+    var bt=document.createElement('button'); bt.textContent=n.reply?'답장 고치기':'답장 보내기';
+    bt.addEventListener('click', function(){
+      var t=ta.value.trim();
+      if(t.length<2){ ta.focus(); return; }
+      bt.disabled=true; bt.textContent='...';
+      call({action:'reply',pin:PIN,nid:n.id,text:t}, function(){
+        bt.disabled=false; bt.textContent='답장 고치기';
+        n.reply=t; ta.value='';
+        done.style.display='block'; done.textContent='답장 · '+t;
+        m.textContent=n.time+' · '+n.cls+'반 '+n.num+'번 '+n.name+' · 답장함';
+      }, function(err){ bt.disabled=false; bt.textContent='답장 보내기'; alert(err); });
+    });
+    rb.appendChild(ta); rb.appendChild(bt);
+    d.appendChild(rb);
+
     box.appendChild(d);
   });
 }
