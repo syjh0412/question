@@ -185,6 +185,8 @@
     font-weight:700;padding:8px 14px;border-radius:20px;border:1.5px solid var(--hair);
     color:var(--ink2);background:#fff;}
   .mat a.snorkl{background:var(--amber);border-color:var(--amber);color:#fff;}
+  .mat a.work{background:var(--blue-soft);border-color:#b6d6ec;color:var(--blue);}
+  .mat.always{border-left:4px solid var(--amber);}
   .vidbox{display:none;margin-top:11px;}
   .vidbox.open{display:block;}
   .vidbox iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;}
@@ -960,11 +962,24 @@ function drawMat(items){
 function matCard(m){
   var d=document.createElement('div'); d.className='mat';
   var h=document.createElement('h3');
-  h.innerHTML='<em>'+m.lesson+'차시</em>'+(m.title||title(m.lesson));
+  if(m.lesson){
+    h.innerHTML='<em>'+m.lesson+'차시</em>'+(m.title||title(m.lesson));
+  } else {
+    h.innerHTML='<em>📁</em>'+(m.title||'단원 자료');
+    d.classList.add('always');
+  }
   d.appendChild(h);
   var btns=document.createElement('div'); btns.className='btns';
   if(m.pdf){ var a=document.createElement('a'); a.href=m.pdf; a.target='_blank';
     a.rel='noopener'; a.textContent='수업 자료 보기'; btns.appendChild(a); }
+  if(m.sheet){
+    var w=document.createElement('a');
+    w.href=m.sheet; w.className='work'; w.textContent='⬇ 활동지 받기';
+    var fn=String(m.sheet).split('/').pop().split('?')[0];
+    w.setAttribute('download', fn || ('활동지_'+m.lesson+'차시.pdf'));
+    w.rel='noopener';
+    btns.appendChild(w);
+  }
   var vbox=null;
   if(m.video){
     var bv=document.createElement('button'); bv.className='vid'; bv.textContent='영상 보기';
