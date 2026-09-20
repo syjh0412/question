@@ -969,9 +969,17 @@ function matCard(m){
     d.classList.add('always');
   }
   d.appendChild(h);
+
   var btns=document.createElement('div'); btns.className='btns';
-  if(m.pdf){ var a=document.createElement('a'); a.href=m.pdf; a.target='_blank';
-    a.rel='noopener'; a.textContent='수업 자료 보기'; btns.appendChild(a); }
+  var boxes=[];
+
+  if(m.pdf){
+    var a=document.createElement('a');
+    a.href=m.pdf; a.target='_blank'; a.rel='noopener';
+    a.textContent='수업 자료 보기';
+    btns.appendChild(a);
+  }
+
   if(m.sheet){
     var w=document.createElement('a');
     w.href=m.sheet; w.className='work'; w.textContent='⬇ 활동지 받기';
@@ -980,27 +988,43 @@ function matCard(m){
     w.rel='noopener';
     btns.appendChild(w);
   }
-  var vbox=null;
-  if(m.video){
-    var bv=document.createElement('button'); bv.className='vid'; bv.textContent='영상 보기';
-    vbox=document.createElement('div'); vbox.className='vidbox';
-    bv.addEventListener('click',function(){
+
+  // 영상 칸: 쉼표 · 줄바꿈 · 공백으로 여러 개
+  var vids = String(m.video||'').split(/[,\n\s]+/).filter(function(x){ return x.indexOf('http')===0; });
+  vids.forEach(function(url, i){
+    var bv=document.createElement('button'); bv.className='vid';
+    var label = vids.length>1 ? ('영상 '+(i+1)) : '영상 보기';
+    bv.textContent=label;
+    var vbox=document.createElement('div'); vbox.className='vidbox';
+    bv.addEventListener('click', function(){
       if(!vbox.firstChild){
-        var f=document.createElement('iframe'); f.src=ytEmbed(m.video);
+        var f=document.createElement('iframe');
+        f.src=ytEmbed(url);
         f.allow='accelerometer; encrypted-media; picture-in-picture';
-        f.allowFullscreen=true; vbox.appendChild(f);
+        f.allowFullscreen=true;
+        vbox.appendChild(f);
       }
-      vbox.classList.toggle('open');
-      bv.textContent=vbox.classList.contains('open')?'영상 접기':'영상 보기';
+      var open=!vbox.classList.contains('open');
+      boxes.forEach(function(o){ o.box.classList.remove('open');
+        o.btn.textContent=o.label; });
+      if(open){ vbox.classList.add('open'); bv.textContent=label+' 접기'; }
     });
     btns.appendChild(bv);
+    boxes.push({box:vbox, btn:bv, label:label});
+  });
+
+  if(m.snorkl){
+    var s=document.createElement('a');
+    s.href=m.snorkl; s.target='_blank'; s.rel='noopener';
+    s.className='snorkl'; s.textContent='스노클 풀기';
+    btns.appendChild(s);
   }
-  if(m.snorkl){ var s=document.createElement('a'); s.href=m.snorkl; s.target='_blank';
-    s.rel='noopener'; s.className='snorkl'; s.textContent='스노클 풀기'; btns.appendChild(s); }
+
   d.appendChild(btns);
-  if(vbox) d.appendChild(vbox);
+  boxes.forEach(function(o){ d.appendChild(o.box); });
   return d;
 }
+
 function ytEmbed(url){
   var m1=url.match(/[?&]v=([\w-]{6,})/), m2=url.match(/youtu\.be\/([\w-]{6,})/),
       m3=url.match(/embed\/([\w-]{6,})/), m4=url.match(/shorts\/([\w-]{6,})/);
