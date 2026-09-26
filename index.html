@@ -155,6 +155,31 @@
     padding:8px 11px;margin-bottom:6px;position:relative;}
   .ans.ad{background:var(--gold-soft);border-left-color:var(--gold);}
   .ans.tea{background:var(--blue-soft);border-left-color:var(--blue);}
+
+  .hintbox{margin-top:9px;}
+  .hintbtn{background:#f4f1ea;border:1.5px dashed #cfc7b6;color:#8a7d64;
+    font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:20px;}
+  .hintbtn:hover{background:#efe9dd;}
+  .hintbtn:disabled{opacity:.55;}
+  .hintout{background:#f6f3ec;border-left:3px solid #cfc7b6;border-radius:0 6px 6px 0;
+    padding:9px 11px;font-size:14px;line-height:1.55;color:#5c5340;white-space:pre-line;}
+  .hintout .cap{font-size:10.5px;font-weight:800;color:#a3937a;letter-spacing:.04em;
+    margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+  .hintout .cap button{margin-left:auto;background:#fff;border:1.5px solid #e0d8c8;
+    color:#8a7d64;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;}
+
+  .aiout{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:10px;padding:16px 16px 20px;
+    font-size:14.5px;line-height:1.7;box-shadow:0 3px 12px rgba(0,0,0,.24);}
+  .aiout h3{font-size:14px;font-weight:800;color:var(--amber);margin:18px 0 8px;
+    padding-bottom:5px;border-bottom:1.5px solid #f0e2cc;}
+  .aiout h3:first-child{margin-top:0;}
+  .aiout .li{padding:4px 0 4px 13px;position:relative;}
+  .aiout .li:before{content:'';position:absolute;left:2px;top:13px;width:4px;height:4px;
+    border-radius:50%;background:var(--hair);}
+  .aiout .num{padding:4px 0;}
+  .aiout .num b{color:var(--amber);margin-right:5px;}
+  .aikey{background:#fdf6f5;border-left:4px solid #c0392b;border-radius:8px;
+    padding:12px 14px;font-size:13.5px;line-height:1.6;color:var(--ink2);}
   .ans .tbadge{background:var(--blue);color:#fff;border-radius:20px;padding:2px 9px;
     font-size:10.5px;font-weight:800;}
   .foot button.tans{border-color:#b6d6ec;color:var(--blue);background:var(--blue-soft);}
@@ -507,6 +532,7 @@
             <option value="r">성찰 보기</option>
             <option value="n">선생님께만</option>
             <option value="s">참여 집계</option>
+            <option value="ai">AI 정리</option>
           </select>
           <button class="ghost" id="tReload">새로고침</button>
           <button class="ghost" id="tPrint">인쇄</button>
@@ -1045,9 +1071,44 @@ function card(it){
     });
   }
 
+  var hb=document.createElement('div'); hb.className='hintbox';
+  drawHint(hb, it);
+
   d.appendChild(no); d.appendChild(meta); d.appendChild(p); d.appendChild(foot);
-  d.appendChild(alist); d.appendChild(box);
+  d.appendChild(hb); d.appendChild(alist); d.appendChild(box);
   return d;
+}
+
+function drawHint(box, it){
+  box.innerHTML='';
+  if(it.hint){
+    var o=document.createElement('div'); o.className='hintout';
+    var cap=document.createElement('div'); cap.className='cap';
+    cap.innerHTML='<span>🔎 조수의 한마디</span>';
+    var re=document.createElement('button'); re.textContent='다른 힌트';
+    re.addEventListener('click', function(){ askHint(box, it, true); });
+    cap.appendChild(re);
+    var tx=document.createElement('div'); tx.textContent=it.hint;
+    o.appendChild(cap); o.appendChild(tx);
+    box.appendChild(o);
+  } else {
+    var b=document.createElement('button'); b.className='hintbtn';
+    b.textContent='🔎 조수에게 물어보기';
+    b.addEventListener('click', function(){ askHint(box, it, false); });
+    box.appendChild(b);
+  }
+}
+
+function askHint(box, it, fresh){
+  var btn = box.querySelector('button');
+  if(btn){ btn.disabled=true; btn.textContent='생각하는 중...'; }
+  call({action:'hint',qid:it.id,fresh:fresh?'1':'0'}, function(res){
+    it.hint = res.hint;
+    drawHint(box, it);
+  }, function(err){
+    if(btn){ btn.disabled=false; btn.textContent='🔎 조수에게 물어보기'; }
+    alert(err);
+  });
 }
 
 function ansEl(a, q){
@@ -1280,6 +1341,12 @@ function tLoad(){
   box.innerHTML='<div class="empty">불러오는 중...</div>';
   var v=$('tView').value;
   var fail=function(err){ box.innerHTML='<div class="empty">'+err+'</div>'; };
+  if(v==='ai'){
+    box.innerHTML='<div class="empty">질문을 읽고 정리하는 중입니다. 20초쯤 걸립니다...</div>';
+    call({action:'summary',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
+      function(r){ drawAI(r.text||'', r.count||0); }, fail);
+    return;
+  }
   if(v==='s') call({action:'stats',pin:PIN,cls:$('tCls').value},
       function(r){ drawStats(r.items||[]); }, fail);
   else if(v==='r') call({action:'reflects',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
@@ -1418,6 +1485,44 @@ function drawNotes(items){
 
     box.appendChild(d);
   });
+}
+
+function drawAI(text, n){
+  var box=$('tBody'); box.innerHTML='';
+  var head=document.createElement('div');
+  head.className='count';
+  head.textContent=($('tCls').value? $('tCls').value+'반':'전체 반')+' · '+
+    ($('tLesson').value? $('tLesson').value+'차시':'전체 차시')+' · 질문 '+n+'건';
+  box.appendChild(head);
+
+  var d=document.createElement('div'); d.className='aiout';
+  text.split('\n').forEach(function(raw){
+    var t=raw.trim();
+    if(!t) return;
+    var el;
+    if(/^#+\s/.test(t)){
+      el=document.createElement('h3');
+      el.textContent=t.replace(/^#+\s*/,'');
+    } else if(/^[-·•]\s/.test(t)){
+      el=document.createElement('div'); el.className='li';
+      el.textContent=t.replace(/^[-·•]\s*/,'');
+    } else if(/^\d+[.)]\s/.test(t)){
+      el=document.createElement('div'); el.className='num';
+      var m=t.match(/^(\d+)[.)]\s*(.*)$/);
+      el.innerHTML='<b>'+m[1]+'.</b>'+'';
+      el.appendChild(document.createTextNode(m[2]));
+    } else {
+      el=document.createElement('div'); el.className='num';
+      el.textContent=t;
+    }
+    d.appendChild(el);
+  });
+  box.appendChild(d);
+
+  var note=document.createElement('div');
+  note.className='count'; note.style.marginTop='10px';
+  note.textContent='AI가 정리한 것이라 틀릴 수 있습니다. 주제를 정하기 전에 원문을 한 번 확인하세요.';
+  box.appendChild(note);
 }
 
 function drawStats(items){
