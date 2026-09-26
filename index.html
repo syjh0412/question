@@ -522,7 +522,7 @@ var HINTS = {
 };
 
 var RANKS = [
-  {n:'훈련생',    q:1},
+  {n:'훈련생'},
   {n:'5급 탐정',  q:3, a:1},
   {n:'4급 탐정',  st:2, a:3},
   {n:'3급 탐정',  st:3, a:5,  sc:5},
@@ -544,6 +544,7 @@ function lack(m, r){
 
 function rankText(r){
   var out=[];
+  if(!r.q && !r.a && !r.st && !r.sc) return '들어오면 바로';
   if(r.q)  out.push('질문 '+r.q);
   if(r.st) out.push('도장 '+r.st);
   if(r.a)  out.push('답변 '+r.a);
@@ -616,10 +617,10 @@ function enter(o){
 }
 
 function rankOf(m){
-  if(!m) return {i:-1,name:'신입'};
-  var i=-1;
+  if(!m) return {i:0,name:RANKS[0].n};
+  var i=0;
   for(var k=0;k<RANKS.length;k++){ if(lack(m,RANKS[k]).length===0) i=k; }
-  return { i:i, name: i<0 ? '신입' : RANKS[i].n };
+  return { i:i, name: RANKS[i].n };
 }
 
 function nextHint(m){
