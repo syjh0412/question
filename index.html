@@ -154,6 +154,10 @@
   .ans{background:#f7f9fb;border-left:3px solid var(--hair);border-radius:0 6px 6px 0;
     padding:8px 11px;margin-bottom:6px;position:relative;}
   .ans.ad{background:var(--gold-soft);border-left-color:var(--gold);}
+  .ans.tea{background:var(--blue-soft);border-left-color:var(--blue);}
+  .ans .tbadge{background:var(--blue);color:#fff;border-radius:20px;padding:2px 9px;
+    font-size:10.5px;font-weight:800;}
+  .foot button.tans{border-color:#b6d6ec;color:var(--blue);background:var(--blue-soft);}
   .ans .n{font-size:11px;color:var(--soft);font-weight:700;margin-bottom:1px;
     display:flex;align-items:center;gap:6px;}
   .ans .n .pick{margin-left:auto;background:#fff;border:1.5px solid var(--hair);
@@ -230,6 +234,14 @@
   .rankstrip .path{font-size:13.5px;font-weight:800;color:#d9a441;letter-spacing:-.01em;}
   .rankstrip .path i{font-style:normal;color:#5b6f86;margin:0 3px;font-weight:600;}
   .rankstrip p{font-size:12.5px;color:#8fa4ba;margin-top:7px;line-height:1.55;}
+  .tlink{background:none;border:0;color:#6f849b;font-size:12.5px;font-weight:700;
+    padding:10px 8px 0;text-decoration:underline;text-underline-offset:3px;}
+  .tlink:hover{color:#9fb3c8;}
+  .tsel{width:auto;padding:5px 8px;font-size:13.5px;font-weight:700;background:#1a2b40;
+    color:#fff;border:1px solid #3c4f68;border-radius:8px;}
+  .tsel:focus{outline:none;border-color:#d9a441;}
+  .tmode{font-size:11px;font-weight:800;color:#12202f;background:#7fb069;
+    border-radius:20px;padding:3px 9px;}
 
   .modal{position:fixed;inset:0;background:rgba(6,12,20,.72);z-index:50;
     display:flex;align-items:flex-end;justify-content:center;padding:0;}
@@ -358,9 +370,21 @@
       <button class="primary" id="btnLogin">들어가기</button>
     </div>
 
-    <div class="rankstrip">
+    <div class="card hide" id="tLoginCard">
+      <h2>선생님으로 들어가기</h2>
+      <div class="sub">반을 바꿔 가며 학생 화면을 볼 수 있습니다.</div>
+      <div class="msg" id="tLoginMsg"></div>
+      <input type="password" id="tLoginPin" inputmode="numeric" placeholder="••••">
+      <div style="height:14px"></div>
+      <button class="primary" id="tLoginGo">들어가기</button>
+      <div style="height:8px"></div>
+      <button class="ghost" id="tLoginBack" style="width:100%">학생으로 돌아가기</button>
+    </div>
+
+    <div class="rankstrip" id="rankStrip">
       <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정</div>
       <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
+      <button class="tlink" id="tLoginOpen">선생님이신가요?</button>
     </div>
   </section>
 
@@ -554,7 +578,7 @@ function rankText(r){
   return out.join(' · ');
 }
 
-var me=null, stage='열기', PIN='';
+var me=null, stage='열기', PIN='', TEACHER=false;
 var QS=[], ME=null, TIP_LIMIT=3, PROMOTE=3, USED={}, loadSeq=0, ONLY_NA=false;
 var FEED=null, MATC=null;
 
@@ -635,6 +659,29 @@ function nextHint(m){
 
 function drawWho(){
   if(!me) return;
+
+  if(TEACHER){
+    var opts='';
+    for(var c=1;c<=6;c++){
+      opts+='<option value="'+c+'"'+(String(c)===String(me.cls)?' selected':'')+'>'+c+'반</option>';
+    }
+    $('who').innerHTML=
+      '<span class="tmode">교사</span>'+
+      '<select class="tsel" id="tSelCls">'+opts+'</select>'+
+      '<div class="nm" style="margin-left:2px"><span>나가기</span></div>';
+    var sel=$('tSelCls');
+    sel.addEventListener('click', function(e){ e.stopPropagation(); });
+    sel.addEventListener('change', function(e){
+      e.stopPropagation();
+      me.cls=sel.value; QS=[]; ME=null; MATC=null;
+      $('list').innerHTML=''; $('matList').innerHTML=''; $('hero').innerHTML='';
+      load(); loadMat();
+    });
+    show($('stampBar'), false);
+    show($('listDot'), false);
+    return;
+  }
+
   var r=rankOf(ME);
   $('who').innerHTML=
     '<div class="nm">'+(me.det||me.name)+'<span>'+me.cls+'반 '+me.num+'번 · 나가기</span></div>'+
@@ -685,8 +732,10 @@ $('rule').addEventListener('click', function(e){ if(e.target===this) show($('rul
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
-  me=null; PIN=''; FEED=null; MATC=null; QS=[]; ME=null;
+  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null;
   show($('who'),false); show($('stampBar'),false);
+  show($('tLoginCard'),false); show($('rankStrip'),true);
+  ['tabWrite','tabRef'].forEach(function(id){ show($(id),true); });
   show($('main'),false); show($('login'),true);
   show($('pinBox'),true); show($('teachMain'),false);
   $('inPin').value=''; $('list').innerHTML=''; $('count').textContent='';
@@ -694,6 +743,33 @@ $('who').addEventListener('click', function(){
   msg($('loginMsg'),''); msg($('pinMsg'),''); msg($('writeMsg'),'');
   if(pick('name')){ show($('saved'),true); show($('loginForm'),false); }
   tab('Write'); window.scrollTo(0,0);
+});
+
+$('tLoginOpen').addEventListener('click', function(){
+  show($('saved'),false); show($('loginForm'),false);
+  show($('tLoginCard'),true); show($('rankStrip'),false);
+  $('tLoginPin').focus();
+});
+$('tLoginBack').addEventListener('click', function(){
+  show($('tLoginCard'),false); show($('rankStrip'),true);
+  msg($('tLoginMsg'),''); $('tLoginPin').value='';
+  if(pick('name')){ show($('saved'),true); } else { show($('loginForm'),true); }
+});
+$('tLoginGo').addEventListener('click', function(){
+  var v=$('tLoginPin').value.trim();
+  if(!v){ msg($('tLoginMsg'),'비밀번호를 입력하세요.','err'); return; }
+  var b=this; b.disabled=true; b.textContent='확인 중...';
+  call({action:'stats',pin:v,cls:''}, function(){
+    b.disabled=false; b.textContent='들어가기';
+    PIN=v; TEACHER=true;
+    show($('tLoginCard'),false); show($('rankStrip'),true);
+    $('tLoginPin').value=''; msg($('tLoginMsg'),'');
+    enter({cls:'1',num:'0',name:'선생님',det:''});
+    tab('List');
+  }, function(err){
+    b.disabled=false; b.textContent='들어가기';
+    msg($('tLoginMsg'),err,'err');
+  });
 });
 
 $('btnLogin').addEventListener('click', function(){
@@ -722,13 +798,19 @@ $('btnOther').addEventListener('click', function(){
 
 /* 탭 */
 function tab(which){
+  if(TEACHER && (which==='Write' || which==='Ref')) which='List';
   ['Mat','Write','List','Ref','Teach'].forEach(function(k){
     $('tab'+k).classList.toggle('on', k===which);
     show($('pane'+k), k===which);
   });
+  if(TEACHER){ show($('tabWrite'),false); show($('tabRef'),false); }
   if(which==='Mat') loadMat();
   if(which==='List') render();
   if(which==='Ref') loadMyNotes();
+  if(which==='Teach' && PIN){
+    show($('pinBox'),false); show($('teachMain'),true);
+    if(!$('tBody').innerHTML) tLoad();
+  }
 }
 ['Mat','Write','List','Ref','Teach'].forEach(function(k){
   $('tab'+k).addEventListener('click', function(){ tab(k); });
@@ -822,13 +904,19 @@ function render(){
   var pool=QS.filter(function(q){
     if(L && String(q.lesson)!==String(L)) return false;
     if(S && q.stage!==S) return false;
-    if(ONLY_NA && (q.answers||[]).length) return false;
+    if(ONLY_NA){
+      var st=(q.answers||[]).filter(function(a){ return String(a.num)!=='0'; });
+      if(st.length) return false;
+    }
     return true;
   });
 
   // 아직 답이 없는 사건
   hero.innerHTML='';
-  var na=QS.filter(function(q){ return !(q.answers||[]).length; });
+  var na=QS.filter(function(q){
+    var st=(q.answers||[]).filter(function(a){ return String(a.num)!=='0'; });
+    return !st.length;
+  });
   if(na.length){
     var nb=document.createElement('div');
     nb.className='naband'+(ONLY_NA?' on':'');
@@ -916,14 +1004,23 @@ function card(it){
   var p=document.createElement('p'); p.textContent=it.text;
 
   var foot=document.createElement('div'); foot.className='foot';
-  var bt=document.createElement('button');
-  bt.className='tip'+(it.tipped?' on':'');
-  bt.innerHTML='📌 제보 <span>'+(it.tip||0)+'</span>';
-  bt.addEventListener('click', function(){ doTip(it, d, bt); });
-
-  var ba=document.createElement('button'); ba.textContent='답 달기';
   var cnt=document.createElement('span'); cnt.className='n';
-  foot.appendChild(bt); foot.appendChild(ba); foot.appendChild(cnt);
+  var bt=null, ba=null;
+
+  if(TEACHER){
+    var ro=document.createElement('span');
+    ro.className='n'; ro.style.marginLeft='0';
+    ro.textContent='📌 제보 '+(it.tip||0);
+    ba=document.createElement('button'); ba.className='tans'; ba.textContent='선생님 답 달기';
+    foot.appendChild(ro); foot.appendChild(ba); foot.appendChild(cnt);
+  } else {
+    bt=document.createElement('button');
+    bt.className='tip'+(it.tipped?' on':'');
+    bt.innerHTML='📌 제보 <span>'+(it.tip||0)+'</span>';
+    bt.addEventListener('click', function(){ doTip(it, d, bt); });
+    ba=document.createElement('button'); ba.textContent='답 달기';
+    foot.appendChild(bt); foot.appendChild(ba); foot.appendChild(cnt);
+  }
 
   var alist=document.createElement('div'); alist.className='alist';
   var arr=it.answers||[];
@@ -936,13 +1033,17 @@ function card(it){
   bs.addEventListener('click', function(){ doAnswer(it, d, ta, bs, alist, cnt); });
   box.appendChild(ta); box.appendChild(bs);
 
-  var already = arr.filter(function(a){ return a.mine; }).length>0;
-  if(already){ ba.textContent='답변함'; ba.disabled=true; ba.style.opacity='.5'; }
-  else ba.addEventListener('click', function(){
-    box.classList.toggle('open');
-    ba.textContent=box.classList.contains('open')?'취소':'답 달기';
-    if(box.classList.contains('open')) ta.focus();
-  });
+  if(ba){
+    var lab = TEACHER ? '선생님 답 달기' : '답 달기';
+    if(TEACHER) ta.placeholder='답을 주기보다 되물어 보세요. 예) 그럼 뭘 재보면 알 수 있을까?';
+    var already = !TEACHER && arr.filter(function(a){ return a.mine; }).length>0;
+    if(already){ ba.textContent='답변함'; ba.disabled=true; ba.style.opacity='.5'; }
+    else ba.addEventListener('click', function(){
+      box.classList.toggle('open');
+      ba.textContent=box.classList.contains('open')?'취소':lab;
+      if(box.classList.contains('open')) ta.focus();
+    });
+  }
 
   d.appendChild(no); d.appendChild(meta); d.appendChild(p); d.appendChild(foot);
   d.appendChild(alist); d.appendChild(box);
@@ -950,10 +1051,12 @@ function card(it){
 }
 
 function ansEl(a, q){
+  var isT = String(a.num)==='0';
   var e=document.createElement('div');
-  e.className='ans'+(a.adopted?' ad':'');
+  e.className='ans'+(a.adopted?' ad':'')+(isT?' tea':'');
   var n=document.createElement('div'); n.className='n';
-  n.innerHTML='<span>'+a.num+'번 '+a.name+'</span>'+(a.adopted?'<span>⭐ 채택</span>':'');
+  n.innerHTML=(isT?'<span class="tbadge">선생님</span>':'<span>'+a.num+'번 '+a.name+'</span>')+
+    (a.adopted?'<span>⭐ 채택</span>':'');
   if(q.mine){
     var pk=document.createElement('button');
     pk.className='pick'+(a.adopted?' on':'');
@@ -1001,10 +1104,11 @@ function doAnswer(it, cardEl, ta, btn, alist, cnt){
   var t=ta.value.trim();
   if(t.length<10){ alert('답변은 10자 이상 써 주세요'); ta.focus(); return; }
   btn.disabled=true; btn.textContent='...';
-  call({action:'answer',qid:it.id,cls:me.cls,num:me.num,name:me.name,det:me.det||'',text:t},
+  call({action:'answer',qid:it.id,cls:me.cls,num:me.num,name:me.name,
+        det:(TEACHER?'선생님':(me.det||'')),text:t},
     function(){
       btn.disabled=false; btn.textContent='올리기'; ta.value='';
-      var a={num:me.num,name:(me.det||me.name),text:t,adopted:false,mine:true};
+      var a={num:me.num,name:(TEACHER?'선생님':(me.det||me.name)),text:t,adopted:false,mine:true};
       it.answers.push(a);
       alist.appendChild(ansEl(a,it));
       cnt.textContent='답변 '+it.answers.length+'개';
