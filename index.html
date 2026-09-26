@@ -100,6 +100,20 @@
     color:#9fb3c8;padding:11px 4px;font-size:13.5px;}
   .tabs button.on{background:#fff;border-color:#fff;color:var(--ink);}
   .tabs button#tabTeach{flex:0 0 46px;font-size:15px;}
+  .tabs button em.dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:#e05a4a;margin-left:5px;vertical-align:middle;}
+
+  .naband{display:flex;align-items:center;gap:9px;background:#1d2b3d;border:1px solid #3a4c66;
+    border-radius:10px;padding:11px 14px;margin-bottom:12px;cursor:pointer;}
+  .naband:hover{background:#243349;}
+  .naband .ic{font-size:15px;}
+  .naband .tx{font-size:13.5px;color:#cfdced;font-weight:700;}
+  .naband .tx b{color:#d9a441;}
+  .naband .go{margin-left:auto;font-size:12.5px;color:#9fb3c8;font-weight:700;}
+  .naband.on{background:#2b3f58;border-color:#d9a441;}
+
+  .q .pick-wait{background:#fdecea;color:#b3392c;border-radius:20px;padding:2px 8px;
+    font-weight:800;font-size:10.5px;}
 
   /* 사건 카드 */
   .q{border:1px solid #e3ddd0;border-left:4px solid #c9c2b2;border-radius:10px;
@@ -212,6 +226,33 @@
   .pill button.on{background:#fff;border-color:#fff;color:var(--ink);}
   .count{font-size:12.5px;color:#8fa4ba;margin-bottom:10px;}
 
+  .rankstrip{text-align:center;padding:4px 6px 10px;}
+  .rankstrip .path{font-size:13.5px;font-weight:800;color:#d9a441;letter-spacing:-.01em;}
+  .rankstrip .path i{font-style:normal;color:#5b6f86;margin:0 3px;font-weight:600;}
+  .rankstrip p{font-size:12.5px;color:#8fa4ba;margin-top:7px;line-height:1.55;}
+
+  .modal{position:fixed;inset:0;background:rgba(6,12,20,.72);z-index:50;
+    display:flex;align-items:flex-end;justify-content:center;padding:0;}
+  @media(min-width:620px){ .modal{align-items:center;padding:20px;} }
+  .modal .sheet{background:linear-gradient(#fffdf8,#fdfaf3);width:100%;max-width:520px;
+    max-height:86vh;overflow-y:auto;border-radius:14px 14px 0 0;padding:18px 16px 26px;}
+  @media(min-width:620px){ .modal .sheet{border-radius:14px;} }
+  .rhead{display:flex;align-items:center;margin-bottom:12px;}
+  .rhead b{font-size:17px;font-weight:800;}
+  .rhead button{margin-left:auto;background:#fff;border:1.5px solid var(--hair);
+    color:var(--soft);font-size:13px;padding:6px 13px;border-radius:20px;}
+  .rbody h4{font-size:13px;font-weight:800;color:var(--soft);margin:16px 0 7px;}
+  .rbody h4:first-child{margin-top:0;}
+  .rrow{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;}
+  .rrow.now{background:#fdf0da;}
+  .rrow .nm{font-size:14px;font-weight:800;width:74px;flex-shrink:0;}
+  .rrow .cd{font-size:12.5px;color:var(--soft);flex:1;}
+  .rrow .me{font-size:10.5px;font-weight:800;color:#12202f;background:#d9a441;
+    border-radius:20px;padding:2px 8px;}
+  .rnote{font-size:13px;color:var(--ink2);line-height:1.6;background:#f2f5f8;
+    border-radius:8px;padding:10px 12px;margin-top:6px;}
+  .rnote b{color:var(--ink);}
+
   .savedbox{background:var(--amber-soft);border:1.5px solid #f0d7b4;border-radius:10px;
     padding:14px 16px;text-align:center;}
   .savedbox b{display:block;font-size:20px;font-weight:800;color:var(--amber);}
@@ -316,13 +357,18 @@
       <div style="height:18px"></div>
       <button class="primary" id="btnLogin">들어가기</button>
     </div>
+
+    <div class="rankstrip">
+      <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정</div>
+      <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
+    </div>
   </section>
 
   <section id="main" class="hide">
     <div class="tabs">
       <button id="tabMat">자료</button>
       <button id="tabWrite" class="on">사건 접수</button>
-      <button id="tabList">사건함</button>
+      <button id="tabList">사건함<em class="dot hide" id="listDot"></em></button>
       <button id="tabRef">성찰</button>
       <button id="tabTeach" title="교사용">🔒</button>
     </div>
@@ -446,6 +492,14 @@
     </div>
   </section>
 
+<div class="modal hide" id="rule">
+  <div class="sheet">
+    <div class="rhead">
+      <b>승진 규정</b>
+      <button id="ruleClose">닫기</button>
+    </div>
+    <div class="rbody" id="ruleBody"></div>
+  </div>
 </div>
 
 <script>
@@ -468,16 +522,39 @@ var HINTS = {
 };
 
 var RANKS = [
-  {n:'수습 탐정',  need:function(m){ return m.q>=1; }},
-  {n:'견습 탐정',  need:function(m){ return m.q>=3 && m.a>=3; }},
-  {n:'3급 탐정',   need:function(m){ return m.score>=3; }},
-  {n:'2급 탐정',   need:function(m){ return m.score>=8; }},
-  {n:'1급 탐정',   need:function(m){ return m.score>=15; }},
-  {n:'명탐정',     need:function(m){ return m.score>=15 && m.solved>=1 && m.adopted>=1; }}
+  {n:'훈련생',    q:1},
+  {n:'5급 탐정',  q:3, a:1},
+  {n:'4급 탐정',  st:2, a:3},
+  {n:'3급 탐정',  st:3, a:5,  sc:5},
+  {n:'2급 탐정',  st:5, a:8,  sc:10},
+  {n:'1급 탐정',  st:7, a:12, sc:15},
+  {n:'명탐정',    st:7, a:12, sc:15, solved:1, adopted:1}
 ];
 
+function lack(m, r){
+  var out=[];
+  if(r.q  && (m.q||0)          < r.q)  out.push('질문 '+(r.q-(m.q||0))+'개');
+  if(r.a  && (m.a||0)          < r.a)  out.push('답변 '+(r.a-(m.a||0))+'개');
+  if(r.st && (m.stampCount||0) < r.st) out.push('도장 '+(r.st-(m.stampCount||0))+'개');
+  if(r.sc && (m.score||0)      < r.sc) out.push('인정 '+(r.sc-(m.score||0))+'점');
+  if(r.solved  && (m.solved||0)  < r.solved)  out.push('해결 도장');
+  if(r.adopted && (m.adopted||0) < r.adopted) out.push('채택된 답변');
+  return out;
+}
+
+function rankText(r){
+  var out=[];
+  if(r.q)  out.push('질문 '+r.q);
+  if(r.st) out.push('도장 '+r.st);
+  if(r.a)  out.push('답변 '+r.a);
+  if(r.sc) out.push('인정 '+r.sc);
+  if(r.solved)  out.push('해결 도장');
+  if(r.adopted) out.push('채택된 답변');
+  return out.join(' · ');
+}
+
 var me=null, stage='열기', PIN='';
-var QS=[], ME=null, TIP_LIMIT=3, PROMOTE=3, USED={}, loadSeq=0;
+var QS=[], ME=null, TIP_LIMIT=3, PROMOTE=3, USED={}, loadSeq=0, ONLY_NA=false;
 var FEED=null, MATC=null;
 
 function $(id){ return document.getElementById(id); }
@@ -539,23 +616,20 @@ function enter(o){
 }
 
 function rankOf(m){
-  if(!m) return {i:0,name:'수습 탐정'};
+  if(!m) return {i:-1,name:'신입'};
   var i=-1;
-  for(var k=0;k<RANKS.length;k++){ if(RANKS[k].need(m)) i=k; }
+  for(var k=0;k<RANKS.length;k++){ if(lack(m,RANKS[k]).length===0) i=k; }
   return { i:i, name: i<0 ? '신입' : RANKS[i].n };
 }
 
 function nextHint(m){
   if(!m) return '';
-  var r=rankOf(m).i;
-  if(r>=RANKS.length-1) return '최고 계급입니다';
-  if(r<1) return '질문 3개와 답변 3개를 채우면 견습 탐정';
-  var targets=[3,8,15];
-  var t=(r===1)?3:(r===2?8:15);
-  var left=t-m.score;
-  if(left<=0) return '';
-  var nm=(r===1)?'3급':(r===2?'2급':'1급');
-  return '인정 점수 '+left+'점 더 쌓으면 '+nm+' 탐정';
+  var i=rankOf(m).i;
+  if(i>=RANKS.length-1) return '최고 계급입니다';
+  var nx=RANKS[i+1];
+  var need=lack(m,nx);
+  if(!need.length) return '';
+  return need.join(', ')+' 더 하면 '+nx.n;
 }
 
 function drawWho(){
@@ -563,7 +637,9 @@ function drawWho(){
   var r=rankOf(ME);
   $('who').innerHTML=
     '<div class="nm">'+(me.det||me.name)+'<span>'+me.cls+'반 '+me.num+'번 · 나가기</span></div>'+
-    '<span class="rank'+(r.i<2?' r0':'')+'">'+r.name+'</span>';
+    '<span class="rank'+(r.i<2?' r0':'')+'" id="rankBadge">'+r.name+'</span>';
+  var rb=$('rankBadge');
+  if(rb) rb.addEventListener('click', function(e){ e.stopPropagation(); openRule(); });
 
   var bar=$('stampBar');
   if(!ME){ show(bar,false); return; }
@@ -575,7 +651,36 @@ function drawWho(){
   var nx=nextHint(ME);
   if(nx) h+='<span class="next">'+nx+'</span>';
   bar.innerHTML=h;
+  show($('listDot'), !!(ME && ME.needPick>0));
 }
+
+function openRule(){
+  var i = rankOf(ME).i;
+  var b = $('ruleBody');
+  var h = '<h4>계급</h4>';
+  RANKS.forEach(function(r, k){
+    h += '<div class="rrow'+(k===i?' now':'')+'">'+
+      '<span class="nm">'+r.n+'</span>'+
+      '<span class="cd">'+rankText(r)+'</span>'+
+      (k===i?'<span class="me">지금</span>':'')+'</div>';
+  });
+  h += '<h4>도장</h4><div class="rnote">한 차시에서 <b>질문 1개와 답변 1개</b>를 모두 남기면 그 차시 도장을 받습니다. 모두 8개입니다.</div>';
+  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변.<br>'+
+       '받은 제보는 사건 하나당 3건까지만 점수가 됩니다.</div>';
+  h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
+       '답변은 <b>10자 이상</b>, 한 사건에 한 번만.<br>'+
+       '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
+  if(ME){
+    var nx = nextHint(ME);
+    h += '<h4>지금 내 기록</h4><div class="rnote">'+
+      '도장 '+ME.stampCount+'개 · 질문 '+ME.q+'개 · 답변 '+ME.a+'개 · 인정 '+ME.score+'점'+
+      (nx? '<br><b>'+nx+'</b>':'')+'</div>';
+  }
+  b.innerHTML = h;
+  show($('rule'), true);
+}
+$('ruleClose').addEventListener('click', function(){ show($('rule'), false); });
+$('rule').addEventListener('click', function(e){ if(e.target===this) show($('rule'), false); });
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
@@ -716,14 +821,27 @@ function render(){
   var pool=QS.filter(function(q){
     if(L && String(q.lesson)!==String(L)) return false;
     if(S && q.stage!==S) return false;
+    if(ONLY_NA && (q.answers||[]).length) return false;
     return true;
   });
 
-  // 명예의 사건
+  // 아직 답이 없는 사건
   hero.innerHTML='';
+  var na=QS.filter(function(q){ return !(q.answers||[]).length; });
+  if(na.length){
+    var nb=document.createElement('div');
+    nb.className='naband'+(ONLY_NA?' on':'');
+    nb.innerHTML='<span class="ic">🔍</span>'+
+      '<span class="tx">아직 아무도 답하지 않은 사건 <b>'+na.length+'건</b></span>'+
+      '<span class="go">'+(ONLY_NA?'전체 보기':'보러 가기')+'</span>';
+    nb.addEventListener('click', function(){ ONLY_NA=!ONLY_NA; render(); });
+    hero.appendChild(nb);
+  }
+
+  // 명예의 사건
   var best=null;
   QS.forEach(function(q){ if(!best || (q.tip||0)>(best.tip||0)) best=q; });
-  if(best && (best.tip||0)>0){
+  if(best && (best.tip||0)>0 && !ONLY_NA){
     var h=document.createElement('div'); h.className='hero';
     h.innerHTML='<div class="cap">📌 가장 많은 제보를 받은 사건</div>'+
       '<p></p><div class="s">'+best.lesson+'차시 · '+title(best.lesson)+
@@ -734,7 +852,7 @@ function render(){
 
   if(!pool.length){
     $('count').textContent='';
-    box.innerHTML='<div class="empty">아직 접수된 사건이 없습니다.</div>';
+    box.innerHTML='<div class="empty">'+(ONLY_NA?'답이 없는 사건이 없습니다. 모두 답을 받았어요.':'아직 접수된 사건이 없습니다.')+'</div>';
     return;
   }
   $('count').textContent=me.cls+'반 · 사건 '+pool.length+'건';
@@ -782,9 +900,15 @@ function card(it){
   no.textContent='CASE '+String(it.lesson).padStart(2,'0')+'-'+String(it.id).slice(-4);
 
   var meta=document.createElement('div'); meta.className='meta';
+  var arr0=it.answers||[];
+  var picked=false;
+  arr0.forEach(function(a){ if(a.adopted) picked=true; });
+  var wait = it.mine && arr0.length && !picked;
+
   meta.innerHTML=
     '<span class="badge b'+lv+'">'+(LVICON[lv]?LVICON[lv]+' ':'')+LVNAME[lv]+'</span>'+
     '<span class="tagS'+(it.stage==='닫기'?' after':'')+'">'+(it.stage==='닫기'?'수업 후':'수업 전')+'</span>'+
+    (wait?'<span class="pick-wait">답변 '+arr0.length+'개 · 채택해 주세요</span>':'')+
     '<span class="who">'+(it.mine?'<b>내 사건</b> · ':'')+
       (it.anon?'익명':(it.num+'번 '+it.name))+'</span>';
 
@@ -1199,7 +1323,7 @@ function drawStats(items){
     '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>추가답변</th>'+
     '<th>인정점수</th><th>계급</th></tr>';
   items.forEach(function(s){
-    var r=rankOf({q:s.q,a:s.a,score:s.score,solved:s.solved,adopted:s.adopted});
+    var r=rankOf({q:s.q,a:s.a,score:s.score,solved:s.solved,adopted:s.adopted,stampCount:s.stamp});
     var tr=document.createElement('tr');
     tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+(s.name||'')+'</td>'+
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
