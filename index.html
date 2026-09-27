@@ -331,6 +331,9 @@
   .mynote .rep b{display:block;font-size:11px;color:var(--blue);font-weight:800;margin-bottom:2px;}
   .mynote .rep p{font-size:14.5px;line-height:1.5;color:var(--ink);}
   .mynote .wait{margin-top:8px;font-size:12px;color:var(--soft);}
+  .mynote .morebtn{margin-top:9px;background:#fff;border:1.5px solid #b6d6ec;
+    color:var(--blue);font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:20px;}
+  .mynote .morebtn:hover{background:#fff;border-color:var(--blue);}
   .repbox{display:flex;gap:7px;margin-top:9px;}
   .repbox textarea{min-height:40px;font-size:14px;padding:8px 10px;}
   .repbox button{flex-shrink:0;background:var(--blue);color:#fff;padding:0 15px;font-size:13.5px;}
@@ -476,7 +479,7 @@
 
       <div class="card">
         <h2>선생님께만</h2>
-        <div class="sub">여기에 쓴 글은 친구들에게 보이지 않습니다.</div>
+        <div class="sub">여기에 쓴 글은 친구들에게 보이지 않습니다. 답장을 받은 뒤에도 얼마든지 다시 보낼 수 있어요.</div>
         <div class="msg" id="noteMsg"></div>
         <textarea id="noteText" placeholder="궁금한 것, 하고 싶은 말 무엇이든 괜찮아요" style="min-height:80px"></textarea>
         <div style="height:14px"></div>
@@ -1060,11 +1063,17 @@ function card(it){
   box.appendChild(ta); box.appendChild(bs);
 
   if(ba){
-    var lab = TEACHER ? '선생님 답 달기' : '답 달기';
+    var lab;
+    if(TEACHER) lab='선생님 답 달기';
+    else if(arr.length) lab='이어서 쓰기';
+    else lab='답 달기';
+    ba.textContent=lab;
+
     if(TEACHER) ta.placeholder='답을 주기보다 되물어 보세요. 예) 그럼 뭘 재보면 알 수 있을까?';
-    var already = !TEACHER && arr.filter(function(a){ return a.mine; }).length>0;
-    if(already){ ba.textContent='답변함'; ba.disabled=true; ba.style.opacity='.5'; }
-    else ba.addEventListener('click', function(){
+    else if(it.mine && arr.length) ta.placeholder='답변에 더 하고 싶은 말을 써 보세요';
+    else if(arr.length) ta.placeholder='앞의 답변에 이어서 써 보세요';
+
+    ba.addEventListener('click', function(){
       box.classList.toggle('open');
       ba.textContent=box.classList.contains('open')?'취소':lab;
       if(box.classList.contains('open')) ta.focus();
@@ -1179,6 +1188,10 @@ function doAnswer(it, cardEl, ta, btn, alist, cnt){
       b.className='badge b'+lv;
       b.textContent=(LVICON[lv]?LVICON[lv]+' ':'')+LVNAME[lv];
       cardEl.querySelector('.ansbox').classList.remove('open');
+      var bb=cardEl.querySelector('.foot button:not(.tip):not(.tans)');
+      if(bb) bb.textContent = TEACHER ? '선생님 답 달기' : '이어서 쓰기';
+      var tb=cardEl.querySelector('.foot button.tans');
+      if(tb) tb.textContent='선생님 답 달기';
       load(true);
     },
     function(err){ btn.disabled=false; btn.textContent='올리기'; alert(err); });
@@ -1212,21 +1225,33 @@ $('btnNote').addEventListener('click', function(){
 function loadMyNotes(){
   call({action:'mynotes',cls:me.cls,num:me.num}, function(res){
     var box=$('myNotes'); box.innerHTML='';
-    var items=res.items||[];
+    var items=(res.items||[]).slice().reverse();   // 오래된 것부터 대화 순서로
     if(!items.length) return;
+
     var h=document.createElement('div');
     h.className='count'; h.textContent='선생님과 주고받은 쪽지 '+items.length+'건';
     box.appendChild(h);
+
     items.forEach(function(n){
       var d=document.createElement('div'); d.className='mynote';
       var t=document.createElement('div'); t.className='t'; t.textContent=n.time+' · 내가 보낸 쪽지';
       var p=document.createElement('div'); p.className='mine'; p.textContent=n.text;
       d.appendChild(t); d.appendChild(p);
+
       if(n.reply){
         var r=document.createElement('div'); r.className='rep';
         var b=document.createElement('b'); b.textContent='선생님 답장';
         var rp=document.createElement('p'); rp.textContent=n.reply;
-        r.appendChild(b); r.appendChild(rp); d.appendChild(r);
+        r.appendChild(b); r.appendChild(rp);
+        var more=document.createElement('button');
+        more.className='morebtn'; more.textContent='이어서 말하기';
+        more.addEventListener('click', function(){
+          var ta=$('noteText');
+          ta.scrollIntoView({behavior:'smooth', block:'center'});
+          setTimeout(function(){ ta.focus(); }, 400);
+        });
+        r.appendChild(more);
+        d.appendChild(r);
       } else {
         var w=document.createElement('div'); w.className='wait';
         w.textContent='아직 답장이 오지 않았어요'; d.appendChild(w);
