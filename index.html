@@ -111,6 +111,17 @@
   .naband .tx b{color:#d9a441;}
   .naband .go{margin-left:auto;font-size:12.5px;color:#9fb3c8;font-weight:700;}
   .naband.on{background:#2b3f58;border-color:#d9a441;}
+  .newband{display:flex;align-items:center;gap:9px;background:#fff6e6;
+    border:1.5px solid #e0a94a;border-radius:10px;padding:10px 13px;margin-bottom:10px;cursor:pointer;}
+  .newband:hover{background:#fdeed2;}
+  .newband .ic{font-size:15px;}
+  .newband .tx{font-size:13.5px;color:#6b4a12;font-weight:700;}
+  .newband .tx b{color:#b26b00;}
+  .newband .go{margin-left:auto;font-size:12.5px;color:#996f2a;font-weight:700;}
+  .fresh{background:#ffb703;color:#3a2a00;font-size:11px;font-weight:800;
+    padding:2px 7px;border-radius:20px;}
+  .q.isnew{box-shadow:0 0 0 2px #ffb703;}
+  #btnMine.on{background:var(--blue);color:#fff;border-color:var(--blue);}
 
   .q .pick-wait{background:#fdecea;color:#b3392c;border-radius:20px;padding:2px 8px;
     font-weight:800;font-size:10.5px;}
@@ -520,6 +531,7 @@
           <button data-s="열기">수업 전</button>
           <button data-s="닫기">수업 후</button>
         </div>
+        <button class="ghost" id="btnMine">내 사건만</button>
         <button class="ghost" id="btnReload">새로고침</button>
       </div>
       <div id="hero"></div>
@@ -574,7 +586,7 @@
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbz7LpdXkKVvdmjo8Xt4NQPeARyf1Kq_0STNDIIteFh8PicZ4JqqDGkt1OFwZYOfDYsX/exec';
+var API = 'https://script.google.com/macros/s/AKfycbyloMI9GJy79FX7Ged_ALnOtX4VPxLY0J3UdqhVV1EuBH-08fB3LX2tM-L_up_-jK4/exec';
 
 var LESSONS = [
   {n:1,t:'힘의 표현'}, {n:2,t:'알짜힘'}, {n:3,t:'중력'}, {n:4,t:'탄성력'},
@@ -595,11 +607,11 @@ var HINTS = {
 var RANKS = [
   {n:'훈련생'},
   {n:'5급 탐정',  q:3, a:1},
-  {n:'4급 탐정',  st:2, a:3},
-  {n:'3급 탐정',  st:3, a:5,  sc:5},
-  {n:'2급 탐정',  st:5, a:8,  sc:10},
-  {n:'1급 탐정',  st:7, a:12, sc:15},
-  {n:'명탐정',    st:7, a:12, sc:15, solved:1, adopted:1}
+  {n:'4급 탐정',  st:2, a:3,  sc:6},
+  {n:'3급 탐정',  st:3, a:5,  sc:12},
+  {n:'2급 탐정',  st:5, a:8,  sc:18},
+  {n:'1급 탐정',  st:7, a:12, sc:25},
+  {n:'명탐정',    st:7, a:12, sc:25, solved:1, adopted:1}
 ];
 
 function lack(m, r){
@@ -626,7 +638,8 @@ function rankText(r){
 }
 
 var me=null, stage='열기', PIN='', TEACHER=false;
-var QS=[], ME=null, TIP_LIMIT=3, PROMOTE=3, USED={}, loadSeq=0, ONLY_NA=false;
+var QS=[], ME=null, TIP_LIMIT=3, PROMOTE=3, USED={}, loadSeq=0, ONLY_NA=false, ONLY_MINE=false;
+var SEEN={};
 var FEED=null, MATC=null;
 
 function $(id){ return document.getElementById(id); }
@@ -635,6 +648,26 @@ function msg(el,t,k){ el.className='msg '+(k||''); el.textContent=t||''; if(!t) 
 function title(n){ var L=LESSONS.filter(function(x){return String(x.n)===String(n);})[0]; return L?L.t:''; }
 function store(k,v){ try{ if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){} }
 function pick(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+
+/* 내 사건에 새로 달린 답변 — 어디까지 봤는지 이 기기에 적어 둡니다 */
+function seenKey(){ return 'fd_seen_'+(me?me.cls:'')+'_'+(me?me.num:''); }
+function loadSeen(){ try{ SEEN=JSON.parse(pick(seenKey())||'{}')||{}; }catch(e){ SEEN={}; } }
+function saveSeen(){ store(seenKey(), JSON.stringify(SEEN)); }
+function othersAns(q){
+  return (q.answers||[]).filter(function(a){ return !a.mine; }).length;
+}
+function newCnt(q){
+  if(TEACHER || !q || !q.mine) return 0;
+  return Math.max(0, othersAns(q) - (SEEN[q.id]||0));
+}
+function markSeen(q){
+  var n=othersAns(q);
+  if((SEEN[q.id]||0) === n) return false;
+  SEEN[q.id]=n; saveSeen(); return true;
+}
+function newTotal(){
+  var s=0; QS.forEach(function(q){ s+=newCnt(q); }); return s;
+}
 
 var seq=0;
 function call(params, done, fail){
@@ -746,7 +779,7 @@ function drawWho(){
   var nx=nextHint(ME);
   if(nx) h+='<span class="next">'+nx+'</span>';
   bar.innerHTML=h;
-  show($('listDot'), !!(ME && ME.needPick>0));
+  show($('listDot'), !!(newTotal()>0 || (ME && ME.needPick>0)));
 }
 
 function openRule(){
@@ -760,10 +793,11 @@ function openRule(){
       (k===i?'<span class="me">지금</span>':'')+'</div>';
   });
   h += '<h4>도장</h4><div class="rnote">한 차시에서 <b>질문 1개와 답변 1개</b>를 모두 남기면 그 차시 도장을 받습니다. 모두 8개입니다.</div>';
-  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변.<br>'+
-       '받은 제보는 사건 하나당 3건까지만 점수가 됩니다.</div>';
+  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b>.<br>'+
+       '받은 제보는 사건 하나당 3건까지만 점수가 됩니다.<br>'+
+       '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
-       '답변은 <b>10자 이상</b>, 한 사건에 한 번만.<br>'+
+       '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
   if(ME){
     var nx = nextHint(ME);
@@ -892,6 +926,12 @@ $('btnSend').addEventListener('click', function(){
 
 /* 목록 */
 $('btnReload').addEventListener('click', function(){ load(); });
+$('btnMine').addEventListener('click', function(){
+  ONLY_MINE=!ONLY_MINE;
+  if(ONLY_MINE) ONLY_NA=false;
+  $('btnMine').classList.toggle('on', ONLY_MINE);
+  render();
+});
 $('filterLesson').addEventListener('change', render);
 $('sortBy').addEventListener('change', render);
 Array.prototype.forEach.call($('stageFilter').children, function(b){
@@ -909,6 +949,7 @@ function load(quiet){
     if(my!==loadSeq) return;
     QS=res.items||[]; ME=res.me; USED=res.used||{};
     TIP_LIMIT=res.tipLimit||3; PROMOTE=res.promote||3;
+    loadSeen();
     drawWho();
     if(!$('paneList').classList.contains('hide')) render();
   }, function(err){
@@ -945,12 +986,33 @@ function sortList(arr){
   return a;
 }
 
+function drawNewBand(){
+  var hero=$('hero'); if(!hero) return;
+  var old=$('newband'); if(old) old.parentNode.removeChild(old);
+  var n=newTotal();
+  show($('listDot'), !!(n>0 || (ME && ME.needPick>0)));
+  if(!n) return;
+  var b=document.createElement('div');
+  b.className='newband'; b.id='newband';
+  b.innerHTML='<span class="ic">🔔</span>'+
+    '<span class="tx">내 사건에 새 답변이 <b>'+n+'개</b> 왔어요</span>'+
+    '<span class="go">보러 가기</span>';
+  b.addEventListener('click', function(){
+    ONLY_MINE=true; ONLY_NA=false; render();
+    var f=$('list').querySelector('.q.isnew');
+    if(f) f.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+  hero.insertBefore(b, hero.firstChild);
+}
+
 function render(){
   var box=$('list'), hero=$('hero');
+  $('btnMine').classList.toggle('on', ONLY_MINE);
   var L=$('filterLesson').value, S=stageNow();
   var pool=QS.filter(function(q){
     if(L && String(q.lesson)!==String(L)) return false;
     if(S && q.stage!==S) return false;
+    if(ONLY_MINE && !q.mine) return false;
     if(ONLY_NA){
       var st=(q.answers||[]).filter(function(a){ return String(a.num)!=='0'; });
       if(st.length) return false;
@@ -958,8 +1020,12 @@ function render(){
     return true;
   });
 
-  // 아직 답이 없는 사건
   hero.innerHTML='';
+
+  // 내 사건에 새로 달린 답변
+  drawNewBand();
+
+  // 아직 답이 없는 사건
   var na=QS.filter(function(q){
     var st=(q.answers||[]).filter(function(a){ return String(a.num)!=='0'; });
     return !st.length;
@@ -977,7 +1043,7 @@ function render(){
   // 명예의 사건
   var best=null;
   QS.forEach(function(q){ if(!best || (q.tip||0)>(best.tip||0)) best=q; });
-  if(best && (best.tip||0)>0 && !ONLY_NA){
+  if(best && (best.tip||0)>0 && !ONLY_NA && !ONLY_MINE){
     var h=document.createElement('div'); h.className='hero';
     h.innerHTML='<div class="cap">📌 가장 많은 제보를 받은 사건</div>'+
       '<p></p><div class="s">'+best.lesson+'차시 · '+title(best.lesson)+
@@ -988,10 +1054,12 @@ function render(){
 
   if(!pool.length){
     $('count').textContent='';
-    box.innerHTML='<div class="empty">'+(ONLY_NA?'답이 없는 사건이 없습니다. 모두 답을 받았어요.':'아직 접수된 사건이 없습니다.')+'</div>';
+    box.innerHTML='<div class="empty">'+
+      (ONLY_MINE?'아직 올린 사건이 없습니다. 사건 접수 탭에서 질문을 올려 보세요.':
+       ONLY_NA?'답이 없는 사건이 없습니다. 모두 답을 받았어요.':'아직 접수된 사건이 없습니다.')+'</div>';
     return;
   }
-  $('count').textContent=me.cls+'반 · 사건 '+pool.length+'건';
+  $('count').textContent=me.cls+'반 · '+(ONLY_MINE?'내 사건 ':'사건 ')+pool.length+'건';
   box.innerHTML='';
 
   if(!L){
@@ -1040,13 +1108,27 @@ function card(it){
   var picked=false;
   arr0.forEach(function(a){ if(a.adopted) picked=true; });
   var wait = it.mine && arr0.length && !picked;
+  var fresh = newCnt(it);
 
   meta.innerHTML=
     '<span class="badge b'+lv+'">'+(LVICON[lv]?LVICON[lv]+' ':'')+LVNAME[lv]+'</span>'+
     '<span class="tagS'+(it.stage==='닫기'?' after':'')+'">'+(it.stage==='닫기'?'수업 후':'수업 전')+'</span>'+
+    (fresh?'<span class="fresh">🔔 새 답변 '+fresh+'개</span>':'')+
     (wait?'<span class="pick-wait">답변 '+arr0.length+'개 · 채택해 주세요</span>':'')+
     '<span class="who">'+(it.mine?'<b>내 사건</b> · ':'')+
       (it.anon?'익명':(it.num+'번 '+it.name))+'</span>';
+
+  if(fresh){
+    d.classList.add('isnew');
+    d.addEventListener('click', function(){
+      if(markSeen(it)){
+        d.classList.remove('isnew');
+        var f=meta.querySelector('.fresh');
+        if(f) f.parentNode.removeChild(f);
+        drawNewBand();
+      }
+    });
+  }
 
   var p=document.createElement('p'); p.textContent=it.text;
 
@@ -1551,7 +1633,7 @@ function drawStats(items){
   if(!items.length){ box.innerHTML='<div class="empty">기록이 없습니다.</div>'; return; }
   var t=document.createElement('table'); t.className='st2';
   t.innerHTML='<tr><th>반</th><th>번호</th><th>이름</th><th>탐정명</th><th>도장</th>'+
-    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>추가답변</th>'+
+    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th>'+
     '<th>인정점수</th><th>계급</th></tr>';
   items.forEach(function(s){
     var r=rankOf({q:s.q,a:s.a,score:s.score,solved:s.solved,adopted:s.adopted,stampCount:s.stamp});
@@ -1559,6 +1641,7 @@ function drawStats(items){
     tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+(s.name||'')+'</td>'+
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
+      '<td>'+(s.picked||0)+'</td>'+
       '<td>'+s.extra+'</td><td><b>'+s.score+'</b></td><td>'+r.name+'</td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
@@ -1566,7 +1649,7 @@ function drawStats(items){
   box.appendChild(t);
   var note=document.createElement('div');
   note.className='count'; note.style.marginTop='10px';
-  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 받은 제보 + 채택 + 추가 답변';
+  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변';
   box.appendChild(note);
 }
 </script>
