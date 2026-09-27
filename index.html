@@ -574,7 +574,7 @@
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbyfuEAx-8xKetDtZvlqZnA169DuCPvhfXOI3Za6dkJI32Igavof7knVKgUNrkieyUbz/exec';
+var API = 'https://script.google.com/macros/s/AKfycbz7LpdXkKVvdmjo8Xt4NQPeARyf1Kq_0STNDIIteFh8PicZ4JqqDGkt1OFwZYOfDYsX/exec';
 
 var LESSONS = [
   {n:1,t:'힘의 표현'}, {n:2,t:'알짜힘'}, {n:3,t:'중력'}, {n:4,t:'탄성력'},
@@ -1505,7 +1505,12 @@ function drawNotes(items){
     d.appendChild(m);
 
     var chat=document.createElement('div'); chat.className='tchat';
-    n.msgs.forEach(function(x){
+    var msgs=n.msgs;
+    if(!msgs){                       // 예전 서버 응답이면 대화 모양으로 바꿔서 그립니다
+      msgs=[{who:'학생',time:n.time||'',text:n.text||''}];
+      if(n.reply) msgs.push({who:'교사',time:n.time||'',text:n.reply});
+    }
+    msgs.forEach(function(x){
       var isT = x.who==='교사';
       var row=document.createElement('div'); row.className='bub'+(isT?' t':' s');
       var who=document.createElement('div'); who.className='w';
