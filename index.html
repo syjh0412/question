@@ -586,7 +586,7 @@
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbyloMI9GJy79FX7Ged_ALnOtX4VPxLY0J3UdqhVV1EuBH-08fB3LX2tM-L_up_-jK4/exec';
+var API = 'https://script.google.com/macros/s/AKfycbye2iT1r2n-JARoYWRwu2drXjFwW8NV3dZp1AP3EaoMwMI1XBdbe77wlEAvxQLHHHza/exec';
 
 var LESSONS = [
   {n:1,t:'힘의 표현'}, {n:2,t:'알짜힘'}, {n:3,t:'중력'}, {n:4,t:'탄성력'},
@@ -611,7 +611,7 @@ var RANKS = [
   {n:'3급 탐정',  st:3, a:5,  sc:12},
   {n:'2급 탐정',  st:5, a:8,  sc:18},
   {n:'1급 탐정',  st:7, a:12, sc:25},
-  {n:'명탐정',    st:7, a:12, sc:25, solved:1, adopted:1}
+  {n:'명탐정',    st:8, a:12, sc:25, solved:2, adopted:1}
 ];
 
 function lack(m, r){
@@ -620,7 +620,7 @@ function lack(m, r){
   if(r.a  && (m.a||0)          < r.a)  out.push('답변 '+(r.a-(m.a||0))+'개');
   if(r.st && (m.stampCount||0) < r.st) out.push('도장 '+(r.st-(m.stampCount||0))+'개');
   if(r.sc && (m.score||0)      < r.sc) out.push('인정 '+(r.sc-(m.score||0))+'점');
-  if(r.solved  && (m.solved||0)  < r.solved)  out.push('해결 도장');
+  if(r.solved  && (m.solved||0)  < r.solved)  out.push('해결 도장 '+(r.solved-(m.solved||0))+'개');
   if(r.adopted && (m.adopted||0) < r.adopted) out.push('채택된 답변');
   return out;
 }
@@ -632,7 +632,7 @@ function rankText(r){
   if(r.st) out.push('도장 '+r.st);
   if(r.a)  out.push('답변 '+r.a);
   if(r.sc) out.push('인정 '+r.sc);
-  if(r.solved)  out.push('해결 도장');
+  if(r.solved)  out.push('해결 도장 '+r.solved);
   if(r.adopted) out.push('채택된 답변');
   return out.join(' · ');
 }
@@ -794,7 +794,7 @@ function openRule(){
   });
   h += '<h4>도장</h4><div class="rnote">한 차시에서 <b>질문 1개와 답변 1개</b>를 모두 남기면 그 차시 도장을 받습니다. 모두 8개입니다.</div>';
   h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b>.<br>'+
-       '받은 제보는 사건 하나당 3건까지만 점수가 됩니다.<br>'+
+       '한 사건은 제보를 아무리 많이 받아도 1점입니다. 여러 사건에서 받아야 점수가 쌓입니다.<br>'+
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
