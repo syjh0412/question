@@ -122,6 +122,11 @@
     padding:2px 7px;border-radius:20px;}
   .q.isnew{box-shadow:0 0 0 2px #ffb703;}
   #btnMine.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .namebox{margin-top:14px;padding:13px 15px;border-radius:10px;background:#eef2f6;
+    border:1.5px solid #cdd7e1;color:#6b7a8b;font-size:14.5px;font-weight:700;text-align:center;}
+  .namebox.on{background:#eaf5ee;border-color:#2f8f5b;color:#1d6b42;font-size:18px;}
+  .namebox.bad{background:#fdecea;border-color:#c0392b;color:#a4271a;}
+  #btnLogin:disabled{opacity:.45;cursor:default;}
 
   .q .pick-wait{background:#fdecea;color:#b3392c;border-radius:20px;padding:2px 8px;
     font-weight:800;font-size:10.5px;}
@@ -419,12 +424,12 @@
         <div><label>반</label><input type="number" id="inCls" inputmode="numeric" placeholder="1"></div>
         <div><label>번호</label><input type="number" id="inNum" inputmode="numeric" placeholder="7"></div>
       </div>
-      <label>이름</label>
-      <input type="text" id="inName" placeholder="홍길동">
+      <div id="nameBox" class="namebox">반과 번호를 적으면 이름이 나옵니다</div>
+      <input type="hidden" id="inName">
       <label>탐정 이름 <span style="font-weight:600;color:var(--hair)">· 안 적어도 됩니다</span></label>
       <input type="text" id="inDet" placeholder="예) 화살표 탐정" maxlength="14">
       <div style="height:18px"></div>
-      <button class="primary" id="btnLogin">들어가기</button>
+      <button class="primary" id="btnLogin" disabled>들어가기</button>
     </div>
 
     <div class="card hide" id="tLoginCard">
@@ -586,7 +591,7 @@
 </div>
 
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbye2iT1r2n-JARoYWRwu2drXjFwW8NV3dZp1AP3EaoMwMI1XBdbe77wlEAvxQLHHHza/exec';
+var API = 'https://script.google.com/macros/s/AKfycbyNeMDaDNzOQSYqrn3svv38bfz9NATu5h3Swnj1PY19E9VFAkY_SKV7lTNyuAtf9RI/exec';
 
 var LESSONS = [
   {n:1,t:'힘의 표현'}, {n:2,t:'알짜힘'}, {n:3,t:'중력'}, {n:4,t:'탄성력'},
@@ -853,21 +858,74 @@ $('tLoginGo').addEventListener('click', function(){
   });
 });
 
+var whoSeq=0;
+function askWho(){
+  var c=$('inCls').value.trim(), n=$('inNum').value.trim();
+  var box=$('nameBox'), bt=$('btnLogin');
+  $('inName').value=''; bt.disabled=true;
+  box.className='namebox';
+  if(!c||!n){ box.textContent='반과 번호를 적으면 이름이 나옵니다'; return; }
+  box.textContent='확인하는 중...';
+  var my=++whoSeq;
+  call({action:'who',cls:c,num:n}, function(res){
+    if(my!==whoSeq) return;
+    $('inName').value=res.name||'';
+    box.className='namebox on';
+    box.textContent=res.name ? (c+'반 '+n+'번 · '+res.name) : (c+'반 '+n+'번');
+    bt.disabled=false;
+  }, function(err){
+    if(my!==whoSeq) return;
+    box.className='namebox bad'; box.textContent=err;
+    bt.disabled=true;
+  });
+}
+$('inCls').addEventListener('input', askWho);
+$('inNum').addEventListener('input', askWho);
+
 $('btnLogin').addEventListener('click', function(){
   var c=$('inCls').value.trim(), n=$('inNum').value.trim(),
       nm=$('inName').value.trim(), dt=$('inDet').value.trim();
-  if(!c||!n||!nm){ msg($('loginMsg'),'반, 번호, 이름을 모두 적어주세요.','err'); return; }
+  if(!c||!n){ msg($('loginMsg'),'반과 번호를 적어주세요.','err'); return; }
   store('cls',c); store('num',n); store('name',nm); store('det',dt);
   enter({cls:c,num:n,name:nm,det:dt});
 });
 $('btnQuick').addEventListener('click', function(){
-  enter({cls:pick('cls'),num:pick('num'),name:pick('name'),det:pick('det')});
+  var c=pick('cls'), n=pick('num'), nm=pick('name'), dt=pick('det');
+  var b=$('btnQuick'); b.disabled=true;
+  call({action:'who',cls:c,num:n}, function(res){
+    b.disabled=false;
+    if(res.name && nm && res.name!==nm){
+      alert('저장된 정보가 명단과 다릅니다.\n'+c+'반 '+n+'번은 '+res.name+'입니다.\n다시 등록해 주세요.');
+      store('cls',null); store('num',null); store('name',null); store('det',null);
+      show($('saved'),false); show($('loginForm'),true);
+      return;
+    }
+    enter({cls:c,num:n,name:res.name||nm,det:dt});
+  }, function(err){
+    b.disabled=false;
+    alert(err+'\n다시 등록해 주세요.');
+    store('cls',null); store('num',null); store('name',null); store('det',null);
+    show($('saved'),false); show($('loginForm'),true);
+  });
 });
 $('btnOther').addEventListener('click', function(){
   store('cls',null); store('num',null); store('name',null); store('det',null);
   show($('saved'),false); show($('loginForm'),true);
   $('inCls').value=''; $('inNum').value=''; $('inName').value=''; $('inDet').value='';
+  $('nameBox').className='namebox';
+  $('nameBox').textContent='반과 번호를 적으면 이름이 나옵니다';
+  $('btnLogin').disabled=true;
 });
+(function(){
+  var qc=(location.search.match(/[?&]cls=(\d+)/)||[])[1];
+  if(qc){
+    $('inCls').value=qc; $('inCls').readOnly=true;
+    $('inCls').style.background='#eef2f6';
+    if(pick('cls') && pick('cls')!==qc){
+      store('cls',null); store('num',null); store('name',null); store('det',null);
+    }
+  }
+})();
 (function(){
   if(pick('name') && pick('cls') && pick('num')){
     var d=pick('det');
@@ -1255,7 +1313,7 @@ function doTip(it, cardEl, btn){
     b.className='badge b'+after;
     b.textContent=(LVICON[after]?LVICON[after]+' ':'')+LVNAME[after];
   }
-  call({action:'tip',qid:it.id,cls:me.cls,num:me.num}, function(res){
+  call({action:'tip',qid:it.id,cls:me.cls,num:me.num,name:me.name||''}, function(res){
     it.tip=res.tip; it.tipped=res.on;
     btn.querySelector('span').textContent=res.tip;
   }, function(err){
