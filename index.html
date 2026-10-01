@@ -385,6 +385,52 @@
     .tq,.rf{break-inside:avoid;}
   }
   .hide{display:none;}
+
+  /* ===== 명탐정 전용 화면 ===== */
+  body.master{
+    background-color:#14110a;
+    background-image:
+      radial-gradient(circle at 50% -10%, rgba(240,196,92,.28), transparent 60%),
+      radial-gradient(circle at 88% 92%, rgba(217,164,65,.14), transparent 45%),
+      linear-gradient(rgba(240,196,92,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,196,92,.05) 1px, transparent 1px);
+  }
+  body.master header{background:linear-gradient(180deg,#2a1f0b,#16110a);
+    border-bottom:2px solid #d9a441;box-shadow:0 4px 24px rgba(217,164,65,.25);}
+  body.master header::after{opacity:.38;}
+  body.master header h1 small{color:#e8c573;}
+  body.master .whobox{border-color:#d9a441;box-shadow:0 0 0 1px rgba(217,164,65,.35) inset;}
+  body.master .rank{background:linear-gradient(110deg,#b8862b 0%,#f6dc8c 35%,#fff4c9 50%,#f6dc8c 65%,#b8862b 100%);
+    background-size:220% 100%;animation:mshine 3.2s linear infinite;
+    box-shadow:0 0 12px rgba(246,220,140,.55);}
+  body.master .rank::before{content:'★ ';}
+  body.master .st.on{background:#f0c45c;border-color:#f6dc8c;box-shadow:0 0 8px rgba(240,196,92,.6);}
+  body.master .card{box-shadow:0 3px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(217,164,65,.35), inset 0 1px 0 #fff;}
+  .mbanner{display:none;}
+  body.master .mbanner{display:flex;align-items:center;gap:8px;margin-top:10px;
+    font-size:12.5px;font-weight:800;color:#f6dc8c;letter-spacing:.02em;}
+  body.master .mbanner::before{content:'';width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle,#fff4c9 0 30%,#d9a441 32% 100%);box-shadow:0 0 10px #f0c45c;}
+  @keyframes mshine{from{background-position:120% 0}to{background-position:-100% 0}}
+
+  /* 승급 축하 (처음 한 번) */
+  .mcele{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;background:rgba(10,8,4,.88);cursor:pointer;text-align:center;padding:20px;}
+  .mcele .seal{width:220px;height:220px;border-radius:50%;border:6px double #f0c45c;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    color:#f6dc8c;transform:rotate(-12deg) scale(2.4);opacity:0;
+    animation:mstamp .55s cubic-bezier(.2,1.6,.4,1) .2s forwards;
+    box-shadow:0 0 40px rgba(240,196,92,.45), inset 0 0 30px rgba(240,196,92,.25);}
+  .mcele .seal b{font-size:44px;font-weight:900;letter-spacing:.08em;line-height:1.1;}
+  .mcele .seal span{font-size:13px;font-weight:700;letter-spacing:.3em;margin-top:6px;}
+  .mcele p{color:#e9dcc0;font-size:15px;margin-top:34px;line-height:1.7;opacity:0;animation:mfade .5s ease .9s forwards;}
+  .mcele small{color:#9c8d6c;font-size:12px;margin-top:18px;opacity:0;animation:mfade .5s ease 1.4s forwards;}
+  @keyframes mstamp{to{transform:rotate(-12deg) scale(1);opacity:1}}
+  @keyframes mfade{to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){
+    body.master .rank{animation:none;}
+    .mcele .seal,.mcele p,.mcele small{animation:none;opacity:1;transform:rotate(-12deg);}
+  }
 </style>
 </head>
 <body>
@@ -400,6 +446,7 @@
       <div class="whobox hide" id="who"></div>
     </div>
     <div class="stamps hide" id="stampBar"></div>
+    <div class="mbanner" id="mBanner">명탐정 전용 사무실</div>
   </div>
 </header>
 
@@ -766,10 +813,12 @@ function drawWho(){
     });
     show($('stampBar'), false);
     show($('listDot'), false);
+    setMaster(/master-preview/.test(location.hash));
     return;
   }
 
   var r=rankOf(ME);
+  setMaster(r.i===RANKS.length-1 || /master-preview/.test(location.hash));
   $('who').innerHTML=
     '<div class="nm">'+(me.det||me.name)+'<span>'+me.cls+'반 '+me.num+'번 · 나가기</span></div>'+
     '<span class="rank'+(r.i<2?' r0':'')+'" id="rankBadge">'+r.name+'</span>';
@@ -787,6 +836,22 @@ function drawWho(){
   if(nx) h+='<span class="next">'+nx+'</span>';
   bar.innerHTML=h;
   show($('listDot'), !!(newTotal()>0 || (ME && ME.needPick>0)));
+}
+
+function setMaster(on){
+  document.body.classList.toggle('master', !!on);
+  if(!on || !me || TEACHER) return;
+  var key='fd_master_'+me.cls+'_'+me.num;
+  if(pick(key) && !/master-preview/.test(location.hash)) return;
+  store(key,'1');
+  if(document.getElementById('mCele')) return;
+  var o=document.createElement('div'); o.className='mcele'; o.id='mCele';
+  o.innerHTML='<div class="seal"><b>명탐정</b><span>MASTER DETECTIVE</span></div>'+
+    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정, 승급을 축하합니다.<br>'+
+    '도장 8개, 동료의 인정, 해결한 사건까지 — 모두 증거로 쌓은 계급입니다.</p>'+
+    '<small>화면을 누르면 사무실로 돌아갑니다</small>';
+  o.addEventListener('click', function(){ o.remove(); });
+  document.body.appendChild(o);
 }
 
 function openRule(){
@@ -810,6 +875,7 @@ function openRule(){
     var nx = nextHint(ME);
     h += '<h4>지금 내 기록</h4><div class="rnote">'+
       '도장 '+ME.stampCount+'개 · 질문 '+ME.q+'개 · 답변 '+ME.a+'개 · 인정 '+ME.score+'점'+
+      ' · 해결 도장 '+(ME.solved||0)+'개 · 채택된 답변 '+(ME.adopted||0)+'개'+
       (nx? '<br><b>'+nx+'</b>':'')+'</div>';
   }
   b.innerHTML = h;
@@ -820,7 +886,7 @@ $('rule').addEventListener('click', function(e){ if(e.target===this) show($('rul
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
-  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null;
+  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master');
   show($('who'),false); show($('stampBar'),false);
   show($('tLoginCard'),false); show($('rankStrip'),true);
   ['tabWrite','tabRef'].forEach(function(id){ show($(id),true); });
@@ -1034,6 +1100,10 @@ function load(quiet){
   call({action:'feed',cls:me.cls,num:me.num}, function(res){
     if(my!==loadSeq) return;
     QS=res.items||[]; ME=res.me; USED=res.used||{};
+    if(ME && (ME.solved==null || isNaN(ME.solved))){
+      /* 서버가 해결 도장 수를 보내지 않으면, 사건함에서 내 사건 중 해결된 것을 셉니다 */
+      ME.solved = QS.filter(function(q){ return q.mine && q.solved; }).length;
+    }
     TIP_LIMIT=res.tipLimit||3; PROMOTE=res.promote||3;
     loadSeen();
     drawWho();
@@ -1720,15 +1790,22 @@ function drawStats(items){
   var t=document.createElement('table'); t.className='st2';
   t.innerHTML='<tr><th>반</th><th>번호</th><th>이름</th><th>탐정명</th><th>도장</th>'+
     '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th>'+
-    '<th>인정점수</th><th>계급</th></tr>';
+    '<th>인정점수</th><th>해결</th><th>계급</th><th>명탐정까지</th></tr>';
   items.forEach(function(s){
-    var r=rankOf({q:s.q,a:s.a,score:s.score,solved:s.solved,adopted:s.adopted,stampCount:s.stamp});
+    var sv=s.solved;
+    if(sv==null || isNaN(sv)){
+      sv=QS.filter(function(q){ return q.solved && String(q.cls)===String(s.cls) && String(q.num)===String(s.num); }).length;
+    }
+    var mm={q:s.q,a:s.a,score:s.score,solved:sv,adopted:s.adopted,stampCount:s.stamp};
+    var r=rankOf(mm);
+    var need=lack(mm,RANKS[RANKS.length-1]);
     var tr=document.createElement('tr');
     tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+(s.name||'')+'</td>'+
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
-      '<td>'+s.extra+'</td><td><b>'+s.score+'</b></td><td>'+r.name+'</td>';
+      '<td>'+s.extra+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
+      '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):'★')+'</td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
   });
