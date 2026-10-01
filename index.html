@@ -920,6 +920,8 @@ function openRule(){
   h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b>.<br>'+
        '한 사건은 제보를 아무리 많이 받아도 1점입니다. 여러 사건에서 받아야 점수가 쌓입니다.<br>'+
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
+  h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 선생님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
+       '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
@@ -1153,8 +1155,10 @@ function load(quiet){
     if(my!==loadSeq) return;
     QS=res.items||[]; ME=res.me; USED=res.used||{};
     if(ME && (ME.solved==null || isNaN(ME.solved))){
-      /* 서버가 해결 도장 수를 보내지 않으면, 사건함에서 내 사건 중 해결된 것을 셉니다 */
-      ME.solved = QS.filter(function(q){ return q.mine && q.solved; }).length;
+      /* 서버가 해결 도장 수를 보내지 않으면, 해결된 사건에서 채택된 내 답변을 셉니다 */
+      ME.solved = QS.filter(function(q){
+        return q.solved && (q.answers||[]).some(function(a){ return a.mine && a.adopted; });
+      }).length;
     }
     TIP_LIMIT=res.tipLimit||3; PROMOTE=res.promote||3;
     loadSeen();
@@ -1730,6 +1734,9 @@ function tCard(it){
   sb.textContent=it.solved?'✅ 해결':'해결 도장';
   sb.style.marginLeft='auto';
   sb.addEventListener('click', function(){
+    if(!it.solved && !(it.answers||[]).some(function(a){ return a.adopted; })){
+      if(!confirm('아직 채택된 답변이 없어서, 해결 도장을 받을 학생이 없습니다.\n그래도 해결 도장을 찍을까요?')) return;
+    }
     call({action:'solve',pin:PIN,qid:it.id}, function(res){
       it.solved=res.on;
       sb.classList.toggle('on', res.on);
@@ -1846,7 +1853,11 @@ function drawStats(items){
   items.forEach(function(s){
     var sv=s.solved;
     if(sv==null || isNaN(sv)){
-      sv=QS.filter(function(q){ return q.solved && String(q.cls)===String(s.cls) && String(q.num)===String(s.num); }).length;
+      sv=QS.filter(function(q){
+        return q.solved && (q.answers||[]).some(function(a){
+          return a.adopted && String(a.cls)===String(s.cls) && String(a.num)===String(s.num);
+        });
+      }).length;
     }
     var mm={q:s.q,a:s.a,score:s.score,solved:sv,adopted:s.adopted,stampCount:s.stamp};
     var r=rankOf(mm);
