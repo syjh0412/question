@@ -431,6 +431,32 @@
     body.master .rank{animation:none;}
     .mcele .seal,.mcele p,.mcele small{animation:none;opacity:1;transform:rotate(-12deg);}
   }
+
+  /* ===== 수사 도구함 (외부 링크: 패들렛 · 수사 설계 조수 Gem) ===== */
+  .tools{display:grid;grid-template-columns:1fr 1.5fr;gap:10px;margin-bottom:14px;}
+  .tool{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;color:#dbe4ee;}
+  .tool h3{font-size:13.5px;font-weight:800;color:#fff;margin-bottom:3px;letter-spacing:-.01em;}
+  .tool .d{font-size:12px;color:#93a6bb;line-height:1.55;}
+  .tool a.go{display:inline-flex;align-items:center;gap:6px;margin-top:10px;text-decoration:none;
+    font-size:13px;font-weight:800;border-radius:9px;padding:8px 12px;
+    border:1.5px solid #d9a441;color:#f3d48a;background:transparent;}
+  .tool a.go:hover{background:rgba(217,164,65,.12);}
+  .tool a.go.plain{border-color:#5b7390;color:#cfdbe7;}
+  .tool a.go.plain:hover{background:rgba(255,255,255,.06);}
+  .tool .must{font-size:11.5px;color:#d9a441;font-weight:700;margin-top:7px;}
+  .tool details{margin-top:9px;font-size:12px;color:#b4c3d3;}
+  .tool details summary{cursor:pointer;font-weight:700;color:#cfdbe7;list-style:none;}
+  .tool details summary::-webkit-details-marker{display:none;}
+  .tool details summary::before{content:'▸ ';color:#d9a441;}
+  .tool details[open] summary::before{content:'▾ ';}
+  .tool .chk{margin-top:6px;display:grid;gap:4px;}
+  .tool .chk label{display:flex;gap:7px;align-items:flex-start;font-weight:600;color:#c8d5e2;
+    font-size:12.5px;margin:0;cursor:pointer;line-height:1.45;}
+  .tool .chk input{width:16px !important;height:16px;margin:2px 0 0 !important;padding:0 !important;accent-color:#d9a441;flex:0 0 16px;}
+  .tool details{border-top:0 !important;padding-top:0 !important;}
+  @media (max-width:720px){ .tools{grid-template-columns:1fr;} }
+  @media print{ .tools{display:none !important;} }
 </style>
 </head>
 <body>
@@ -506,6 +532,32 @@
       <button id="tabList">사건함<em class="dot hide" id="listDot"></em></button>
       <button id="tabRef">성찰</button>
       <button id="tabTeach" title="교사용">🔒</button>
+    </div>
+
+    <div class="tools" id="tools">
+      <div class="tool">
+        <h3>📍 현장 단서 수집소</h3>
+        <div class="d">학교에서 찍은 사진과 발견한 단서를 모둠별로 올리는 곳입니다.</div>
+        <a class="go plain" href="https://padlet.com/syjh0412/padlet-s0240qto84x8l7ywu15w"
+           target="_blank" rel="noopener noreferrer">패들렛 열기 ↗</a>
+      </div>
+      <div class="tool">
+        <h3>🔎 수사 설계 조수란?</h3>
+        <div class="d">발견한 현상을 대신 실험으로 만들어 주는 도구가 아닙니다.
+          우리 모둠이 먼저 정한 <b style="color:#e3ebf3">탐구할 것 · 바꿀 것 · 잴 것</b>을 바탕으로
+          실험 방법과 재료를 구체화하도록 돕습니다.</div>
+        <details>
+          <summary>조수에게 가기 전 확인</summary>
+          <div class="chk">
+            <label><input type="checkbox"> 우리 모둠이 발견한 현상을 설명할 수 있나요?</label>
+            <label><input type="checkbox"> 바꿔 볼 조건을 하나 생각했나요?</label>
+            <label><input type="checkbox"> 무엇을 재거나 비교할지 생각했나요?</label>
+          </div>
+        </details>
+        <a class="go" href="https://gemini.google.com/gem/1Lpv55gdqyDXbU-07Ts8PCGT_nPuwIKpx?usp=sharing"
+           target="_blank" rel="noopener noreferrer">🧪 수사 설계 조수에게 점검받기 ↗</a>
+        <div class="must">우리 모둠의 현상, 바꿀 것, 잴 것을 먼저 생각한 뒤 사용하세요.</div>
+      </div>
     </div>
 
     <div id="paneMat" class="hide narrow">
