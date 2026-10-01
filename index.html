@@ -621,7 +621,7 @@
     <div id="paneRef" class="hide narrow">
       <div class="card">
         <h2>오늘의 성찰</h2>
-        <div class="sub">수업이 끝나고 스스로에게 남기는 기록입니다.</div>
+        <div class="sub">수업이 끝나고 스스로에게 남기는 기록입니다. 「오늘 알게 된 것」을 10자 이상 쓰면 그 차시 인정 점수 1점을 받습니다.</div>
         <div class="msg" id="refMsg"></div>
         <label>몇 차시인가요?</label>
         <select id="refLesson"></select>
@@ -975,7 +975,8 @@ function openRule(){
       (k===i?'<span class="me">지금</span>':'')+'</div>';
   });
   h += '<h4>도장</h4><div class="rnote">한 차시에서 <b>질문 1개와 답변 1개</b>를 모두 남기면 그 차시 도장을 받습니다. 모두 8개입니다.</div>';
-  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b>.<br>'+
+  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b> + <b>성찰</b>.<br>'+
+       '성찰은 차시마다 1점입니다. 「오늘 알게 된 것」을 10자 이상 쓰면 그 차시 점수를 받습니다(같은 차시에 여러 번 써도 1점).<br>'+
        '한 사건은 제보를 아무리 많이 받아도 1점입니다. 여러 사건에서 받아야 점수가 쌓입니다.<br>'+
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
   h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 선생님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
@@ -988,6 +989,7 @@ function openRule(){
     h += '<h4>지금 내 기록</h4><div class="rnote">'+
       '도장 '+ME.stampCount+'개 · 질문 '+ME.q+'개 · 답변 '+ME.a+'개 · 인정 '+ME.score+'점'+
       ' · 해결 도장 '+(ME.solved||0)+'개 · 채택된 답변 '+(ME.adopted||0)+'개'+
+      (ME.ref!=null?' · 성찰 '+ME.ref+'점':'')+
       (nx? '<br><b>'+nx+'</b>':'')+'</div>';
   }
   b.innerHTML = h;
@@ -1613,7 +1615,8 @@ $('btnRef').addEventListener('click', function(){
         name:me.name,det:me.det||'',got:g,stuck:$('refStuck').value.trim()},
     function(){ b.disabled=false; b.textContent='성찰 남기기';
       $('refGot').value=''; $('refStuck').value='';
-      msg($('refMsg'),'남겼습니다.','ok'); },
+      msg($('refMsg'), g.length>=10 ? '남겼습니다. 이 차시 성찰 점수가 반영됩니다.' : '남겼습니다. (10자 이상 써야 성찰 점수가 들어갑니다)','ok');
+      load(true); },
     function(err){ b.disabled=false; b.textContent='성찰 남기기';
       msg($('refMsg'),'보내지 못했습니다. '+err,'err'); });
 });
@@ -1980,7 +1983,7 @@ function drawStats(items){
   if(!items.length){ box.innerHTML='<div class="empty">기록이 없습니다.</div>'; return; }
   var t=document.createElement('table'); t.className='st2';
   t.innerHTML='<tr><th>반</th><th>번호</th><th>이름</th><th>탐정명</th><th>도장</th>'+
-    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th>'+
+    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th><th>성찰</th>'+
     '<th>인정점수</th><th>해결</th><th>계급</th><th>명탐정까지</th></tr>';
   items.forEach(function(s){
     var sv=s.solved;
@@ -1999,7 +2002,7 @@ function drawStats(items){
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
-      '<td>'+s.extra+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
+      '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
       '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):'★')+'</td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
@@ -2007,7 +2010,7 @@ function drawStats(items){
   box.appendChild(t);
   var note=document.createElement('div');
   note.className='count'; note.style.marginTop='10px';
-  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변';
+  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변 + 성찰';
   box.appendChild(note);
 }
 </script>
