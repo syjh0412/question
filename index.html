@@ -2003,7 +2003,9 @@ function drawStats(items){
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
       '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
-      '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):'★')+'</td>';
+      '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):
+        '<b style="color:var(--gold)">★ 달성</b>')+
+        '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1</div></td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
   });
