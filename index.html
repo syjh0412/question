@@ -422,7 +422,6 @@
   body.master .rank{background:linear-gradient(110deg,#b8862b 0%,#f6dc8c 35%,#fff4c9 50%,#f6dc8c 65%,#b8862b 100%);
     background-size:220% 100%;animation:mshine 3.2s linear infinite;
     box-shadow:0 0 12px rgba(246,220,140,.55);}
-  body.master .rank::before{content:'★ ';}
   body.master .st.on{background:#f0c45c;border-color:#f6dc8c;box-shadow:0 0 8px rgba(240,196,92,.6);}
   body.master .card{box-shadow:0 3px 14px rgba(0,0,0,.35), 0 0 0 1px rgba(217,164,65,.35), inset 0 1px 0 #fff;}
   .mbanner{display:none;}
@@ -477,6 +476,43 @@
   .tool details{border-top:0 !important;padding-top:0 !important;}
   @media (max-width:720px){ .tools{grid-template-columns:1fr;} }
   @media print{ .tools{display:none !important;} }
+
+  /* ===== 몰입 요소 ===== */
+  /* 해결 도장 (사건 파일에 찍힌 고무 도장) */
+  .q{position:relative;}
+  .tq{position:relative;}
+  .q.lv3::after,.tq.lv3::after{
+    content:'해 결';position:absolute;top:9px;right:12px;
+    font-weight:900;font-size:14px;letter-spacing:.25em;color:#b5892c;
+    border:2.5px solid #c59a3f;border-radius:7px;padding:2px 6px 2px 10px;
+    transform:rotate(-12deg);opacity:.5;pointer-events:none;}
+
+  /* 사무소 현황판 */
+  .office{background:#152233;border:1px solid #2c3f58;border-radius:11px;
+    padding:9px 13px;margin-bottom:9px;}
+  .office .t{display:flex;gap:8px;align-items:center;font-size:12.5px;
+    color:#cfdced;font-weight:700;flex-wrap:wrap;}
+  .office .t span{color:#8fa4ba;font-weight:600;}
+  .office .t i{margin-left:auto;font-style:normal;color:#d9a441;font-weight:800;}
+  .office .obar{display:flex;height:7px;border-radius:4px;background:#0e1826;
+    overflow:hidden;margin-top:7px;}
+  .office .obar b{background:#d9a441;height:100%;}
+  .office .obar em{background:#3f6c9a;height:100%;}
+
+  /* 콜드 케이스 */
+  .coldtag{background:#e4f1fa;color:#22618f;border-radius:20px;
+    padding:1px 7px;font-size:11px;font-weight:800;}
+
+  /* 수석 탐정 임무 (명탐정 전용) */
+  .mission{display:flex;align-items:center;gap:9px;background:#241b07;
+    border:1px solid #7a5c1b;border-radius:11px;padding:10px 13px;
+    margin-bottom:9px;cursor:pointer;}
+  .mission:hover{background:#2c2209;}
+  .mission .ic{font-size:15px;}
+  .mission .tx{font-size:13px;color:#f0dfae;font-weight:700;}
+  .mission .tx b{color:#f6dc8c;}
+  .mission .go{margin-left:auto;font-size:12px;color:#d9a441;font-weight:800;white-space:nowrap;}
+  @media print{ .office,.mission{display:none !important;} }
 </style>
 </head>
 <body>
@@ -539,7 +575,7 @@
     </div>
 
     <div class="rankstrip" id="rankStrip">
-      <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정</div>
+      <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정 <i>→</i> ★</div>
       <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
       <button class="tlink" id="tLoginOpen">선생님이신가요?</button>
     </div>
@@ -823,7 +859,6 @@ function tNewTotal(){
 }
 function drawAnsBtn(){
   var b=$('btnAns'); if(!b) return;
-  show(b, !TEACHER);
   var n=tNewTotal();
   b.innerHTML='내가 답한 사건'+(n?'<span class="cnt">'+n+'</span>':'');
   b.classList.toggle('on', ONLY_ANS);
@@ -929,9 +964,23 @@ function drawWho(){
 
   var r=rankOf(ME);
   setMaster(r.i===RANKS.length-1 || /master-preview/.test(location.hash));
+
+  /* 승급 연출 — 계급이 올라간 순간 한 번 (기기마다) */
+  if(ME){
+    var rkKey='fd_rank_'+me.cls+'_'+me.num, prevR=pick(rkKey);
+    if(prevR===''){ store(rkKey, String(r.i)); }
+    else if(Number(prevR)!==r.i){
+      var wasUp = r.i > Number(prevR);
+      store(rkKey, String(r.i));
+      if(wasUp && r.i>0 && r.i<RANKS.length-1) rankCele(RANKS[r.i].n);
+    }
+  }
+
+  /* 명탐정은 해결 도장마다 ★이 늘어납니다 */
+  var rname=r.name+((r.i===RANKS.length-1 && ME)?' ★'+(ME.solved||0):'');
   $('who').innerHTML=
     '<div class="nm">'+(me.det||me.name)+'<span>'+me.cls+'반 '+me.num+'번 · 나가기</span></div>'+
-    '<span class="rank'+(r.i<2?' r0':'')+'" id="rankBadge">'+r.name+'</span>';
+    '<span class="rank'+(r.i<2?' r0':'')+'" id="rankBadge">'+rname+'</span>';
   var rb=$('rankBadge');
   if(rb) rb.addEventListener('click', function(e){ e.stopPropagation(); openRule(); });
 
@@ -946,6 +995,17 @@ function drawWho(){
   if(nx) h+='<span class="next">'+nx+'</span>';
   bar.innerHTML=h;
   show($('listDot'), !!(newTotal()>0 || tNewTotal()>0 || (ME && ME.needPick>0)));
+}
+
+function rankCele(nm){
+  if(document.getElementById('rCele')) return;
+  var o=document.createElement('div'); o.className='mcele'; o.id='rCele';
+  o.innerHTML='<div class="seal"><b style="font-size:'+(nm.length>3?'32px':'44px')+'">'+nm+'</b><span>승 급</span></div>'+
+    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정, <b>'+nm+'</b> 승급을 축하합니다.<br>'+
+    '수사 실력이 사무소에 인정되었습니다.</p>'+
+    '<small>화면을 누르면 사무실로 돌아갑니다</small>';
+  o.addEventListener('click', function(){ o.remove(); });
+  document.body.appendChild(o);
 }
 
 function setMaster(on){
@@ -981,6 +1041,7 @@ function openRule(){
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
   h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 선생님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
        '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
+  h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>수석 탐정의 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
@@ -1145,12 +1206,10 @@ $('btnOther').addEventListener('click', function(){
 
 /* 탭 */
 function tab(which){
-  if(TEACHER && (which==='Write' || which==='Ref')) which='List';
   ['Mat','Write','List','Ref','Teach'].forEach(function(k){
     $('tab'+k).classList.toggle('on', k===which);
     show($('pane'+k), k===which);
   });
-  if(TEACHER){ show($('tabWrite'),false); show($('tabRef'),false); }
   if(which==='Mat') loadMat();
   if(which==='List') render();
   if(which==='Ref') loadMyNotes();
@@ -1297,6 +1356,14 @@ function drawNewBand(){
   hero.insertBefore(b, hero.firstChild);
 }
 
+/* 콜드 케이스: 3일 넘게 학생 답변이 없는 미해결 사건 (id에 담긴 접수 시각 이용) */
+function coldCase(q){
+  if(q.solved) return false;
+  if((q.answers||[]).some(function(a){ return String(a.num)!=='0'; })) return false;
+  var g=Date.now()-Number(String(q.id).slice(1));
+  return isFinite(g) && g>3*86400000;
+}
+
 function render(){
   var box=$('list'), hero=$('hero');
   $('btnMine').classList.toggle('on', ONLY_MINE);
@@ -1319,16 +1386,50 @@ function render(){
   // 내 사건에 새로 달린 답변
   drawNewBand();
 
-  // 아직 답이 없는 사건
+  // 아직 답이 없는 사건 · 콜드 케이스
   var na=QS.filter(function(q){
     var st=(q.answers||[]).filter(function(a){ return String(a.num)!=='0'; });
     return !st.length;
   });
+  var coldN=na.filter(coldCase).length;
+
+  // 수석 탐정 임무 — 명탐정 전용
+  if(!TEACHER && ME && rankOf(ME).i===RANKS.length-1){
+    var ms=document.createElement('div'); ms.className='mission';
+    ms.innerHTML='<span class="ic">🎖</span><span class="tx">'+
+      (na.length?('수석 탐정 임무 — 답을 기다리는 사건 <b>'+na.length+'건</b>'+
+        (coldN?', 🧊 콜드 케이스 <b>'+coldN+'건</b>':'')+
+        '. 해결 도장마다 ★이 늘어납니다.'):
+       '수석 탐정 임무 — 모든 사건에 답이 달렸습니다. 사무소가 평화롭군요.')+
+      '</span>'+(na.length?'<span class="go">수사하러 가기</span>':'');
+    if(na.length) ms.addEventListener('click', function(){
+      ONLY_NA=true; ONLY_MINE=false; ONLY_ANS=false; render();
+    });
+    hero.appendChild(ms);
+  }
+
+  // 사무소 현황판
+  if(QS.length){
+    var tot=QS.length, sv=0, ansd=0;
+    QS.forEach(function(q){
+      if(q.solved) sv++;
+      else if((q.answers||[]).some(function(a){ return String(a.num)!=='0'; })) ansd++;
+    });
+    var st2=document.createElement('div'); st2.className='office';
+    st2.innerHTML='<div class="t">🗂 <b>'+me.cls+'반 수사 현황</b>'+
+      '<span>접수 '+(tot-sv-ansd)+' · 수사 중 '+ansd+' · 해결 '+sv+'</span>'+
+      '<i>해결률 '+Math.round(sv/tot*100)+'%</i></div>'+
+      '<div class="obar"><b style="width:'+(sv/tot*100)+'%"></b>'+
+      '<em style="width:'+(ansd/tot*100)+'%"></em></div>';
+    hero.appendChild(st2);
+  }
+
   if(na.length){
     var nb=document.createElement('div');
     nb.className='naband'+(ONLY_NA?' on':'');
     nb.innerHTML='<span class="ic">🔍</span>'+
-      '<span class="tx">아직 아무도 답하지 않은 사건 <b>'+na.length+'건</b></span>'+
+      '<span class="tx">아직 아무도 답하지 않은 사건 <b>'+na.length+'건</b>'+
+      (coldN?' · 🧊 콜드 케이스 <b>'+coldN+'건</b>':'')+'</span>'+
       '<span class="go">'+(ONLY_NA?'전체 보기':'보러 가기')+'</span>';
     nb.addEventListener('click', function(){ ONLY_NA=!ONLY_NA; render(); });
     hero.appendChild(nb);
@@ -1409,6 +1510,7 @@ function card(it){
   meta.innerHTML=
     '<span class="badge b'+lv+'">'+(LVICON[lv]?LVICON[lv]+' ':'')+LVNAME[lv]+'</span>'+
     '<span class="tagS'+(it.stage==='닫기'?' after':'')+'">'+(it.stage==='닫기'?'수업 후':'수업 전')+'</span>'+
+    (coldCase(it)?'<span class="coldtag">🧊 콜드 케이스</span>':'')+
     (fresh?'<span class="fresh">🔔 새 답변 '+fresh+'개</span>':'')+
     (tfresh?'<span class="tfresh">🧑‍🏫 선생님 답글</span>':'')+
     (wait?'<span class="pick-wait">답변 '+arr0.length+'개 · 채택해 주세요</span>':'')+
