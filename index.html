@@ -503,7 +503,7 @@
   .coldtag{background:#e4f1fa;color:#22618f;border-radius:20px;
     padding:1px 7px;font-size:11px;font-weight:800;}
 
-  /* 수석 탐정 임무 (명탐정 전용) */
+  /* 명탐정 특별 임무 */
   .mission{display:flex;align-items:center;gap:9px;background:#241b07;
     border:1px solid #7a5c1b;border-radius:11px;padding:10px 13px;
     margin-bottom:9px;cursor:pointer;}
@@ -539,6 +539,28 @@
   .rent .tm{font-size:11px;color:var(--soft);font-weight:700;}
   .rent .g{font-size:14px;color:var(--ink);line-height:1.55;white-space:pre-wrap;}
   .rent .s{font-size:12.5px;color:#8a5a12;margin-top:3px;white-space:pre-wrap;}
+
+  /* ===== 명찰 · 승급 도구 ===== */
+  .btool{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;
+    box-shadow:0 3px 14px rgba(0,0,0,.25);}
+  .btool h3{font-size:15px;font-weight:800;margin-bottom:4px;color:var(--ink);}
+  .btool .sub{font-size:12.5px;color:var(--soft);margin-bottom:12px;line-height:1.55;}
+  .btool table{width:100%;border-collapse:collapse;font-size:13px;}
+  .btool th,.btool td{padding:6px 8px;border-bottom:1px solid #eef1f4;text-align:left;}
+  .btool th{font-size:11.5px;color:var(--soft);font-weight:700;}
+  .btool .up{font-weight:800;color:var(--blue);}
+  .btool .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+  .btool .row label{font-size:12.5px;font-weight:700;color:var(--ink2);margin:0;display:flex;align-items:center;gap:5px;}
+  .btool .row input[type=number]{width:62px;padding:4px 6px;font-size:13px;}
+  .btool .row input[type=checkbox]{width:auto;}
+  .btool button.go{background:var(--ink);color:#fff;border:0;border-radius:9px;padding:9px 14px;
+    font-weight:800;font-size:13px;cursor:pointer;}
+  .btool button.lite{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);border-radius:9px;
+    padding:8px 12px;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .btool details{margin-top:10px;border-top:1px dashed var(--hair);padding-top:8px;}
+  .btool details summary{font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;}
+  .bstk{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
+    color:#fff;font-size:9px;font-weight:900;vertical-align:middle;margin-right:4px;}
 </style>
 </head>
 <body>
@@ -769,6 +791,7 @@
             <option value="n">선생님께만</option>
             <option value="s">참여 집계</option>
             <option value="ai">AI 정리</option>
+            <option value="b">명찰 · 승급</option>
           </select>
           <button class="ghost" id="tReload">새로고침</button>
           <button class="ghost" id="tPrint">인쇄</button>
@@ -1080,7 +1103,7 @@ function openRule(){
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
   h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 선생님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
        '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
-  h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>수석 탐정의 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
+  h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>명탐정 특별 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
@@ -1432,14 +1455,14 @@ function render(){
   });
   var coldN=na.filter(coldCase).length;
 
-  // 수석 탐정 임무 — 명탐정 전용
+  // 명탐정 특별 임무
   if(!TEACHER && ME && rankOf(ME).i===RANKS.length-1){
     var ms=document.createElement('div'); ms.className='mission';
     ms.innerHTML='<span class="ic">🎖</span><span class="tx">'+
-      (na.length?('수석 탐정 임무 — 답을 기다리는 사건 <b>'+na.length+'건</b>'+
+      (na.length?('명탐정 특별 임무 — 답을 기다리는 사건 <b>'+na.length+'건</b>'+
         (coldN?', 🧊 콜드 케이스 <b>'+coldN+'건</b>':'')+
         '. 해결 도장마다 ★이 늘어납니다.'):
-       '수석 탐정 임무 — 모든 사건에 답이 달렸습니다. 사무소가 평화롭군요.')+
+       '명탐정 특별 임무 — 모든 사건에 답이 달렸습니다. 사무소가 평화롭군요.')+
       '</span>'+(na.length?'<span class="go">수사하러 가기</span>':'');
     if(na.length) ms.addEventListener('click', function(){
       ONLY_NA=true; ONLY_MINE=false; ONLY_ANS=false; render();
@@ -2005,6 +2028,8 @@ function tLoad(){
       function(r){ drawAI(r.text||'', r.count||0); }, fail);
     return;
   }
+  if(v==='b'){ call({action:'stats',pin:PIN,cls:$('tCls').value},
+      function(r){ drawBadgeTools(r.items||[]); }, fail); return; }
   if(v==='s') call({action:'stats',pin:PIN,cls:$('tCls').value},
       function(r){ drawStats(r.items||[]); }, fail);
   else if(v==='r') call({action:'reflects',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
@@ -2013,6 +2038,231 @@ function tLoad(){
       function(r){ drawNotes(r.items||[]); }, fail);
   else call({action:'teacher',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
       function(r){ tBoard(r.items||[], tCard); }, fail);
+}
+
+/* ───────── 명찰 · 승급 도구 ───────── */
+var RK_SHORT=['훈련생','5급','4급','3급','2급','1급','명탐정'];
+var RK_COLOR=['#5b6f86','#3f8f6b','#2b6ea3','#5a4fa3','#b0582a','#7a2e3a','#c9971f'];
+function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function rkOfStat(x){
+  return rankOf({q:x.q,a:x.a,score:x.score,solved:x.solved,adopted:x.adopted,stampCount:x.stamp}).i;
+}
+function rkLog(){ try{ return JSON.parse(pick('fd_ranklog')||'{}')||{}; }catch(e){ return {}; } }
+function rkSave(items){
+  var L=rkLog();
+  items.forEach(function(x){
+    var i=rkOfStat(x);
+    L[x.cls+'-'+x.num]={i:i, s:(i===6?(x.solved||0):0)};
+  });
+  store('fd_ranklog', JSON.stringify(L));
+}
+
+/* 스티커 한 개 (지름 d mm) */
+function stkHTML(i, d){
+  var gold = i===6;
+  var bg = gold ? 'radial-gradient(circle at 35% 30%,#ffe9a8,#d6a531 55%,#a87a15)' : RK_COLOR[i];
+  var fs = RK_SHORT[i].length>2 ? d*0.27 : d*0.4;
+  return '<div style="width:'+d+'mm;height:'+d+'mm;border-radius:50%;background:'+bg+';'+
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;'+
+    '-webkit-print-color-adjust:exact;print-color-adjust:exact;">'+
+    '<div style="position:absolute;inset:'+(d*0.07)+'mm;border-radius:50%;border:'+(d*0.025)+'mm solid rgba(255,255,255,.75)"></div>'+
+    '<b style="font-size:'+fs+'mm;line-height:1;color:'+(gold?'#4a3408':'#fff')+';font-weight:900;letter-spacing:-.02em">'+RK_SHORT[i]+'</b>'+
+    '<span style="font-size:'+(d*0.1)+'mm;color:'+(gold?'#5c430f':'rgba(255,255,255,.85)')+';font-weight:800;letter-spacing:.12em;margin-top:'+(d*0.04)+'mm">'+(gold?'MASTER':'힘 탐정')+'</span></div>';
+}
+function starHTML(d){
+  return '<div style="width:'+d+'mm;height:'+d+'mm;border-radius:50%;'+
+    'background:radial-gradient(circle at 35% 30%,#ffe9a8,#d6a531 55%,#a87a15);display:flex;align-items:center;justify-content:center;'+
+    'color:#fff;font-size:'+(d*0.62)+'mm;line-height:1;-webkit-print-color-adjust:exact;print-color-adjust:exact;">★</div>';
+}
+
+function printDoc(title, css, body){
+  var w=window.open('','_blank');
+  if(!w){ alert('팝업이 막혀 있습니다. 브라우저 주소창 옆에서 팝업을 허용해 주세요.'); return; }
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>'+title+'</title>'+
+    '<style>@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    '.sheet{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always}'+
+    '.sheet:last-child{page-break-after:auto}'+
+    '.tip{font:13px sans-serif;padding:10px;background:#fffbe6;border-bottom:1px solid #eee}'+
+    '@media print{.tip{display:none}}'+css+'</style></head><body>'+
+    '<div class="tip">인쇄 설정에서 <b>용지 A4 · 배율 100%(실제 크기) · 여백 없음 · 배경 그래픽 켜기</b>로 인쇄하세요.</div>'+
+    body+'</body></html>');
+  w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 600);
+}
+
+/* 명찰 한 장 */
+function badgeHTML(x, prefill){
+  var ri = prefill ? rkOfStat(x) : 0;
+  var stars = (prefill && ri===6) ? Math.min(12, x.solved||0) : 0;
+  var big = x.det ? x.det : x.name;
+  var lad='';
+  for(var r=1;r<=6;r++){
+    lad += '<div class="slot">'+(r<=ri ? stkHTML(r,20) :
+      '<div class="ghost"><b>'+RK_SHORT[r]+'</b></div>')+'</div>';
+  }
+  var st='';
+  for(var k=0;k<12;k++){
+    st += '<div class="sslot">'+(k<stars ? starHTML(12) : '<div class="sghost">★</div>')+'</div>';
+  }
+  return '<div class="card">'+
+    '<div class="band"><div class="stripe"></div>'+
+      '<div class="org">🔍 힘 탐정 사무소</div>'+
+      '<div class="id">탐정 신분증</div>'+
+      '<div class="motto">이 탐정은 힘의 렌즈로 학교를 본다.</div></div>'+
+    '<div class="who">'+
+      '<div class="lab">'+(x.det?'탐정 이름':'이름')+'</div>'+
+      '<div class="det" style="font-size:'+(big.length>6?'17pt':'22pt')+'">'+esc(big)+'</div>'+
+      '<div class="real">'+(x.det?esc(x.name)+' · ':'')+'1학년 '+esc(x.cls)+'반 '+esc(x.num)+'번</div>'+
+    '</div>'+
+    '<div class="sec"><span>계급</span><em>훈련생에서 시작 · 승급하면 스티커를 붙입니다</em></div>'+
+    '<div class="ladder">'+lad+'</div>'+
+    '<div class="sec gold"><span>명탐정의 별</span><em>명탐정이 된 뒤 해결 도장마다 ★ 하나</em></div>'+
+    '<div class="stars">'+st+'</div>'+
+  '</div>';
+}
+var BADGE_CSS=
+  '.sheet{display:grid;grid-template-columns:105mm 105mm;grid-template-rows:148.5mm 148.5mm}'+
+  '.card{position:relative;border:.25mm dashed #c8ced6;overflow:hidden;background:#fff}'+
+  '.band{height:25mm;background:#1b2a3f;color:#fff;padding:4.5mm 6mm 0;position:relative}'+
+  '.band .org{font-weight:800;font-size:12.5pt;letter-spacing:-.02em}'+
+  '.band .id{position:absolute;right:6mm;top:5.2mm;font-size:7pt;font-weight:800;letter-spacing:.25em;color:#d9a441;border:.35mm solid #d9a441;border-radius:1mm;padding:.6mm 1.6mm}'+
+  '.band .motto{font-size:7.4pt;color:#b9c7d6;margin-top:2.2mm;font-weight:600}'+
+  '.band .stripe{position:absolute;right:-6mm;bottom:2mm;width:40mm;height:4.5mm;transform:rotate(-8deg);'+
+    'background:repeating-linear-gradient(135deg,rgba(217,164,65,.55) 0 2.5mm,transparent 2.5mm 5mm)}'+
+  '.who{text-align:center;padding:4mm 6mm 0}'+
+  '.who .lab{font-size:6.5pt;color:#8a96a4;font-weight:700;letter-spacing:.25em}'+
+  '.who .det{font-weight:900;color:#16243a;letter-spacing:-.03em;line-height:1.2;margin-top:.6mm}'+
+  '.who .real{font-size:9.5pt;color:#4b5b6e;font-weight:700;margin-top:1.2mm}'+
+  '.sec{display:flex;align-items:baseline;gap:2mm;margin:4.2mm 6mm 2.2mm;border-top:.3mm solid #e1e6ec;padding-top:2.2mm}'+
+  '.sec span{font-size:8pt;font-weight:900;color:#1b2a3f}'+
+  '.sec em{font-style:normal;font-size:6.2pt;color:#8a96a4;font-weight:600}'+
+  '.sec.gold span{color:#9a6f12}'+
+  '.ladder{display:grid;grid-template-columns:repeat(3,22mm);justify-content:center;column-gap:7mm;row-gap:2.6mm}'+
+  '.slot{width:22mm;height:22mm;display:flex;align-items:center;justify-content:center}'+
+  '.ghost{width:21mm;height:21mm;border-radius:50%;border:.4mm dashed #b6c0cb;display:flex;align-items:center;justify-content:center}'+
+  '.ghost b{font-size:7.5pt;color:#c3ccd6;font-weight:800}'+
+  '.stars{display:grid;grid-template-columns:repeat(6,13mm);justify-content:center;column-gap:1.8mm;row-gap:1.8mm}'+
+  '.sslot{width:13mm;height:13mm;display:flex;align-items:center;justify-content:center}'+
+  '.sghost{width:12.6mm;height:12.6mm;border-radius:50%;border:.35mm dashed #e2cf9c;color:#ecdcb2;font-size:6mm;display:flex;align-items:center;justify-content:center}';
+
+function printBadges(items, prefill){
+  if(!items.length){ alert('인쇄할 학생이 없습니다.'); return; }
+  var html='', i;
+  for(i=0;i<items.length;i+=4){
+    html+='<div class="sheet">';
+    for(var k=i;k<i+4;k++) html += items[k] ? badgeHTML(items[k], prefill) : '<div class="card" style="border-color:transparent"></div>';
+    html+='</div>';
+  }
+  printDoc('힘 탐정 명찰', BADGE_CSS, html);
+  if(prefill) rkSave(items);
+}
+
+/* 계급 스티커 · 별 스티커 시트 */
+function printStickers(opt){
+  var html='<div class="sheet">', n=0;
+  for(var r=0;r<opt.rows;r++){
+    var rank = opt.plan ? opt.plan[r] : null;
+    if(opt.plan && rank===undefined) break;
+    for(var c=0;c<opt.cols;c++){
+      var x = opt.left + c*opt.px, y = opt.top + r*opt.py;
+      var d = opt.d + 1;  /* 1mm 크게 인쇄해 조금 어긋나도 흰 테두리가 덜 보이게 */
+      html += '<div style="position:absolute;left:'+(x-0.5)+'mm;top:'+(y-0.5)+'mm">'+
+        (opt.test ? '<div style="width:'+d+'mm;height:'+d+'mm;border-radius:50%;border:.3mm solid #000"></div>' :
+         opt.star ? starHTML(d) : stkHTML(rank, d))+'</div>';
+      n++;
+    }
+  }
+  html+='</div>';
+  printDoc(opt.star?'명탐정 별 스티커':'계급 스티커', '', html);
+}
+
+function numIn(id, v, step){
+  return '<input type="number" id="'+id+'" value="'+v+'" step="'+(step||0.1)+'">';
+}
+function nv(id){ return Number($(id).value)||0; }
+
+function drawBadgeTools(items){
+  var box=$('tBody'); box.innerHTML='';
+  items = items.filter(function(x){ return String(x.num)!=='0'; });
+  var L=rkLog(), ups=[], fresh=0;
+  items.forEach(function(x){
+    var i=rkOfStat(x), s=(i===6?(x.solved||0):0), k=x.cls+'-'+x.num, p=L[k];
+    if(!p){ fresh++; return; }
+    if(i>p.i || (i===6 && s>p.s)) ups.push({x:x, from:p, to:{i:i,s:s}});
+  });
+
+  /* 1. 승급자 명단 */
+  var a=document.createElement('div'); a.className='btool';
+  var h='<h3>🎖 승급자 명단</h3><div class="sub">이 기기에서 마지막으로 기록한 뒤 계급이 오르거나 ★이 늘어난 학생입니다. '+
+    '스티커를 다 붙여 준 뒤 <b>기록 저장</b>을 누르면 다음 명단은 그 뒤부터 셉니다.</div>';
+  if(ups.length){
+    h+='<table><tr><th>반</th><th>번호</th><th>이름</th><th>탐정 이름</th><th>변화</th><th>붙일 스티커</th></tr>';
+    ups.forEach(function(u){
+      var need='';
+      for(var r=u.from.i+1;r<=u.to.i;r++) if(r>=1) need+='<span class="bstk" style="background:'+RK_COLOR[r]+(r===6?';color:#4a3408':'')+'">'+RK_SHORT[r]+'</span>';
+      var addS = u.to.i===6 ? (u.to.s - (u.from.i===6?u.from.s:0)) : 0;
+      if(addS>0) need+=' <b style="color:#a8791a">★ ×'+addS+'</b>';
+      h+='<tr><td>'+esc(u.x.cls)+'</td><td>'+esc(u.x.num)+'</td><td>'+esc(u.x.name)+'</td><td>'+esc(u.x.det||'')+'</td>'+
+        '<td class="up">'+RK_SHORT[u.from.i]+(u.from.i===6&&u.from.s?' ★'+u.from.s:'')+' → '+RK_SHORT[u.to.i]+(u.to.i===6?' ★'+u.to.s:'')+'</td><td>'+need+'</td></tr>';
+    });
+    h+='</table>';
+  } else {
+    h+='<div class="empty" style="padding:14px 0">'+(Object.keys(L).length?'지난 기록 이후 승급한 학생이 없습니다.':
+      '아직 기준 기록이 없습니다. 명찰을 「지금 계급까지 채워서」 인쇄하면 그 순간이 기준이 됩니다.')+'</div>';
+  }
+  if(fresh && Object.keys(L).length) h+='<div class="sub" style="margin-top:8px">기준 기록이 없는 학생 '+fresh+'명은 명단에서 빠져 있습니다. (명찰을 아직 안 뽑은 반)</div>';
+  h+='<div class="row"><button class="go" id="bSave">스티커 다 붙였어요 · 기록 저장</button></div>';
+  a.innerHTML=h; box.appendChild(a);
+  $('bSave').addEventListener('click', function(){
+    rkSave(items); alert('지금 계급을 기준으로 저장했습니다.'); drawBadgeTools(items);
+  });
+
+  /* 2. 명찰 인쇄 */
+  var b=document.createElement('div'); b.className='btool';
+  b.innerHTML='<h3>🪪 명찰 인쇄</h3><div class="sub">A4 한 장에 4명, 한 칸은 105×148mm라 관광명찰 케이스(115×148mm)에 들어갑니다. '+
+    '위에서 고른 반 학생 <b>'+items.length+'명</b>이 번호순으로 나옵니다. 탐정 이름이 없는 학생은 본명을 크게 넣습니다.</div>'+
+    '<div class="row"><label><input type="checkbox" id="bPre" checked> 지금 계급과 ★까지 채워서 인쇄 (그 뒤 승급분만 스티커로)</label></div>'+
+    '<div class="row"><button class="go" id="bPrint">명찰 인쇄하기</button></div>';
+  box.appendChild(b);
+  $('bPrint').addEventListener('click', function(){
+    var arr=items.slice().sort(function(p,q){ return (p.cls-q.cls)||(p.num-q.num); });
+    printBadges(arr, $('bPre').checked);
+  });
+
+  /* 3. 스티커 인쇄 */
+  var c=document.createElement('div'); c.className='btool';
+  var plan='', rows=['5급','4급','3급','2급','1급','명탐정'];
+  rows.forEach(function(nm,ix){ plan+='<label>'+nm+' '+numIn('bp'+(ix+1),2,1)+'줄</label>'; });
+  c.innerHTML='<h3>🏷 계급 스티커 인쇄</h3><div class="sub">글로리텍 <b>GL7108</b>(지름 20mm · 108칸 · 가로 9 × 세로 12) 기준입니다. '+
+    '줄마다 한 계급씩 들어가고, 기본은 계급마다 2줄(18개)입니다.<br>'+
+    '<b>처음에는 「맞춤 확인용」으로 일반 종이에 인쇄</b>해 라벨지와 겹쳐 빛에 비춰 보고, 어긋나면 아래 여백을 고쳐 주세요.</div>'+
+    '<div class="row">'+plan+'</div>'+
+    '<details><summary>칸 위치 맞추기 (mm)</summary><div class="row">'+
+      '<label>위 '+numIn('bT',15.5)+'</label><label>왼쪽 '+numIn('bL',8.5)+'</label>'+
+      '<label>가로 간격 '+numIn('bX',21.6)+'</label><label>세로 간격 '+numIn('bY',22.5)+'</label></div></details>'+
+    '<div class="row"><button class="lite" id="bStT">맞춤 확인용 (동그라미만)</button><button class="go" id="bSt">계급 스티커 인쇄</button></div>'+
+    '<hr style="border:0;border-top:1px dashed var(--hair);margin:14px 0">'+
+    '<h3>⭐ 명탐정 별 스티커</h3><div class="sub">글로리텍 <b>GL7280</b>(지름 12mm · 280칸 · 가로 14 × 세로 20) 기준입니다. 한 장 가득 금색 ★이 인쇄됩니다.</div>'+
+    '<details><summary>칸 위치 맞추기 (mm)</summary><div class="row">'+
+      '<label>위 '+numIn('sT',8.5)+'</label><label>왼쪽 '+numIn('sL',9)+'</label>'+
+      '<label>가로 간격 '+numIn('sX',14)+'</label><label>세로 간격 '+numIn('sY',14.2)+'</label></div></details>'+
+    '<div class="row"><button class="lite" id="sStT">맞춤 확인용 (동그라미만)</button><button class="go" id="sSt">별 스티커 인쇄</button></div>';
+  box.appendChild(c);
+  function rankPlan(){
+    var p=[];
+    for(var r=1;r<=6;r++){ var k=Math.max(0,Math.round(nv('bp'+r))); for(var j=0;j<k;j++) p.push(r); }
+    if(p.length>12){ alert('줄 수 합이 12줄을 넘습니다. 지금 '+p.length+'줄'); return null; }
+    return p;
+  }
+  function rOpt(test){ var p=rankPlan(); if(!p) return null;
+    return {cols:9,rows:12,d:20,top:nv('bT'),left:nv('bL'),px:nv('bX'),py:nv('bY'),plan:p,test:test}; }
+  function sOpt(test){ return {cols:14,rows:20,d:12,top:nv('sT'),left:nv('sL'),px:nv('sX'),py:nv('sY'),star:true,test:test}; }
+  $('bStT').addEventListener('click', function(){ var o=rOpt(true); if(o){ o.plan=null; printStickers(o);} });
+  $('bSt').addEventListener('click', function(){ var o=rOpt(false); if(o) printStickers(o); });
+  $('sStT').addEventListener('click', function(){ printStickers(sOpt(true)); });
+  $('sSt').addEventListener('click', function(){ printStickers(sOpt(false)); });
 }
 
 function tBoard(items, make){
