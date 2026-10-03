@@ -1793,6 +1793,7 @@ function mofPickInit(){
 /* ── 소장님 간식 보급 (마이쭈 쿠폰) ── */
 var CPNS=[
  {id:'c1',n:'꾸준한 탐정의 간식',c:'차시 도장 4개',t:function(m){return (m.stampCount||0)>=4;}},
+ {id:'c6',n:'성실 탐정 특별 보급',c:'차시 도장 7개',t:function(m){return (m.stampCount||0)>=7;}},
  {id:'c2',n:'생각 보급 1호',c:'성찰 4차시',t:function(m){return (m.ref||0)>=4;}},
  {id:'c3',n:'생각 보급 2호 · 완주',c:'성찰 8차시',t:function(m){return (m.ref||0)>=8;}},
  {id:'c4',n:'사건 해결 축하 보급',c:'해결 도장 1개',t:function(m){return (m.solved||0)>=1;}},
