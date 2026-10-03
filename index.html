@@ -1900,6 +1900,10 @@ function rpVisit(isT){
       }
       L.appendChild(d);
     });
+    if(!L.children.length){
+      L.innerHTML='<div class="empty">아직 다른 수사팀이 등록하지 않았습니다.<br>'+
+        '친구들이 보고서 탭에서 모둠을 등록하면 여기에 발표 목록이 나타납니다.</div>';
+    }
   },function(err){ $('rpVL').innerHTML='<div class="empty">'+esc(err)+'</div>'; });
 }
 function rpCardForm(cf,t,b2){
