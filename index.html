@@ -680,8 +680,8 @@
     font-size:15px;padding:5px 13px;cursor:pointer;}
   #slv .body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:3vh 6vw;text-align:center;overflow:hidden;}
-  #slv .k{color:#d9a441;font-size:clamp(15px,2.8vw,26px);font-weight:800;letter-spacing:.12em;margin-bottom:2.2vh;}
-  #slv .big{color:#fff;font-size:clamp(26px,6.2vw,64px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
+  #slv .k{color:#d9a441;font-size:clamp(16px,3.2vw,30px);font-weight:800;letter-spacing:.12em;margin-bottom:2.2vh;}
+  #slv .big{color:#fff;font-size:clamp(28px,7vw,80px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
     white-space:pre-wrap;word-break:keep-all;}
   #slv .big.gold{color:#f6dc8c;}
   #slv .sub2{color:#9fb3c8;font-size:clamp(14px,2.4vw,22px);margin-top:2.4vh;line-height:1.5;}
@@ -691,10 +691,10 @@
   #slv img.ph{max-width:92%;max-height:62vh;border-radius:12px;object-fit:contain;}
   #slv .gslide{width:100%;max-width:980px;text-align:left;}
   #slv .gslide .grow{display:flex;align-items:center;gap:1.2vw;margin-bottom:1.6vh;}
-  #slv .gslide .gl{flex:0 0 24%;color:#cfdced;font-size:clamp(14px,2.6vw,24px);font-weight:700;text-align:right;}
+  #slv .gslide .gl{flex:0 0 24%;color:#cfdced;font-size:clamp(15px,3vw,28px);font-weight:700;text-align:right;}
   #slv .gslide .gt{flex:1;height:clamp(22px,4.2vh,40px);background:#1d2b3d;border-radius:8px;overflow:hidden;}
   #slv .gslide .gb{height:100%;background:#d9a441;border-radius:8px;}
-  #slv .gslide .gv{flex:0 0 17%;color:#fff;font-size:clamp(15px,2.8vw,26px);font-weight:900;}
+  #slv .gslide .gv{flex:0 0 17%;color:#fff;font-size:clamp(16px,3.2vw,30px);font-weight:900;}
   #slv .foot{display:flex;align-items:center;padding:10px 16px 16px;color:#61758c;font-size:13px;}
   #slv .foot .pgn{margin-left:auto;font-weight:800;color:#9fb3c8;font-size:clamp(14px,2.2vw,20px);}
   /* 교사: 보고서 검토 · 현황판 */
@@ -1968,16 +1968,17 @@ function rpSlides(pages,teamNo,props,memText){
   if(c.photo) S.push({tp:'ph',k:'현장',id:c.photo});
   if((pl.q||'').trim()) S.push({tp:'kb',k:'수사 질문',b:pl.q});
   if((pl.hypo||'').trim()) S.push({tp:'kb',k:'가설',b:pl.hypo});
-  if((pl.diff||'').trim()||(pl.same||'').trim())
-    S.push({tp:'two',k:'다르게 한 것',b:pl.diff||'-',k2:'같게 한 것',b2:pl.same||'-'});
+  if((pl.diff||'').trim()) S.push({tp:'kb',k:'다르게 한 것',b:pl.diff});
+  if((pl.same||'').trim()) S.push({tp:'kb',k:'같게 한 것',b:pl.same});
+  if((pl.meas||'').trim()) S.push({tp:'kb',k:'잰 것',b:pl.meas});
   var rows=(ev.rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r)}; })
     .filter(function(r){ return r.c&&r.a!=null; });
   if(rows.length) S.push({tp:'graph',rows:rows,unit:ev.unit||''});
   if((ev.concl||'').trim()) S.push({tp:'kb',k:'결론',b:ev.concl,gold:true});
   if(an.photo) S.push({tp:'ph',k:'힘 분석',id:an.photo});
   if((an.prop||'').trim()) S.push({tp:'kb',k:'우리의 제안',b:an.prop});
-  if((an.basis||'').trim()||(an.unk||'').trim())
-    S.push({tp:'two',k:'근거 (잰 값)',b:an.basis||'-',k2:'아직 확인하지 못한 것',b2:an.unk||'-'});
+  if((an.basis||'').trim()) S.push({tp:'kb',k:'근거 — 우리가 잰 값',b:an.basis,gold:true});
+  if((an.unk||'').trim()) S.push({tp:'kb',k:'아직 확인하지 못한 것',b:an.unk});
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
