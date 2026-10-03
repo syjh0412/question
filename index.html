@@ -786,6 +786,33 @@
   .bstats td b{color:var(--amber);}
   .bigboard .bstats th{font-size:17px;padding:13px 8px;}
   .bigboard .bstats td{font-size:22px;padding:14px 8px;font-weight:700;}
+  /* 검증 회의 타이머 */
+  .btimer{background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:14px 14px 12px;
+    margin-bottom:12px;text-align:center;transition:background .3s,border-color .3s;}
+  .btimer .btTime{font-size:clamp(46px,9vw,100px);font-weight:800;letter-spacing:.06em;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--ink);}
+  .btimer.warn{border-color:#fcd9a8;background:#fffaf2;}
+  .btimer.warn .btTime{color:#b45309;}
+  .btimer.crit{border-color:#fecaca;background:#fef6f6;}
+  .btimer.crit .btTime{color:#dc2626;animation:btpulse 1s infinite;}
+  .btimer.done{background:var(--ink);border-color:var(--ink);}
+  .btimer.done .btTime{color:#fff;}
+  @keyframes btpulse{50%{transform:scale(1.03);}}
+  .btRow{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:11px;}
+  .btRow button{border:1px solid #d9dee5;background:#fff;border-radius:9px;padding:8px 12px;
+    font-weight:800;font-size:13px;cursor:pointer;color:var(--ink);}
+  .btRow #btGo{background:var(--ink);color:#fff;border-color:var(--ink);min-width:92px;}
+  .btimer.done .btRow button{border-color:#4b5b6e;}
+  .btimer.done .btRow #btGo{background:#fff;color:var(--ink);border-color:#fff;}
+  .btPre{display:flex;gap:6px;}
+  .btPre button.on{background:#e8f0fa;border-color:#b9d3e8;color:#1d4f78;}
+  .bigboard .btimer .btTime{font-size:clamp(100px,19vw,240px);}
+  .bigboard .btRow button{font-size:16px;padding:10px 16px;}
+  /* 참관 모드 */
+  .gcls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+  .gcls button{background:#fff;border:1.5px solid var(--hair);border-radius:11px;padding:15px 4px;
+    font-weight:800;font-size:15px;cursor:pointer;color:var(--ink);}
+  .gcls button:active{background:#eef5fc;}
   #rpToast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#12202f;color:#fff;
     border:1px solid #3a4c66;border-radius:12px;padding:10px 18px;font-size:13.5px;font-weight:700;
     z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4);}
@@ -851,10 +878,19 @@
       <button class="ghost" id="tLoginBack" style="width:100%">학생으로 돌아가기</button>
     </div>
 
+    <div class="card hide" id="gLoginCard">
+      <h2>참관 둘러보기</h2>
+      <div class="sub">쓰기는 되지 않는 <b>둘러보기 전용</b> 입장입니다.<br>자료, 사건함, 검증 회의 발표를 볼 수 있습니다. 참관하시는 반을 고르세요.</div>
+      <div class="gcls" id="gCls"></div>
+      <div style="height:10px"></div>
+      <button class="ghost" id="gBack" style="width:100%">돌아가기</button>
+    </div>
+
     <div class="rankstrip" id="rankStrip">
       <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정 <i>→</i> ★</div>
       <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
       <button class="tlink" id="tLoginOpen">선생님이신가요?</button>
+      <button class="tlink" id="gLoginOpen">참관 오셨나요? 둘러보기</button>
     </div>
   </section>
 
@@ -1179,6 +1215,10 @@ function newTotal(){
 
 var seq=0;
 function call(params, done, fail){
+  if(GUEST && !GUEST_OK[params.action]){
+    var gm='참관 모드에서는 둘러보기만 할 수 있어요';
+    if(fail) fail(gm); else alert(gm); return;
+  }
   var cb='cb_'+(++seq)+'_'+Date.now(), s;
   var timer=setTimeout(function(){ clean(); if(fail) fail('시간이 초과되었습니다'); },20000);
   function clean(){ clearTimeout(timer); try{delete window[cb];}catch(e){window[cb]=undefined;}
@@ -1247,6 +1287,14 @@ function nextHint(m){
 
 function drawWho(){
   if(!me) return;
+
+  if(GUEST){
+    $('who').innerHTML='<span class="tmode">참관</span>'+
+      '<div class="nm">'+me.cls+'반 둘러보기<span>나가기</span></div>';
+    show($('stampBar'),false); show($('listDot'),false);
+    setMaster(false);
+    return;
+  }
 
   if(TEACHER){
     var opts='';
@@ -1377,10 +1425,10 @@ $('rule').addEventListener('click', function(e){ if(e.target===this) show($('rul
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
-  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
+  me=null; PIN=''; TEACHER=false; GUEST=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
   show($('who'),false); show($('stampBar'),false);
   show($('tLoginCard'),false); show($('rankStrip'),true);
-  ['tabWrite','tabRef'].forEach(function(id){ show($(id),true); });
+  ['tabWrite','tabRef','tabTeach'].forEach(function(id){ show($(id),true); });
   show($('main'),false); show($('login'),true);
   show($('pinBox'),true); show($('teachMain'),false);
   $('inPin').value=''; $('list').innerHTML=''; $('count').textContent='';
@@ -1400,6 +1448,30 @@ $('tLoginBack').addEventListener('click', function(){
   msg($('tLoginMsg'),''); $('tLoginPin').value='';
   if(pick('name')){ show($('saved'),true); } else { show($('loginForm'),true); }
 });
+var GUEST=false, GUEST_OK={feed:1,materials:1,repTeams:1,report:1};
+$('gLoginOpen').addEventListener('click', function(){
+  show($('saved'),false); show($('loginForm'),false);
+  show($('tLoginCard'),false); show($('gLoginCard'),true); show($('rankStrip'),false);
+});
+$('gBack').addEventListener('click', function(){
+  show($('gLoginCard'),false); show($('rankStrip'),true);
+  if(pick('name')){ show($('saved'),true); } else { show($('loginForm'),true); }
+});
+(function(){
+  var g=$('gCls');
+  for(var c=1;c<=6;c++){(function(c){
+    var b=document.createElement('button'); b.type='button'; b.textContent=c+'반 참관';
+    b.addEventListener('click',function(){
+      GUEST=true; TEACHER=false;
+      me={cls:String(c),num:'관전',name:'참관',det:'참관 교사'};
+      show($('gLoginCard'),false);
+      enter(me);
+      show($('tabWrite'),false); show($('tabRef'),false); show($('tabTeach'),false);
+      tab('List');
+    });
+    g.appendChild(b);
+  })(c);}
+})();
 $('tLoginGo').addEventListener('click', function(){
   var v=$('tLoginPin').value.trim();
   if(!v){ msg($('tLoginMsg'),'비밀번호를 입력하세요.','err'); return; }
@@ -1549,6 +1621,10 @@ var RPAGES=[
 var PTYPES=['증거가 부족해요','변인이 섞였어요','힘 분석이 달라요','모형과 실제가 달라요','차이가 우연일 수도 있어요','제안의 부작용이 걱정돼요','이 점이 좋아요'];
 
 function post(params,done,fail){
+  if(GUEST && !GUEST_OK[params.action]){
+    var gm='참관 모드에서는 둘러보기만 할 수 있어요';
+    if(fail) fail(gm); else alert(gm); return;
+  }
   fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(params)})
   .then(function(r){ return r.json(); })
   .then(function(res){ if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류',res); })
@@ -1846,7 +1922,7 @@ function rpPingStart(k){
 function rpPingStop(){ if(RP.pingT){ clearInterval(RP.pingT); RP.pingT=null; } }
 
 function repOpen(){
-  if(TEACHER){ rpVisit(true); return; }
+  if(TEACHER||GUEST){ rpVisit(true); return; }
   if(RP.loaded){ if(RP.view==='edit'&&RP.cur) rpEdit(RP.cur); else rpHome(); return; }
   $('repBody').innerHTML='<div class="empty">불러오는 중...</div>';
   call({action:'teamInfo',cls:me.cls,num:me.num},function(res){
@@ -2494,11 +2570,106 @@ function drawRepTeacher(r,cls){
     box.appendChild(d);
   });
 }
+/* 검증 회의 타이머 — 현황판 위에 크게 */
+var BT={dur:360,left:360,run:false,endAt:null,warn:false,done:false,tick:null,ac:null};
+function btBeep(f,d,g,dl){
+  try{
+    if(!BT.ac) BT.ac=new (window.AudioContext||window.webkitAudioContext)();
+    if(BT.ac.state==='suspended') BT.ac.resume();
+    var t=BT.ac.currentTime+(dl||0), o=BT.ac.createOscillator(), gn=BT.ac.createGain();
+    o.type='sine'; o.frequency.value=f;
+    gn.gain.setValueAtTime(g||.08,t);
+    gn.gain.exponentialRampToValueAtTime(.0001,t+(d||.15));
+    o.connect(gn); gn.connect(BT.ac.destination);
+    o.start(t); o.stop(t+(d||.15));
+  }catch(e){}
+}
+function btSay(t){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(t); u.lang='ko-KR'; u.rate=.95;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function btFmt(x){ x=Math.max(0,x); return ('0'+Math.floor(x/60)).slice(-2)+':'+('0'+x%60).slice(-2); }
+function btNow(){ return BT.run?Math.max(0,Math.ceil((BT.endAt-Date.now())/1000)):BT.left; }
+function btCls(x){ return x<=0?' done':(x<=30&&BT.run?' crit':(x<=60&&BT.run?' warn':'')); }
+function btHTML(){
+  var x=btNow();
+  return '<div class="btimer'+btCls(x)+'" id="btBox">'+
+    '<div class="btTime" id="btDisp">'+btFmt(x)+'</div>'+
+    '<div class="btRow noprint">'+
+      '<button type="button" data-bt="go" id="btGo">'+(BT.run?'Ⅱ 멈춤':(x>0&&x<BT.dur?'▶ 계속':'▶ 시작'))+'</button>'+
+      '<button type="button" data-bt="rs">↺ 처음</button>'+
+      '<button type="button" data-bt="m">−30초</button>'+
+      '<button type="button" data-bt="p">+30초</button>'+
+      '<span class="btPre">'+[3,6,8].map(function(m){
+        return '<button type="button" data-bt="d'+m+'"'+(BT.dur===m*60?' class="on"':'')+'>'+m+'분</button>';
+      }).join('')+'</span>'+
+    '</div></div>';
+}
+function btPaint(){
+  var b=$('btBox'); if(!b) return;
+  var x=btNow();
+  $('btDisp').textContent=btFmt(x);
+  b.className='btimer'+btCls(x);
+  var g=$('btGo'); if(g) g.textContent=BT.run?'Ⅱ 멈춤':(x>0&&x<BT.dur?'▶ 계속':'▶ 시작');
+}
+function btLoop(){
+  if(!BT.run){ btPaint(); return; }
+  var x=btNow();
+  if(x<=60&&x>0&&!BT.warn&&BT.dur>60){
+    BT.warn=true;
+    btBeep(660,.15,.07); btBeep(880,.25,.07,.18);
+    setTimeout(function(){ btSay('1분 남았습니다'); },320);
+  }
+  if(x<=0&&!BT.done){
+    BT.done=true; BT.run=false; BT.left=0;
+    clearInterval(BT.tick); BT.tick=null;
+    [740,980,740,980,740,1180].forEach(function(f,i){ btBeep(f,.2,.12,i*.22); });
+    setTimeout(function(){ btSay('시간이 다 되었습니다'); },1450);
+  }
+  btPaint();
+}
+function btCtl(k){
+  if(k==='go'){
+    if(BT.run){
+      BT.left=btNow(); BT.run=false;
+      clearInterval(BT.tick); BT.tick=null;
+    } else {
+      if(BT.left<=0){ BT.left=BT.dur; BT.warn=false; BT.done=false; }
+      BT.run=true; BT.endAt=Date.now()+BT.left*1000;
+      if(!BT.tick) BT.tick=setInterval(btLoop,250);
+      btBeep(880,.1,.05);
+    }
+  } else if(k==='rs'){
+    BT.run=false; clearInterval(BT.tick); BT.tick=null;
+    BT.left=BT.dur; BT.warn=false; BT.done=false;
+  } else if(k==='m'||k==='p'){
+    var d=(k==='p'?30:-30);
+    if(BT.run){ BT.endAt+=d*1000; }
+    else { BT.left=Math.max(0,BT.left+d); }
+    if(btNow()>60) BT.warn=false;
+    if(btNow()>0) BT.done=false;
+  } else if(k.charAt(0)==='d'){
+    BT.dur=Number(k.slice(1))*60;
+    BT.run=false; clearInterval(BT.tick); BT.tick=null;
+    BT.left=BT.dur; BT.warn=false; BT.done=false;
+  }
+  btPaint();
+}
+function btWire(){
+  Array.prototype.forEach.call(document.querySelectorAll('#btBox [data-bt]'),function(b){
+    b.addEventListener('click',function(){ btCtl(b.dataset.bt); });
+  });
+}
+
 /* 교사: 검증 회의 현황판 */
 function rpBoardLoad(){
   var box=$('tBody'), cls=$('tCls').value;
   call({action:'board',pin:PIN,cls:cls},function(r){
-    var h='<div class="matbox"><h3>📋 검증 회의 현황판 · '+cls+'반 '+
+    var h=btHTML()+'<div class="matbox"><h3>📋 검증 회의 현황판 · '+cls+'반 '+
       '<button class="ghost noprint" id="bdBig" style="margin-left:8px;width:auto">크게 보기</button>'+
       '<span class="count" id="bdT" style="margin-left:8px"></span></h3>'+
       '<table class="bstats"><tr><th>모둠</th><th>받은 카드</th><th>고침</th><th>지킴</th><th>⭐</th><th>가장 많은 카드</th></tr>';
@@ -2510,6 +2681,7 @@ function rpBoardLoad(){
     var now=new Date();
     $('bdT').textContent='업데이트 '+now.getHours()+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
     $('bdBig').addEventListener('click',function(){ document.body.classList.toggle('bigboard'); });
+    btWire();
     clearTimeout(rpBoardLoad._t);
     if(TEACHER&&$('tView').value==='board'&&!$('paneTeach').classList.contains('hide'))
       rpBoardLoad._t=setTimeout(rpBoardLoad,15000);
