@@ -861,7 +861,7 @@
       <div id="nameManual" class="hide"><label>이름</label>
         <input type="text" id="inNameManual" placeholder="홍길동"></div>
       <input type="hidden" id="inName">
-      <label>탐정 이름 <span style="font-weight:600;color:var(--hair)">· 안 적어도 됩니다</span></label>
+      <label>탐정 이름 <span style="font-weight:600;color:var(--hair)">· 한 번 적으면 내 입장 암호가 됩니다</span></label>
       <input type="text" id="inDet" placeholder="예) 화살표 탐정" maxlength="14">
       <div style="height:18px"></div>
       <button class="primary" id="btnLogin" disabled>들어가기</button>
@@ -1547,8 +1547,26 @@ $('btnLogin').addEventListener('click', function(){
       nm=$('inName').value.trim(), dt=$('inDet').value.trim();
   if(OPEN_MODE) nm=$('inNameManual').value.trim();
   if(!c||!n||!nm){ msg($('loginMsg'),'반, 번호, 이름을 적어주세요.','err'); return; }
-  store('cls',c); store('num',n); store('name',nm); store('det',dt);
-  enter({cls:c,num:n,name:nm,det:dt});
+  var bt=this; bt.disabled=true; bt.textContent='확인하는 중...'; msg($('loginMsg'),'');
+  var go=function(fd,saved){
+    bt.disabled=false; bt.textContent='들어가기';
+    store('cls',c); store('num',n); store('name',nm); store('det',fd);
+    enter({cls:c,num:n,name:nm,det:fd});
+    if(saved) setTimeout(function(){
+      rpToast('🔐 탐정 이름을 기억했습니다. 다음부터는 이 이름을 적어야 입장할 수 있어요');
+    },500);
+  };
+  call({action:'login',cls:c,num:n,name:nm,det:dt},
+    function(r){ go(String(r.det||''), !!r.saved); },
+    function(err){
+      bt.disabled=false; bt.textContent='들어가기';
+      if(/알 수 없는 요청/.test(String(err))){
+        store('cls',c); store('num',n); store('name',nm); store('det',dt);
+        enter({cls:c,num:n,name:nm,det:dt});
+        return;
+      }
+      msg($('loginMsg'), err, 'err');
+    });
 });
 $('btnQuick').addEventListener('click', function(){
   var c=pick('cls'), n=pick('num'), nm=pick('name'), dt=pick('det');
@@ -1564,7 +1582,26 @@ $('btnQuick').addEventListener('click', function(){
       return;
     }
   }
-  enter({cls:c,num:n,name:real||nm,det:dt});
+  var bt=this; bt.disabled=true; bt.textContent='확인하는 중...';
+  call({action:'login',cls:c,num:n,name:real||nm,det:dt||''},
+    function(r){
+      bt.disabled=false; bt.textContent='들어가기';
+      var fd=String(r.det||'');
+      store('det',fd);
+      enter({cls:c,num:n,name:real||nm,det:fd});
+    },
+    function(err){
+      bt.disabled=false; bt.textContent='들어가기';
+      if(/알 수 없는 요청/.test(String(err))){
+        enter({cls:c,num:n,name:real||nm,det:dt});
+        return;
+      }
+      alert(err);
+      store('det',null);
+      show($('saved'),false); show($('loginForm'),true);
+      $('inCls').value=c||''; $('inNum').value=n||'';
+      askWho(); $('inDet').focus();
+    });
 });
 $('btnOther').addEventListener('click', function(){
   store('cls',null); store('num',null); store('name',null); store('det',null);
