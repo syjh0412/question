@@ -651,6 +651,36 @@
   .pslot button.on{background:var(--ink);border-color:var(--ink);color:#fff;}
   .pslot button em{font-style:normal;font-weight:700;font-size:10.5px;color:#1d6b42;margin-left:3px;}
   .pslot button.on em{color:#9fe0b8;}
+  /* 내 사무소 */
+  .pchip{width:31px;height:31px;border-radius:50%;background:#16222f;border:1.5px solid #3b5068;
+    display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;position:relative;flex:none;}
+  .pchip em{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;
+    background:#e2574c;border:2px solid #0d1722;}
+  #moff .mof-p{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--hair);
+    border-radius:12px;padding:13px 14px;margin-bottom:4px;}
+  #moff .mof-p .big{font-size:44px;flex:none;}
+  #moff .mof-p b{font-size:15.5px;}
+  #moff .mof-p p{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.5;}
+  #moff .mof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  #moff .mof-it{background:#fff;border:1px solid var(--hair);border-radius:10px;padding:9px 5px;text-align:center;}
+  #moff .mof-it .e{font-size:25px;display:block;}
+  #moff .mof-it b{font-size:11.5px;display:block;margin-top:4px;letter-spacing:-.02em;}
+  #moff .mof-it > span:last-child{font-size:10px;color:var(--soft);display:block;margin-top:2px;line-height:1.35;}
+  #moff .mof-it.lock{background:#f4f2ec;}
+  #moff .mof-it.lock .e{filter:grayscale(1);opacity:.35;}
+  #moff .mof-it.lock b{color:var(--soft);}
+  #moff .mof-it.got{border-color:#e8c766;box-shadow:0 1px 0 #f6e8bd inset;}
+  #moff .mof-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  #moff .mof-pk{background:#fff;border:1.5px solid var(--hair);border-radius:10px;padding:9px 2px;text-align:center;cursor:pointer;}
+  #moff .mof-pk .e{font-size:27px;display:block;}
+  #moff .mof-pk b{font-size:10.5px;display:block;margin-top:3px;letter-spacing:-.03em;}
+  #moff .mof-pk.on{border-color:var(--blue);background:#eef5fc;}
+  #moff .mof-sel{background:#fff;border:1.5px solid var(--blue);border-radius:12px;padding:12px;margin-top:10px;}
+  #moff .mof-sel p{font-size:12.5px;color:var(--ink2);margin:6px 0 10px;line-height:1.5;}
+  #moff .mof-sel button{width:100%;background:var(--ink);color:#fff;border:0;border-radius:9px;
+    padding:11px;font-weight:800;font-size:13.5px;cursor:pointer;}
+  #moff h4.mh{margin:14px 2px 8px;font-size:13px;display:flex;align-items:center;gap:7px;}
+  #moff .mof-cnt{font-size:11.5px;color:var(--soft);font-weight:800;}
   .pcard{background:#fff;border:1px solid var(--hair);border-radius:10px;padding:11px 12px;margin-bottom:9px;}
   .pcard .ph2{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .pcard .ty{background:#e8f0fa;color:#1d4f78;font-size:11px;font-weight:800;border-radius:20px;padding:2px 9px;}
@@ -983,6 +1013,16 @@
     </div>
   </section>
 
+<div class="modal hide" id="moff">
+  <div class="sheet">
+    <div class="rhead">
+      <b>🗄 내 사무소</b>
+      <button id="moffClose">닫기</button>
+    </div>
+    <div class="rbody" id="moffBody"></div>
+  </div>
+</div>
+
 <div class="modal hide" id="rule">
   <div class="sheet">
     <div class="rhead">
@@ -1222,9 +1262,13 @@ function drawWho(){
 
   /* 명탐정은 해결 도장마다 ★이 늘어납니다 */
   var rname=r.name+((r.i===RANKS.length-1 && ME)?' ★'+(ME.solved||0):'');
+  var PP=myPartner();
   $('who').innerHTML=
+    '<span class="pchip" id="pChip">'+(PP?PP.e:'🗄')+((!PP&&PARTNER_ON)?'<em></em>':'')+'</span>'+
     '<div class="nm">'+(me.det||me.name)+'<span>'+me.cls+'반 '+me.num+'번 · 나가기</span></div>'+
     '<span class="rank'+(r.i<2?' r0':'')+'" id="rankBadge">'+rname+'</span>';
+  var pc=$('pChip');
+  if(pc) pc.addEventListener('click', function(e){ e.stopPropagation(); openOffice(); });
   var rb=$('rankBadge');
   if(rb) rb.addEventListener('click', function(e){ e.stopPropagation(); openRule(); });
 
@@ -1297,6 +1341,7 @@ function openRule(){
       ' · 해결 도장 '+(ME.solved||0)+'개 · 채택된 답변 '+(ME.adopted||0)+'개'+
       (ME.ref!=null?' · 성찰 '+ME.ref+'점':'')+
       (ME.help!=null?' · 도움 제안 ⭐'+ME.help:'')+
+      ' · 장비 '+gearState().filter(Boolean).length+'/'+GEAR.length+'개'+
       (nx? '<br><b>'+nx+'</b>':'')+'</div>';
   }
   b.innerHTML = h;
@@ -1484,6 +1529,139 @@ function post(params,done,fail){
   .then(function(res){ if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류',res); })
   .catch(function(){ if(fail) fail('연결에 실패했습니다',null); });
 }
+/* ── 내 사무소: 수사 파트너 & 장비 진열장 ── */
+var PARTNERS=[
+ {e:'🦉',n:'올빼미',d:'밤에도 눈이 밝은 기록 전문가. 아무도 못 본 단서를 적어 둔다.'},
+ {e:'🦊',n:'여우',d:'가설의 달인. "혹시 이런 거 아닐까?"가 입버릇.'},
+ {e:'🐻',n:'곰',d:'묵직한 증거 수집가. 한 번 문 단서는 놓지 않는다.'},
+ {e:'🐱',n:'고양이',d:'소리 없이 현장에 스며드는 관찰 요원.'},
+ {e:'🦅',n:'매',d:'멀리서도 작은 차이를 알아보는 눈.'},
+ {e:'🐢',n:'거북',d:'서두르지 않는 재측정 전문. 느려도 정확하다.'},
+ {e:'🦝',n:'너구리',d:'도구 다루기 선수. 힘 센서는 내 손안에 있다.'},
+ {e:'🐺',n:'늑대',d:'모둠 수사 전문. 함께 달릴 때 가장 강하다.'},
+ {e:'🦔',n:'고슴도치',d:'날카로운 질문 담당. 따끔하지만 수사엔 약이 된다.'},
+ {e:'🐧',n:'펭귄',d:'미끄러운 현장 전문. 마찰력이라면 몸으로 안다.'},
+ {e:'🐙',n:'문어',d:'여덟 가지 일을 한 번에 하는 멀티 수사관.'},
+ {e:'🦜',n:'앵무새',d:'발표 담당. 수사 결과를 또박또박 전한다.'},
+ {e:'🐸',n:'개구리',d:'도약 전문. 탄성력 사건이라면 맡겨 달라.'},
+ {e:'🦡',n:'오소리',d:'끝까지 파고드는 끈기의 수사관.'},
+ {e:'🐿️',n:'다람쥐',d:'단서 보관 전문. 어디에 뭘 뒀는지 다 기억한다.'},
+ {e:'🦢',n:'백조',d:'우아하게, 그러나 물밑에선 쉼 없이 수사 중.'}
+];
+var GEAR=[
+ {e:'🔍',n:'낡은 돋보기',c:'첫 사건 접수',t:function(m){return (m.q||0)>=1;}},
+ {e:'🗒️',n:'수사 수첩',c:'첫 답변',t:function(m){return (m.a||0)>=1;}},
+ {e:'🧭',n:'단서 나침반',c:'사건 접수 3건',t:function(m){return (m.q||0)>=3;}},
+ {e:'🖋️',n:'만년필',c:'답변 5건',t:function(m){return (m.a||0)>=5;}},
+ {e:'📌',n:'황금 압정',c:'내 답변이 채택됨',t:function(m){return (m.adopted||0)>=1;}},
+ {e:'🤝',n:'협력 배지',c:'친구 답변을 채택해 줌',t:function(m){return (m.picked||0)>=1;}},
+ {e:'📯',n:'제보 나팔',c:'세 사건에서 제보 받음',t:function(m){return (m.got||0)>=3;}},
+ {e:'🔦',n:'끈기의 손전등',c:'추가 답변 1회',t:function(m){return (m.extra||0)>=1;}},
+ {e:'📔',n:'가죽 일지',c:'성찰 3차시',t:function(m){return (m.ref||0)>=3;}},
+ {e:'🕰️',n:'회중시계',c:'성찰 6차시',t:function(m){return (m.ref||0)>=6;}},
+ {e:'🏅',n:'사건 종결 핀',c:'해결 도장 1개',t:function(m){return (m.solved||0)>=1;}},
+ {e:'💌',n:'밀랍 인장',c:'제안 카드 3장 보냄',t:function(m,x){return (x.cards||0)>=3;}},
+ {e:'⭐',n:'금 배지',c:'내 카드가 ⭐로 뽑힘',t:function(m){return (m.help||0)>=1;}},
+ {e:'🪶',n:'설득의 깃펜',c:"내 카드로 다른 모둠이 '고침'",t:function(m,x){return !!x.fixLed;}},
+ {e:'🎩',n:'탐정 모자',c:'인정 점수 15점',t:function(m){return (m.score||0)>=15;}},
+ {e:'🧥',n:'트렌치코트',c:'인정 점수 30점',t:function(m){return (m.score||0)>=30;}},
+ {e:'💰',n:'월급봉투',c:'인정 점수 40점 — 소장이 드디어 월급을!',t:function(m){return (m.score||0)>=40;}},
+ {e:'🏆',n:'부소장 임명장',c:'인정 점수 60점',t:function(m){return (m.score||0)>=60;}}
+];
+var PARTNER_ON=false, MYP=null, PMAP={};
+var CHX={cards:null,fixLed:false,got:false};
+
+function myPartner(){ return (MYP!=null&&PARTNERS[MYP])?PARTNERS[MYP]:null; }
+function gearState(){
+  var m=ME||{}, x=CHX;
+  return GEAR.map(function(g){ return !!g.t(m,x); });
+}
+function gearHTML(){
+  var st=gearState(), n=st.filter(Boolean).length;
+  return '<h4 class="mh">장비 진열장 <span class="mof-cnt">'+n+' / '+GEAR.length+'</span></h4>'+
+    '<div class="mof-grid">'+GEAR.map(function(g,i){
+      return '<div class="mof-it '+(st[i]?'got':'lock')+'"><span class="e">'+g.e+'</span><b>'+g.n+'</b><span>'+g.c+'</span></div>';
+    }).join('')+'</div>'+
+    '<div class="rnote" style="margin-top:10px;font-size:11.5px">장비는 수사 행동으로만 얻을 수 있습니다. 흐린 칸 아래 글씨가 다음 목표!</div>';
+}
+function gearToast(){
+  if(TEACHER||!me||!ME) return;
+  var st=gearState(), key='fd_gear_'+me.cls+'_'+me.num;
+  var prev=pick(key), cur=st.map(function(b){return b?'1':'0';}).join('');
+  if(prev===''){ store(key,cur); return; }
+  var fresh=[];
+  for(var i=0;i<GEAR.length;i++) if(st[i]&&prev.charAt(i)!=='1') fresh.push(GEAR[i]);
+  if(cur!==prev) store(key,cur);
+  if(!fresh.length) return;
+  rpToast('🧳 새 장비 획득: '+fresh[0].e+' '+fresh[0].n+(fresh.length>1?' 외 '+(fresh.length-1)+'개':'')+' — 내 사무소에서 확인!');
+}
+function openOffice(){
+  var b=$('moffBody'), h='', P=myPartner();
+  if(P){
+    h+='<div class="mof-p"><span class="big">'+P.e+'</span><div><b>'+P.n+' 파트너</b>'+
+       '<p>'+P.d+'</p></div></div>';
+  } else if(PARTNER_ON){
+    h+='<h4 class="mh" style="margin-top:2px">수사 파트너 고르기</h4>'+
+       '<div class="rnote" style="margin-bottom:9px">소장의 허가가 났습니다. 함께 수사할 파트너를 <b>한 번만</b> 고를 수 있어요. 신중하게!</div>'+
+       '<div class="mof-pick" id="mofPick"></div><div id="mofSel"></div>';
+  } else {
+    h+='<div class="rnote" style="margin-bottom:4px">수사 파트너는 선생님이 서버를 새로 배포하면 고를 수 있어요.</div>';
+  }
+  h+='<div id="mofGear">'+gearHTML()+'</div>';
+  b.innerHTML=h;
+  if(!P&&PARTNER_ON) mofPickInit();
+  show($('moff'),true);
+  mofFetchX();
+}
+function mofFetchX(){
+  if(TEACHER||!me) return;
+  call({action:'myprops',cls:me.cls,num:me.num},function(r){
+    var its=r.items||[], fix=false;
+    its.forEach(function(p){ if(p.verdict==='고침') fix=true; });
+    CHX.cards=its.length; CHX.fixLed=fix; CHX.got=true;
+    var g=$('mofGear');
+    if(g&&!$('moff').classList.contains('hide')) g.innerHTML=gearHTML();
+    gearToast();
+  },function(){});
+}
+function mofPickInit(){
+  var g=$('mofPick'), sel=-1;
+  g.innerHTML=PARTNERS.map(function(p,i){
+    return '<div class="mof-pk" data-i="'+i+'"><span class="e">'+p.e+'</span><b>'+p.n+'</b></div>';
+  }).join('');
+  Array.prototype.forEach.call(g.children,function(el){
+    el.addEventListener('click',function(){
+      sel=Number(el.dataset.i);
+      Array.prototype.forEach.call(g.children,function(x){ x.classList.toggle('on',Number(x.dataset.i)===sel); });
+      var P=PARTNERS[sel];
+      $('mofSel').innerHTML='<div class="mof-sel"><b>'+P.e+' '+P.n+'</b><p>'+P.d+'</p>'+
+        '<button id="mofGo" type="button">이 파트너와 수사 계약하기 (바꿀 수 없어요)</button></div>';
+      $('mofGo').addEventListener('click',function(){
+        var btn=this; btn.disabled=true; btn.textContent='계약서에 도장 찍는 중...';
+        post({action:'charSet',cls:me.cls,num:me.num,name:(me.det||me.name),char:sel},function(r){
+          MYP=(r&&r.partner!=null)?Number(r.partner):sel;
+          openOffice(); drawWho();
+          charCele(myPartner()||PARTNERS[sel]);
+        },function(err){
+          btn.disabled=false; btn.textContent='이 파트너와 수사 계약하기 (바꿀 수 없어요)';
+          alert(/알 수 없는 요청/.test(String(err))?'선생님이 서버를 새로 배포하면 파트너를 고를 수 있어요':err);
+        });
+      });
+    });
+  });
+}
+function charCele(P){
+  if(!P||document.getElementById('cCele')) return;
+  var o=document.createElement('div'); o.className='mcele'; o.id='cCele';
+  o.innerHTML='<div class="seal"><b style="font-size:62px">'+P.e+'</b><span>수사 파트너</span></div>'+
+    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정과 <b>'+P.n+'</b>의 수사 계약이 체결되었습니다.<br>'+P.d+'</p>'+
+    '<small>화면을 누르면 사무실로 돌아갑니다</small>';
+  o.addEventListener('click',function(){ o.remove(); });
+  document.body.appendChild(o);
+}
+$('moffClose').addEventListener('click',function(){ show($('moff'),false); });
+$('moff').addEventListener('click',function(e){ if(e.target===this) show($('moff'),false); });
+
 function rpToast(t){
   var e=$('rpToast'); if(!e){ e=document.createElement('div'); e.id='rpToast'; document.body.appendChild(e); }
   e.textContent=t; e.style.display='block';
@@ -2282,8 +2460,12 @@ function load(quiet){
       }).length;
     }
     TIP_LIMIT=res.tipLimit||3; PROMOTE=res.promote||3;
+    PARTNER_ON=(res.partner!==undefined);
+    MYP=(res.partner==null?null:Number(res.partner));
+    PMAP=res.partners||{};
     loadSeen(); loadSeenT();
     drawWho();
+    gearToast();
     if(!$('paneList').classList.contains('hide')) render();
   }, function(err){
     if(my!==loadSeq) return;
