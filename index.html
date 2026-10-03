@@ -561,6 +561,175 @@
   .btool details summary{font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;}
   .bstk{display:inline-flex;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
     color:#fff;font-size:9px;font-weight:900;vertical-align:middle;margin-right:4px;}
+
+  /* ===== 수사 보고서 ===== */
+  .tabs button{padding-left:2px;padding-right:2px;}
+  @media (max-width:480px){ .tabs button{font-size:12px;} }
+  .rpcard{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:12px;padding:16px;margin-bottom:12px;
+    box-shadow:0 3px 14px rgba(0,0,0,.28), inset 0 1px 0 #fff;}
+  .rpcard h2{font-size:15px;font-weight:800;margin-bottom:4px;}
+  .rpcard .sub{font-size:12.5px;color:var(--soft);margin-bottom:12px;line-height:1.55;}
+  .rphead{color:#fff;margin:2px 2px 12px;}
+  .rphead .cn{font-size:11.5px;font-weight:800;color:var(--amber);letter-spacing:.08em;}
+  .rphead h2{font-size:21px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.3;}
+  .rphead .mem{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;}
+  .rphead .mem span{background:#1d2b3d;border:1px solid #3a4c66;color:#cfdced;font-size:11.5px;
+    font-weight:700;border-radius:20px;padding:2px 9px;}
+  .rpacts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+  .rpacts button{border:0;border-radius:11px;padding:11px 4px;font-weight:800;font-size:13px;cursor:pointer;}
+  .rpacts .a1{background:var(--amber);color:#fff;}
+  .rpacts .a2{background:#2b6ea3;color:#fff;}
+  .rpacts .a3{background:#fff;color:var(--ink2);border:1.5px solid var(--hair);}
+  .rpacts button em.dot2{display:inline-block;min-width:17px;height:17px;line-height:17px;border-radius:9px;
+    background:#e5484d;color:#fff;font-size:10.5px;font-style:normal;padding:0 4px;margin-left:4px;}
+  .pgc{display:flex;align-items:center;gap:11px;background:linear-gradient(#fffdf8,#fdfaf3);border-radius:12px;
+    padding:13px 14px;margin-bottom:9px;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.28);}
+  .pgc .ic{font-size:21px;}
+  .pgc .tx{flex:1;min-width:0;}
+  .pgc .tx b{font-size:14.5px;color:var(--ink);display:block;}
+  .pgc .tx span{font-size:11.5px;color:var(--soft);display:block;margin-top:2px;}
+  .pgc .st{text-align:right;flex:0 0 auto;}
+  .pgc .st .pr{font-size:12px;font-weight:800;color:var(--blue);}
+  .pgc .st .pr.full{color:#1d6b42;}
+  .pgc .chip{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 8px;margin-top:3px;}
+  .pgc .chip.ok{background:#eaf5ee;color:#1d6b42;}
+  .pgc .chip.fix{background:#fdecea;color:#a4271a;}
+  .pgc .chip.note{background:#fdf3e6;color:#9a6f12;}
+  .rpbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .rpbar .back{background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:9px;
+    padding:7px 12px;font-weight:800;font-size:13px;cursor:pointer;}
+  .rpbar b{color:#fff;font-size:16px;}
+  .rpbar .who2{margin-left:auto;font-size:11.5px;color:#9fb3c8;font-weight:700;}
+  .editbadge{background:#fdf3e6;border:1px solid #ecd9a6;color:#9a6f12;font-size:12px;font-weight:700;
+    border-radius:9px;padding:6px 10px;margin-bottom:10px;}
+  .tnote2{background:#e8f0fa;border:1px solid #b9d3e8;color:#1d4f78;font-size:13px;
+    border-radius:9px;padding:8px 11px;margin-bottom:10px;line-height:1.5;}
+  .tnote2 b{color:var(--blue);}
+  .rpform label{display:block;font-size:13px;font-weight:700;color:var(--ink2);margin:12px 0 5px;}
+  .rpform label em{font-style:normal;font-weight:600;color:var(--soft);font-size:11.5px;margin-left:4px;}
+  .rpform textarea{min-height:76px;}
+  .rpsave{position:sticky;bottom:10px;margin-top:14px;}
+  .rpsave button{width:100%;background:var(--ink);color:#fff;border:0;border-radius:11px;
+    padding:13px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.35);}
+  .rpsave button:disabled{opacity:.6;}
+  .mtab{width:100%;border-collapse:collapse;}
+  .mtab th{background:var(--ink);color:#fff;font-size:11.5px;padding:6px 4px;}
+  .mtab td{border:1px solid var(--hair);padding:0;}
+  .mtab td input{border:0;border-radius:0;text-align:center;font-size:14px;padding:9px 2px;background:#fff;}
+  .mtab td.avg{text-align:center;font-weight:800;font-size:13.5px;color:var(--blue);background:#f3f7fb;}
+  .gwrap{margin-top:10px;background:#fff;border:1px solid var(--hair);border-radius:9px;padding:12px;}
+  .gwrap .grow{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .gwrap .gl{flex:0 0 92px;font-size:11.5px;font-weight:700;color:var(--ink2);text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .gwrap .gt{flex:1;height:22px;background:#eef2f6;border-radius:4px;overflow:hidden;}
+  .gwrap .gb{height:100%;background:var(--amber);border-radius:4px;}
+  .gwrap .gv{flex:0 0 58px;font-size:12px;font-weight:800;color:var(--ink);}
+  .phslot{margin-top:6px;}
+  .phslot img{width:100%;max-height:260px;object-fit:contain;background:#f3f5f7;border-radius:9px;border:1px solid var(--hair);}
+  .phslot .phbtns{display:flex;gap:7px;margin-top:6px;}
+  .phslot button{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);border-radius:9px;
+    padding:8px 12px;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .phslot .empty2{border:1.5px dashed #b6c0cb;border-radius:9px;padding:22px 10px;text-align:center;
+    color:var(--soft);font-size:12.5px;background:#fafbfc;}
+  .vrow{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:12px;padding:13px 14px;margin-bottom:9px;
+    box-shadow:0 3px 14px rgba(0,0,0,.28);}
+  .vrow .t{display:flex;align-items:center;gap:8px;}
+  .vrow .t b{font-size:15px;color:var(--ink);flex:1;}
+  .vrow .t span{font-size:11.5px;color:var(--soft);}
+  .vrow .vb{display:flex;gap:7px;margin-top:9px;}
+  .vrow .vb button{flex:1;border-radius:9px;padding:9px 4px;font-weight:800;font-size:12.5px;cursor:pointer;}
+  .vrow .vb .b1{background:var(--ink);color:#fff;border:0;}
+  .vrow .vb .b2{background:#fff;color:var(--blue);border:1.5px solid #b9d3e8;}
+  .vrow .vb .b2.sent{color:#1d6b42;border-color:#bfe0cb;}
+  .ptypes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+  .ptypes button{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);font-size:12px;
+    font-weight:700;border-radius:20px;padding:5px 11px;cursor:pointer;}
+  .ptypes button.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .pcard{background:#fff;border:1px solid var(--hair);border-radius:10px;padding:11px 12px;margin-bottom:9px;}
+  .pcard .ph2{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .pcard .ty{background:#e8f0fa;color:#1d4f78;font-size:11px;font-weight:800;border-radius:20px;padding:2px 9px;}
+  .pcard .ty.good{background:#eaf5ee;color:#1d6b42;}
+  .pcard .fr{font-size:11.5px;color:var(--soft);font-weight:700;}
+  .pcard .star{margin-left:auto;background:none;border:1.5px solid #e0cda0;color:#c9971f;border-radius:20px;
+    font-size:11.5px;font-weight:800;padding:3px 10px;cursor:pointer;}
+  .pcard .star.on{background:#c9971f;border-color:#c9971f;color:#fff;}
+  .pcard p{font-size:13.5px;color:var(--ink);margin:7px 0;line-height:1.5;}
+  .pcard .jrow{display:flex;gap:6px;align-items:center;margin-top:6px;}
+  .pcard .jrow button.jv{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);border-radius:9px;
+    padding:6px 13px;font-weight:800;font-size:12.5px;cursor:pointer;}
+  .pcard .jrow button.jv.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .pcard .jre{margin-top:6px;}
+  .pcard .jre input{font-size:13.5px;padding:8px 10px;}
+  .pcard .jsave{margin-top:7px;width:100%;background:var(--blue);color:#fff;border:0;border-radius:9px;
+    padding:9px;font-weight:800;font-size:13px;cursor:pointer;}
+  .pstat{font-size:11.5px;font-weight:800;border-radius:20px;padding:2px 9px;}
+  .pstat.w{background:#eef2f6;color:#6b7a8b;}
+  .pstat.f{background:#eaf5ee;color:#1d6b42;}
+  .pstat.k{background:#fdf3e6;color:#9a6f12;}
+  .pnew{background:#e5484d;color:#fff;font-size:10px;font-weight:800;border-radius:8px;padding:1px 6px;}
+  /* 발표 모드 */
+  #slv{position:fixed;inset:0;z-index:998;background:#0f1a27;display:none;flex-direction:column;}
+  #slv.on{display:flex;}
+  #slv .top{display:flex;align-items:center;gap:10px;padding:12px 16px;}
+  #slv .tmchip{background:#d9a441;color:#12202f;font-size:clamp(15px,2.6vw,22px);font-weight:900;
+    border-radius:12px;padding:6px 16px;}
+  #slv .timer{background:#1d2b3d;border:1px solid #3a4c66;color:#cfdced;font-size:clamp(14px,2.2vw,20px);
+    font-weight:800;border-radius:12px;padding:6px 14px;cursor:pointer;}
+  #slv .timer.lowt{background:#7a1f1f;border-color:#a4271a;color:#ffd9d4;}
+  #slv .x{margin-left:auto;background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:10px;
+    font-size:15px;padding:5px 13px;cursor:pointer;}
+  #slv .body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:3vh 6vw;text-align:center;overflow:hidden;}
+  #slv .k{color:#d9a441;font-size:clamp(15px,2.8vw,26px);font-weight:800;letter-spacing:.12em;margin-bottom:2.2vh;}
+  #slv .big{color:#fff;font-size:clamp(26px,6.2vw,64px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
+    white-space:pre-wrap;word-break:keep-all;}
+  #slv .big.gold{color:#f6dc8c;}
+  #slv .sub2{color:#9fb3c8;font-size:clamp(14px,2.4vw,22px);margin-top:2.4vh;line-height:1.5;}
+  #slv .two{display:grid;grid-template-columns:1fr 1fr;gap:4vw;width:100%;max-width:1100px;text-align:left;}
+  #slv .two .k{margin-bottom:1vh;}
+  #slv .two .big{font-size:clamp(18px,3.6vw,40px);font-weight:800;}
+  #slv img.ph{max-width:92%;max-height:62vh;border-radius:12px;object-fit:contain;}
+  #slv .gslide{width:100%;max-width:980px;text-align:left;}
+  #slv .gslide .grow{display:flex;align-items:center;gap:1.2vw;margin-bottom:1.6vh;}
+  #slv .gslide .gl{flex:0 0 24%;color:#cfdced;font-size:clamp(14px,2.6vw,24px);font-weight:700;text-align:right;}
+  #slv .gslide .gt{flex:1;height:clamp(22px,4.2vh,40px);background:#1d2b3d;border-radius:8px;overflow:hidden;}
+  #slv .gslide .gb{height:100%;background:#d9a441;border-radius:8px;}
+  #slv .gslide .gv{flex:0 0 17%;color:#fff;font-size:clamp(15px,2.8vw,26px);font-weight:900;}
+  #slv .foot{display:flex;align-items:center;padding:10px 16px 16px;color:#61758c;font-size:13px;}
+  #slv .foot .pgn{margin-left:auto;font-weight:800;color:#9fb3c8;font-size:clamp(14px,2.2vw,20px);}
+  /* 교사: 보고서 검토 · 현황판 */
+  .matbox{background:#fff;border-radius:12px;padding:14px 15px;margin-bottom:12px;box-shadow:0 3px 14px rgba(0,0,0,.25);}
+  .matbox h3{font-size:14.5px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+  .matbox .ml{font-size:13px;color:var(--ink);padding:5px 0;border-bottom:1px dashed #e4e9ee;display:flex;gap:8px;}
+  .matbox .ml b{flex:0 0 72px;color:var(--blue);}
+  .trp{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:0 3px 14px rgba(0,0,0,.25);}
+  .trp .h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .trp .h b{font-size:15px;}
+  .trp .h .mems{font-size:11.5px;color:var(--soft);}
+  .trp .h .chip{font-size:11px;font-weight:800;border-radius:20px;padding:2px 9px;}
+  .trp .h .chip.ok{background:#eaf5ee;color:#1d6b42;}
+  .trp .h .chip.fix{background:#fdecea;color:#a4271a;}
+  .trp .h .chip.no{background:#eef2f6;color:#6b7a8b;}
+  .trp .btns{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;}
+  .trp .btns button{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);border-radius:9px;
+    padding:7px 12px;font-weight:700;font-size:12.5px;cursor:pointer;}
+  .trp .btns button.pri{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .trp .plan2{margin-top:10px;border-top:1px dashed var(--hair);padding-top:9px;font-size:13px;}
+  .trp .plan2 .f{margin-bottom:7px;}
+  .trp .plan2 .f b{color:var(--blue);font-size:11.5px;display:block;}
+  .trp .ap{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+  .trp .ap input{flex:1;min-width:170px;font-size:13px;padding:8px 10px;}
+  .bstats{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;}
+  .bstats th{background:var(--ink);color:#fff;font-size:12px;padding:9px 6px;}
+  .bstats td{border-bottom:1px solid #eef1f4;text-align:center;font-size:13.5px;padding:9px 6px;color:var(--ink);}
+  .bstats td.l2{text-align:left;font-weight:800;}
+  .bstats td b{color:var(--amber);}
+  .bigboard .bstats th{font-size:17px;padding:13px 8px;}
+  .bigboard .bstats td{font-size:22px;padding:14px 8px;font-weight:700;}
+  #rpToast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#12202f;color:#fff;
+    border:1px solid #3a4c66;border-radius:12px;padding:10px 18px;font-size:13.5px;font-weight:700;
+    z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+  @media print{ #slv,#rpToast{display:none !important;} }
 </style>
 </head>
 <body>
@@ -634,6 +803,7 @@
       <button id="tabMat">자료·도구</button>
       <button id="tabWrite" class="on">사건 접수</button>
       <button id="tabList">사건함<em class="dot hide" id="listDot"></em></button>
+      <button id="tabRep">보고서</button>
       <button id="tabRef">성찰</button>
       <button id="tabTeach" title="교사용">🔒</button>
     </div>
@@ -764,6 +934,10 @@
       <div id="list"></div>
     </div>
 
+    <div id="paneRep" class="hide narrow">
+      <div id="repBody"><div class="empty">불러오는 중...</div></div>
+    </div>
+
     <div id="paneTeach" class="hide">
       <div id="pinBox" class="narrow">
         <div class="card">
@@ -792,6 +966,8 @@
             <option value="s">참여 집계</option>
             <option value="ai">AI 정리</option>
             <option value="b">명찰 · 승급</option>
+            <option value="rep">보고서 검토</option>
+            <option value="board">검증 현황판</option>
           </select>
           <button class="ghost" id="tReload">새로고침</button>
           <button class="ghost" id="tPrint">인쇄</button>
@@ -1014,7 +1190,7 @@ function drawWho(){
     sel.addEventListener('click', function(e){ e.stopPropagation(); });
     sel.addEventListener('change', function(e){
       e.stopPropagation();
-      me.cls=sel.value; QS=[]; ME=null; MATC=null;
+      me.cls=sel.value; QS=[]; ME=null; MATC=null; rpReset();
       $('list').innerHTML=''; $('matList').innerHTML=''; $('hero').innerHTML='';
       load(); loadMat();
     });
@@ -1097,7 +1273,8 @@ function openRule(){
       (k===i?'<span class="me">지금</span>':'')+'</div>';
   });
   h += '<h4>도장</h4><div class="rnote">한 차시에서 <b>질문 1개와 답변 1개</b>를 모두 남기면 그 차시 도장을 받습니다. 모두 8개입니다.</div>';
-  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b> + <b>성찰</b>.<br>'+
+  h += '<h4>인정 점수</h4><div class="rnote">도장 + 받은 제보 + 채택된 내 답변 + 추가 답변 + <b>내가 채택해 준 수</b> + <b>성찰</b> + <b>도움이 된 제안</b>.<br>'+
+       '수사 검증 회의에서 내 제안 카드가 ⭐(도움이 된 제안)로 뽑히면 1점을 받습니다.<br>'+
        '성찰은 차시마다 1점입니다. 「오늘 알게 된 것」을 10자 이상 쓰면 그 차시 점수를 받습니다(같은 차시에 여러 번 써도 1점).<br>'+
        '한 사건은 제보를 아무리 많이 받아도 1점입니다. 여러 사건에서 받아야 점수가 쌓입니다.<br>'+
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
@@ -1113,6 +1290,7 @@ function openRule(){
       '도장 '+ME.stampCount+'개 · 질문 '+ME.q+'개 · 답변 '+ME.a+'개 · 인정 '+ME.score+'점'+
       ' · 해결 도장 '+(ME.solved||0)+'개 · 채택된 답변 '+(ME.adopted||0)+'개'+
       (ME.ref!=null?' · 성찰 '+ME.ref+'점':'')+
+      (ME.help!=null?' · 도움 제안 ⭐'+ME.help:'')+
       (nx? '<br><b>'+nx+'</b>':'')+'</div>';
   }
   b.innerHTML = h;
@@ -1123,7 +1301,7 @@ $('rule').addEventListener('click', function(e){ if(e.target===this) show($('rul
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
-  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master');
+  me=null; PIN=''; TEACHER=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
   show($('who'),false); show($('stampBar'),false);
   show($('tLoginCard'),false); show($('rankStrip'),true);
   ['tabWrite','tabRef'].forEach(function(id){ show($(id),true); });
@@ -1266,21 +1444,724 @@ $('btnOther').addEventListener('click', function(){
   }
 })();
 
+/* ───────── 수사 보고서 ───────── */
+var RP={loaded:false,team:null,members:[],pages:{},vers:{},meta:{},approve:null,editing:{},props:[],view:'home',cur:null,pingT:null,_ed:null};
+var RPAGES=[
+  {k:'cover',n:'표지',ic:'📁',fs:[
+    {f:'caseNo',t:'text',n:'사건 번호',ph:'예) F-05'},
+    {f:'title',t:'text',n:'사건 제목',ph:'예) 비 오는 날의 1층 계단'},
+    {f:'motive',t:'ta',n:'수사 동기',ph:'이 장소에서 무엇을 보았나요? 왜 위험하다고 생각했나요? (두세 줄)'},
+    {f:'photo',t:'photo',n:'현장 사진',em:'사람 얼굴이 나오지 않게'}]},
+  {k:'plan',n:'① 수사 계획',ic:'🧭',fs:[
+    {f:'q',t:'ta',n:'수사 질문',ph:'예) 계단이 젖으면 패드 위와 돌 부분 중 어디의 마찰력이 더 줄어들까?'},
+    {f:'obj',t:'text',n:'힘을 받는 물체',ph:'예) 계단을 밟는 신발'},
+    {f:'forces',t:'ta',n:'작용하는 힘과 방향',ph:'예) 신발이 미끄러지려는 방향과 반대로 마찰력'},
+    {f:'hypo',t:'text',n:'가설',ph:'(      )할수록 (      )할 것이다'},
+    {f:'diff',t:'text',n:'다르게 할 것'},
+    {f:'same',t:'text',n:'같게 할 것'},
+    {f:'meas',t:'text',n:'잴 것 (단위)',ph:'예) 마찰력(N), 3회 평균'},
+    {f:'tools',t:'text',n:'쓸 도구',ph:'힘센서 · 용수철저울 · 전자저울 · 자 · 기타'},
+    {f:'mat',t:'ta',n:'필요한 재료와 개수',em:'선생님이 이 칸을 보고 재료를 준비해요',ph:'예) 실내화 1짝, 분무기 1개, 페트병(500mL) 1개'}]},
+  {k:'evid',n:'② 증거',ic:'📊',fs:[]},
+  {k:'anal',n:'③ 힘 분석과 안전 제안',ic:'🧲',fs:[
+    {f:'photo',t:'photo',n:'힘 화살표 사진',em:'갤러리 편집(✏️ 그리기)으로 사진 위에 화살표와 힘 이름을 그려서 올리세요'},
+    {f:'prop',t:'ta',n:'우리의 제안',ph:'어떤 힘을 · 얼마나 · 어느 방향으로 바꾸자 (장치 · 관리 방법 · 사용 규칙)'},
+    {f:'basis',t:'ta',n:'근거 (우리가 잰 값)',ph:'예) 패드 위는 젖어도 마찰력이 0.4N만 줄었다'},
+    {f:'unk',t:'ta',n:'아직 확인하지 못한 것',ph:'재 보지 못한 것은 솔직하게 (탐정 수칙 3)'}]},
+  {k:'rx',n:'④ 받은 제안',ic:'💌',fs:[]}
+];
+var PTYPES=['증거가 부족해요','변인이 섞였어요','힘 분석이 달라요','모형과 실제가 달라요','차이가 우연일 수도 있어요','제안의 부작용이 걱정돼요','이 점이 좋아요'];
+
+function post(params,done,fail){
+  fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(params)})
+  .then(function(r){ return r.json(); })
+  .then(function(res){ if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류',res); })
+  .catch(function(){ if(fail) fail('연결에 실패했습니다',null); });
+}
+function rpToast(t){
+  var e=$('rpToast'); if(!e){ e=document.createElement('div'); e.id='rpToast'; document.body.appendChild(e); }
+  e.textContent=t; e.style.display='block';
+  clearTimeout(rpToast._t); rpToast._t=setTimeout(function(){ e.style.display='none'; },2400);
+}
+function rpReset(){
+  if(RP&&RP.pingT) clearInterval(RP.pingT);
+  RP={loaded:false,team:null,members:[],pages:{},vers:{},meta:{},approve:null,editing:{},props:[],view:'home',cur:null,pingT:null,_ed:null};
+  var s=$('slv'); if(s) s.classList.remove('on');
+  var b=$('repBody'); if(b) b.innerHTML='<div class="empty">불러오는 중...</div>';
+  document.body.classList.remove('bigboard');
+}
+function rpImg(id){ return 'https://drive.google.com/thumbnail?id='+id+'&sz=w1400'; }
+function rpJ(k){ return RP.pages[k]||{}; }
+function rpPage(k){ var P=null; RPAGES.forEach(function(x){ if(x.k===k) P=x; }); return P; }
+function rpAvg(r){
+  var vs=[r.v1,r.v2,r.v3].map(parseFloat).filter(function(x){ return isFinite(x); });
+  if(!vs.length) return null;
+  var m=vs.reduce(function(a,b){return a+b;},0)/vs.length;
+  return Math.round(m*100)/100;
+}
+function rpProg(k){
+  var j=rpJ(k);
+  if(k==='evid'){
+    var n=0;
+    if((j.rows||[]).some(function(r){ return (r.c||'')&&rpAvg(r)!=null; })) n++;
+    if(j.unit) n++; if((j.concl||'').trim()) n++; if(j.photo) n++;
+    return {a:n,b:4};
+  }
+  if(k==='rx'){
+    var t=RP.props.length, d=RP.props.filter(function(p){return p.verdict;}).length;
+    return {a:d,b:t};
+  }
+  var P=rpPage(k), a=0;
+  P.fs.forEach(function(f){ if(String(j[f.f]||'').trim()) a++; });
+  return {a:a,b:P.fs.length};
+}
+function rpPingStart(k){
+  rpPingStop();
+  var send=function(){ call({action:'editPing',cls:me.cls,team:RP.team,page:k,name:(me.det||me.name)},function(){},function(){}); };
+  send(); RP.pingT=setInterval(send,40000);
+}
+function rpPingStop(){ if(RP.pingT){ clearInterval(RP.pingT); RP.pingT=null; } }
+
+function repOpen(){
+  if(TEACHER){ rpVisit(true); return; }
+  if(RP.loaded){ if(RP.view==='edit'&&RP.cur) rpEdit(RP.cur); else rpHome(); return; }
+  $('repBody').innerHTML='<div class="empty">불러오는 중...</div>';
+  call({action:'teamInfo',cls:me.cls,num:me.num},function(res){
+    if(!res.team){ rpJoin(); return; }
+    RP.team=res.team; rpLoad();
+  },rpFailBox);
+}
+function rpFailBox(err){
+  $('repBody').innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?
+    '수사 보고서는 선생님이 서버를 새로 배포하면 열립니다.<br>조금만 기다려 주세요.':
+    '불러오지 못했습니다.<br>'+esc(err))+'</div>';
+}
+function rpLoad(cb){
+  call({action:'report',cls:me.cls,team:RP.team},function(res){
+    RP.loaded=true; RP.pages={}; RP.vers={}; RP.meta={};
+    var pg=res.pages||{};
+    for(var k in pg){
+      try{ RP.pages[k]=JSON.parse(pg[k].j||'{}'); }catch(e){ RP.pages[k]={}; }
+      RP.vers[k]=pg[k].ver||0; RP.meta[k]={by:pg[k].by||'',at:pg[k].at||''};
+    }
+    RP.approve=RP.pages.approve||null;
+    RP.members=res.members||[]; RP.editing=res.editing||{}; RP.props=res.props||[];
+    if(cb) cb(); else rpHome();
+  },rpFailBox);
+}
+
+/* 모둠 등록 */
+function rpJoin(){
+  var box=$('repBody');
+  var h='<div class="rpcard"><h2>수사팀 등록</h2>'+
+    '<div class="sub">우리 모둠을 고르면 모둠의 수사 보고서가 열립니다. 모둠 친구들은 각자 자기 태블릿으로 같은 보고서를 나눠 씁니다.</div>'+
+    '<div class="ptypes" id="rpTP"></div><div style="height:6px"></div>'+
+    '<button class="primary" id="rpJG" disabled>들어가기</button>'+
+    '<div class="sub" style="margin-top:10px;margin-bottom:0">잘못 골랐으면 선생님이 바로잡아 줄 수 있어요.</div></div>'+
+    '<div class="rpcard"><h2>들어가면 먼저 역할을 나누세요</h2>'+
+    '<div class="sub" style="margin-bottom:0">보고서는 다섯 페이지입니다. 페이지마다 <b>맡은 탐정</b>을 정해 이름을 걸어 두세요.<br>'+
+    '표지 · ① 수사 계획 · ② 증거 · ③ 힘 분석과 안전 제안은 나눠 맡고, ④ 받은 제안은 모둠이 함께 판단합니다.</div></div>';
+  box.innerHTML=h;
+  var tp=$('rpTP'), sel=0;
+  for(var i=1;i<=8;i++){
+    (function(n){
+      var b=document.createElement('button'); b.type='button'; b.textContent=n+'모둠';
+      b.addEventListener('click',function(){
+        Array.prototype.forEach.call(tp.children,function(x){x.classList.remove('on');});
+        b.classList.add('on'); sel=n; $('rpJG').disabled=false;
+      });
+      tp.appendChild(b);
+    })(i);
+  }
+  $('rpJG').addEventListener('click',function(){
+    var bt=this; bt.disabled=true; bt.textContent='등록 중...';
+    call({action:'teamJoin',cls:me.cls,num:me.num,name:me.name,det:me.det||'',team:sel},
+      function(){ RP.team=sel; rpLoad(); },
+      function(err){ bt.disabled=false; bt.textContent='들어가기'; alert(err); });
+  });
+}
+
+/* 모둠 홈 */
+function rpHome(){
+  RP.view='home'; RP.cur=null; rpPingStop();
+  var box=$('repBody'), c=rpJ('cover');
+  var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||'F-?')+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
+    '<h2>'+esc(c.title||'사건 제목을 아직 정하지 않았어요')+'</h2><div class="mem">'+
+    RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
+  h+='<div class="rpacts">'+
+    '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
+    '<button class="a2" id="rpVB">🕵 검증 회의</button>'+
+    '<button class="a3" id="rpMB">📨 내 제안</button></div>';
+  if(!pick('fd_rolehint_'+me.cls+'_'+RP.team)){
+    h+='<div class="tnote2" id="rpRH" style="cursor:pointer"><b>역할 나누기</b> · 페이지마다 「맡은 탐정」을 정해 이름을 걸어 두세요. 맡지 않은 페이지도 함께 고칠 수 있습니다. <u>알겠어요</u></div>';
+  }
+  box.innerHTML=h;
+  if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint_'+me.cls+'_'+RP.team,'1'); this.remove(); });
+  $('rpSB').addEventListener('click',function(){
+    rpSlides(RP.pages,RP.team,RP.props,RP.members.map(function(m){return m.det||m.name;}).join(' · '));
+  });
+  $('rpVB').addEventListener('click',function(){ rpVisit(false); });
+  $('rpMB').addEventListener('click',rpMyProps);
+  var roles=rpJ('roles');
+  RPAGES.forEach(function(P){
+    var d=document.createElement('div'); d.className='pgc';
+    var meta=RP.meta[P.k]||{}, pr=rpProg(P.k), chips='';
+    if(P.k==='plan'){
+      var ap=RP.approve;
+      if(ap&&ap.st==='승인') chips+='<span class="chip ok">✔ 소장 승인</span>';
+      else if(ap&&ap.st==='보완') chips+='<span class="chip fix">△ 보완 요청</span>';
+      if(ap&&ap.note) chips+='<span class="chip note">소장 의견</span>';
+    }
+    var sub=P.k==='rx' ? ('카드 '+RP.props.length+'장 · 판단 '+RP.props.filter(function(p){return p.verdict;}).length+'장')
+      : (meta.by?('마지막 저장 '+esc(meta.by)+(meta.at?' · '+esc(meta.at):'')):'아직 쓰지 않았어요');
+    d.innerHTML='<span class="ic">'+P.ic+'</span><div class="tx"><b>'+P.n+'</b><span>'+sub+'</span>'+
+      '<span class="roleRow"></span></div>'+
+      '<div class="st"><span class="pr'+(pr.b&&pr.a===pr.b?' full':'')+'">'+pr.a+'/'+pr.b+'</span><br>'+chips+'</div>';
+    if(P.k!=='rx'){
+      var rr=d.querySelector('.roleRow');
+      var selR=document.createElement('select');
+      selR.style.cssText='width:auto;font-size:11.5px;padding:3px 6px;margin-top:4px;border-radius:7px;border:1px solid var(--hair);';
+      var o0=document.createElement('option'); o0.value=''; o0.textContent='맡은 탐정 정하기'; selR.appendChild(o0);
+      RP.members.forEach(function(m){
+        var o=document.createElement('option'); o.value=m.num; o.textContent='맡음: '+(m.det||m.name);
+        if(String(roles[P.k]||'')===String(m.num)) o.selected=true; selR.appendChild(o);
+      });
+      selR.addEventListener('click',function(e){ e.stopPropagation(); });
+      selR.addEventListener('change',function(e){
+        e.stopPropagation(); roles[P.k]=selR.value; RP.pages.roles=roles;
+        rpSaveNow('roles',roles,true,null);
+      });
+      rr.appendChild(selR);
+    }
+    d.addEventListener('click',function(){ rpEdit(P.k); });
+    box.appendChild(d);
+  });
+}
+
+function rpSaveNow(page,obj,silent,btn){
+  if(btn){ btn.disabled=true; btn.textContent='저장 중...'; }
+  post({action:'pageSave',cls:me.cls,team:RP.team,page:page,json:JSON.stringify(obj),
+    baseVer:RP.vers[page]||0,num:me.num,name:(me.det||me.name)},
+    function(res){
+      if(btn){ btn.disabled=false; btn.textContent='저장하기'; }
+      RP.vers[page]=res.ver; RP.pages[page]=obj; RP.meta[page]={by:(me.det||me.name),at:'방금'};
+      if(!silent) rpToast('저장했습니다');
+    },
+    function(err,res){
+      if(btn){ btn.disabled=false; btn.textContent='저장하기'; }
+      if(res&&res.conflict){
+        RP.vers[page]=res.ver||0;
+        var go=confirm((res.by||'친구')+' 탐정이 먼저 저장했어요.\n\n[확인] 친구가 저장한 최신 내용을 불러옵니다 (내 입력은 사라져요)\n[취소] 내 화면을 그대로 두고, 다시 저장하면 덮어씁니다');
+        if(go){
+          try{ RP.pages[page]=JSON.parse(res.j||'{}'); }catch(e){}
+          if(RP.view==='edit'&&RP.cur===page) rpEdit(page);
+        }
+      } else alert(err);
+    });
+}
+
+/* 페이지 편집 */
+function rpEdit(k){
+  RP.view='edit'; RP.cur=k;
+  var box=$('repBody'), P=rpPage(k);
+  RP._ed=JSON.parse(JSON.stringify(rpJ(k)));
+  var h='<div class="rpbar"><button class="back" id="rpBk">← 보고서</button><b>'+P.n+'</b>'+
+    '<span class="who2">'+(RP.meta[k]&&RP.meta[k].by?('마지막 저장 '+esc(RP.meta[k].by)):'')+'</span></div>';
+  var ed=RP.editing[k];
+  if(ed&&ed!==(me.det||me.name))
+    h+='<div class="editbadge">👀 '+esc(ed)+' 탐정이 이 페이지를 보고 있어요. 같은 칸을 동시에 고치면 한 사람 것만 남아요.</div>';
+  if(k==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
+    h+='<div class="tnote2"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?' · '+esc(RP.approve.note):'')+'</div>';
+  h+='<div class="rpcard rpform" id="rpF"></div>'+
+    (k==='rx'?'':'<div class="rpsave"><button id="rpSv">저장하기</button></div>');
+  if(k==='rx') h+='<div class="rpsave"><button id="rpSv">저장하기</button></div>';
+  box.innerHTML=h;
+  $('rpBk').addEventListener('click',function(){ rpPingStop(); rpLoad(); });
+  var F=$('rpF');
+  if(k==='evid') rpEvidForm(F);
+  else if(k==='rx') rpRxForm(F);
+  else rpStdForm(F,P);
+  $('rpSv').addEventListener('click',function(){
+    var obj=rpCollect(k,P);
+    rpSaveNow(k,obj,false,this);
+  });
+  rpPingStart(k);
+}
+function rpStdForm(F,P){
+  P.fs.forEach(function(f){
+    var lab=document.createElement('label');
+    lab.innerHTML=esc(f.n)+(f.em?' <em>'+esc(f.em)+'</em>':'');
+    F.appendChild(lab);
+    if(f.t==='photo'){ F.appendChild(rpPhotoSlot(f.f)); }
+    else if(f.t==='ta'){
+      var ta=document.createElement('textarea'); ta.id='rp_in_'+f.f;
+      ta.placeholder=f.ph||''; ta.value=RP._ed[f.f]||''; F.appendChild(ta);
+    } else {
+      var inp=document.createElement('input'); inp.type='text'; inp.id='rp_in_'+f.f;
+      inp.placeholder=f.ph||''; inp.value=RP._ed[f.f]||''; F.appendChild(inp);
+    }
+  });
+}
+function rpCollect(k,P){
+  var j=RP._ed||{};
+  if(k==='evid'){
+    j.rows=[];
+    for(var i=0;i<4;i++){
+      j.rows.push({c:($('ev_c'+i)?$('ev_c'+i).value.trim():''),
+        v1:($('ev_1_'+i)?$('ev_1_'+i).value.trim():''),
+        v2:($('ev_2_'+i)?$('ev_2_'+i).value.trim():''),
+        v3:($('ev_3_'+i)?$('ev_3_'+i).value.trim():'')});
+    }
+    j.unit=$('ev_unit')?$('ev_unit').value.trim():'';
+    j.concl=$('ev_concl')?$('ev_concl').value.trim():'';
+    return j;
+  }
+  if(k==='rx'){ j.summary=$('rp_rx_sum')?$('rp_rx_sum').value.trim():''; return j; }
+  P.fs.forEach(function(f){
+    if(f.t==='photo') return;
+    var e=$('rp_in_'+f.f); if(e) j[f.f]=e.value.trim();
+  });
+  return j;
+}
+function rpPhotoSlot(field){
+  var w=document.createElement('div'); w.className='phslot';
+  function draw(){
+    var id=RP._ed[field];
+    w.innerHTML=id?'<img src="'+rpImg(id)+'" alt="사진">':'<div class="empty2">아직 사진이 없어요</div>';
+    var bb=document.createElement('div'); bb.className='phbtns';
+    var up=document.createElement('button'); up.type='button'; up.textContent=id?'사진 바꾸기':'📷 사진 올리기';
+    var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+    up.addEventListener('click',function(){ fi.click(); });
+    fi.addEventListener('change',function(){
+      var f=fi.files[0]; if(!f) return;
+      up.disabled=true; up.textContent='올리는 중...';
+      rpShrink(f,function(b64){
+        post({action:'photo',cls:me.cls,team:RP.team,page:RP.cur,field:field,data:b64},
+          function(res){ RP._ed[field]=res.id; draw(); rpToast('사진을 올렸어요. 아래 저장하기까지 눌러 주세요.'); },
+          function(err){ up.disabled=false; up.textContent='다시 시도'; alert(err); });
+      });
+    });
+    bb.appendChild(up); bb.appendChild(fi);
+    if(id){
+      var del=document.createElement('button'); del.type='button'; del.textContent='삭제';
+      del.addEventListener('click',function(){ RP._ed[field]=''; draw(); });
+      bb.appendChild(del);
+    }
+    w.appendChild(bb);
+  }
+  draw(); return w;
+}
+function rpShrink(file,done){
+  var rd=new FileReader();
+  rd.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      var mx=1280, s=Math.min(1,mx/Math.max(img.width,img.height));
+      var c=document.createElement('canvas');
+      c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      done(c.toDataURL('image/jpeg',0.82).split(',')[1]);
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function rpEvidForm(F){
+  var j=RP._ed; if(!j.rows) j.rows=[{},{},{},{}];
+  while(j.rows.length<4) j.rows.push({});
+  var lab=document.createElement('label');
+  lab.innerHTML='측정표 <em>조건마다 3번 재고, 평균은 저절로 계산돼요</em>'; F.appendChild(lab);
+  var t=document.createElement('table'); t.className='mtab';
+  var h='<tr><th style="width:34%">바꾼 조건</th><th>1회</th><th>2회</th><th>3회</th><th style="width:16%">평균</th></tr>';
+  for(var i=0;i<4;i++){
+    h+='<tr><td><input id="ev_c'+i+'" placeholder="'+(i===0?'예) 돌, 마름':'')+'" value="'+esc(j.rows[i].c||'')+'"></td>'+
+      '<td><input id="ev_1_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v1||'')+'"></td>'+
+      '<td><input id="ev_2_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v2||'')+'"></td>'+
+      '<td><input id="ev_3_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v3||'')+'"></td>'+
+      '<td class="avg" id="ev_a'+i+'">-</td></tr>';
+  }
+  t.innerHTML=h; F.appendChild(t);
+  var lab2=document.createElement('label'); lab2.textContent='잰 것과 단위'; F.appendChild(lab2);
+  var un=document.createElement('input'); un.type='text'; un.id='ev_unit';
+  un.placeholder='예) 마찰력(N)'; un.value=j.unit||''; F.appendChild(un);
+  var lab3=document.createElement('label'); lab3.innerHTML='그래프 <em>평균값으로 저절로 그려져요</em>'; F.appendChild(lab3);
+  var gw=document.createElement('div'); gw.className='gwrap'; gw.id='ev_g'; F.appendChild(gw);
+  var lab4=document.createElement('label'); lab4.textContent='결론 한 줄'; F.appendChild(lab4);
+  var co=document.createElement('input'); co.type='text'; co.id='ev_concl';
+  co.placeholder='재 보니 (      )할수록 (      )했다'; co.value=j.concl||''; co.style.fontWeight='800'; F.appendChild(co);
+  var lab5=document.createElement('label'); lab5.textContent='실험 사진'; F.appendChild(lab5);
+  F.appendChild(rpPhotoSlot('photo'));
+  function redraw(){
+    var rows=[], mx=0;
+    for(var i=0;i<4;i++){
+      var r={c:$('ev_c'+i).value.trim(),v1:$('ev_1_'+i).value,v2:$('ev_2_'+i).value,v3:$('ev_3_'+i).value};
+      var a=rpAvg(r);
+      $('ev_a'+i).textContent=a==null?'-':a;
+      if(r.c&&a!=null){ rows.push({c:r.c,a:a}); if(a>mx) mx=a; }
+    }
+    var g=$('ev_g');
+    if(!rows.length){ g.innerHTML='<div class="empty" style="padding:8px 0">조건과 측정값을 넣으면 그래프가 그려져요</div>'; return; }
+    var u=$('ev_unit').value.trim();
+    g.innerHTML=rows.map(function(r){
+      return '<div class="grow"><div class="gl">'+esc(r.c)+'</div><div class="gt"><div class="gb" style="width:'+
+        Math.max(3,Math.round(r.a/mx*100))+'%"></div></div><div class="gv">'+r.a+(u?' '+esc(u.replace(/^.*\(|\)$/g,'')):'')+'</div></div>';
+    }).join('');
+  }
+  F.addEventListener('input',redraw); redraw();
+}
+function rpRxForm(F){
+  var j=RP._ed;
+  var info=document.createElement('div'); info.className='sub';
+  info.innerHTML='카드마다 <b>고침 / 지킴</b>을 고르고 이유를 쓰세요. 두 길 모두 똑같이 인정됩니다.<br>가장 도움이 된 제안에는 <b>⭐</b>를 눌러 주세요. 그 카드를 쓴 탐정이 인정 점수 1점을 받습니다.';
+  F.appendChild(info);
+  if(!RP.props.length){
+    var em=document.createElement('div'); em.className='empty';
+    em.textContent='아직 받은 제안 카드가 없습니다. 수사 검증 회의에서 카드가 도착하면 여기에 쌓여요.';
+    F.appendChild(em);
+  }
+  RP.props.forEach(function(p){ F.appendChild(rpCardEl(p)); });
+  var lab=document.createElement('label'); lab.textContent='그래서 이렇게 고쳤다 (또는 이렇게 지켰다)'; F.appendChild(lab);
+  var ta=document.createElement('textarea'); ta.id='rp_rx_sum'; ta.value=j.summary||'';
+  ta.placeholder='받은 제안을 판단한 뒤, 보고서를 어떻게 고쳤는지(또는 왜 지켰는지) 정리하세요';
+  F.appendChild(ta);
+}
+function rpCardEl(p){
+  var d=document.createElement('div'); d.className='pcard';
+  var good=p.type==='이 점이 좋아요';
+  d.innerHTML='<div class="ph2"><span class="ty'+(good?' good':'')+'">'+esc(p.type)+'</span>'+
+    '<span class="fr">'+esc(p.from||'')+'</span>'+
+    '<button class="star'+(p.helpful==='Y'?' on':'')+'" type="button">⭐ 도움이 된 제안</button></div>'+
+    '<p></p>'+
+    '<div class="jrow"><button class="jv'+(p.verdict==='고침'?' on':'')+'" data-v="고침" type="button">고침</button>'+
+    '<button class="jv'+(p.verdict==='지킴'?' on':'')+'" data-v="지킴" type="button">지킴</button></div>'+
+    '<div class="jre"><input type="text" placeholder="이유 (힘과 측정값으로)"></div>'+
+    '<button class="jsave" type="button">판단 저장</button>';
+  d.querySelector('p').textContent=p.text;
+  d.querySelector('.jre input').value=p.reason||'';
+  var v=p.verdict||'';
+  Array.prototype.forEach.call(d.querySelectorAll('.jv'),function(b){
+    b.addEventListener('click',function(){
+      v=b.dataset.v;
+      Array.prototype.forEach.call(d.querySelectorAll('.jv'),function(x){ x.classList.toggle('on',x.dataset.v===v); });
+    });
+  });
+  var st=d.querySelector('.star');
+  st.addEventListener('click',function(){ st.classList.toggle('on'); });
+  d.querySelector('.jsave').addEventListener('click',function(){
+    var btn=this, reason=d.querySelector('.jre input').value.trim();
+    if(!v){ alert('고침 또는 지킴을 골라 주세요'); return; }
+    btn.disabled=true; btn.textContent='저장 중...';
+    post({action:'judge',key:p.key,verdict:v,reason:reason,helpful:st.classList.contains('on')?'Y':''},
+      function(){ btn.disabled=false; btn.textContent='판단 저장';
+        p.verdict=v; p.reason=reason; p.helpful=st.classList.contains('on')?'Y':'';
+        rpToast('판단을 저장했습니다'); },
+      function(err){ btn.disabled=false; btn.textContent='판단 저장'; alert(err); });
+  });
+  return d;
+}
+
+/* 검증 회의 (다른 모둠 보고서) */
+function rpVisit(isT){
+  RP.view='visit';
+  var box=$('repBody');
+  box.innerHTML='<div class="rpbar">'+(isT?'':'<button class="back" id="rpBk2">← 보고서</button>')+
+    '<b>🕵 수사 검증 회의</b></div>'+
+    '<div class="sub" style="color:#9fb3c8;margin:-2px 2px 10px">'+
+    (isT?'학생이 보는 검증 회의 화면입니다. 모둠 발표를 열어 볼 수 있어요.':
+    '발표를 듣고 모둠마다 제안 카드를 1장 보낼 수 있어요. 발표 모둠이 내 카드를 ⭐로 고르면 인정 점수 1점!')+'</div>'+
+    '<div id="rpVL"><div class="empty">불러오는 중...</div></div>';
+  if(!isT) $('rpBk2').addEventListener('click',rpHome);
+  call({action:'repTeams',cls:me.cls,num:me.num},function(res){
+    var L=$('rpVL'); L.innerHTML='';
+    var items=res.items||[];
+    if(!items.length){ L.innerHTML='<div class="empty">아직 등록된 수사팀이 없습니다.</div>'; return; }
+    items.forEach(function(t){
+      if(!isT&&String(t.team)===String(RP.team)) return;
+      var d=document.createElement('div'); d.className='vrow';
+      d.innerHTML='<div class="t"><b>'+t.team+'모둠 · '+esc(t.title||'제목 없음')+'</b><span>카드 '+t.cards+'장</span></div>'+
+        '<div class="vb"><button class="b1" type="button">🎤 발표 보기</button>'+
+        (isT?'':'<button class="b2'+(t.sent?' sent':'')+'" type="button">'+(t.sent?'✓ 카드 보냄 · 수정':'💌 제안 카드 보내기')+'</button>')+
+        '</div><div class="cardform hide"></div>';
+      d.querySelector('.b1').addEventListener('click',function(){
+        var bb=this; bb.disabled=true; bb.textContent='여는 중...';
+        call({action:'report',cls:me.cls,team:t.team},function(r2){
+          bb.disabled=false; bb.textContent='🎤 발표 보기';
+          var pg={};
+          for(var k in (r2.pages||{})){ try{ pg[k]=JSON.parse(r2.pages[k].j||'{}'); }catch(e){ pg[k]={}; } }
+          rpSlides(pg,t.team,r2.props||[],(r2.members||[]).map(function(m){return m.det||m.name;}).join(' · '));
+        },function(err){ bb.disabled=false; bb.textContent='🎤 발표 보기'; alert(err); });
+      });
+      if(!isT){
+        var b2=d.querySelector('.b2'), cf=d.querySelector('.cardform');
+        b2.addEventListener('click',function(){
+          if(cf.classList.contains('hide')&&!cf.innerHTML) rpCardForm(cf,t,b2);
+          cf.classList.toggle('hide');
+        });
+      }
+      L.appendChild(d);
+    });
+  },function(err){ $('rpVL').innerHTML='<div class="empty">'+esc(err)+'</div>'; });
+}
+function rpCardForm(cf,t,b2){
+  cf.innerHTML='<div class="ptypes"></div>'+
+    '<textarea style="min-height:62px;font-size:14px" placeholder="(   ) 때문에 (   )가 걱정돼요. (   )해 보면 어때요? — 한 문장이면 충분해요"></textarea>'+
+    '<button class="jsave" type="button">카드 보내기</button>';
+  var tp='', tw=cf.querySelector('.ptypes');
+  PTYPES.forEach(function(name){
+    var b=document.createElement('button'); b.type='button'; b.textContent=name;
+    b.addEventListener('click',function(){
+      tp=name;
+      Array.prototype.forEach.call(tw.children,function(x){ x.classList.toggle('on',x.textContent===tp); });
+    });
+    tw.appendChild(b);
+  });
+  cf.querySelector('.jsave').addEventListener('click',function(){
+    var btn=this, tx=cf.querySelector('textarea').value.trim();
+    if(!tp){ alert('카드 종류를 골라 주세요'); return; }
+    if(tx.length<5){ alert('한 문장으로 생각을 써 주세요 (5자 이상)'); return; }
+    btn.disabled=true; btn.textContent='보내는 중...';
+    post({action:'propose',cls:me.cls,num:me.num,name:(me.det||me.name),target:t.team,type:tp,text:tx},
+      function(){ btn.disabled=false; btn.textContent='카드 보내기';
+        t.sent=true; b2.classList.add('sent'); b2.textContent='✓ 카드 보냄 · 수정';
+        cf.classList.add('hide'); rpToast(t.team+'모둠에게 카드를 보냈어요'); },
+      function(err){ btn.disabled=false; btn.textContent='카드 보내기'; alert(err); });
+  });
+}
+function rpMyProps(){
+  RP.view='my';
+  var box=$('repBody');
+  box.innerHTML='<div class="rpbar"><button class="back" id="rpBk3">← 보고서</button><b>📨 내가 보낸 제안</b></div>'+
+    '<div id="rpML"><div class="empty">불러오는 중...</div></div>';
+  $('rpBk3').addEventListener('click',rpHome);
+  call({action:'myprops',cls:me.cls,num:me.num},function(res){
+    var L=$('rpML'); L.innerHTML='';
+    var seenK='fd_pseen_'+me.cls+'_'+me.num, seen={};
+    try{ seen=JSON.parse(pick(seenK)||'{}')||{}; }catch(e){ seen={}; }
+    var items=res.items||[];
+    if(!items.length){ L.innerHTML='<div class="empty">아직 보낸 제안이 없습니다. 검증 회의에서 친구 모둠에 카드를 보내 보세요.</div>'; return; }
+    items.forEach(function(p){
+      var d=document.createElement('div'); d.className='pcard';
+      var fresh=p.jat&&seen[p.key]!==p.jat;
+      var stat=!p.verdict?'<span class="pstat w">검토 전</span>':
+        '<span class="pstat '+(p.verdict==='고침'?'f':'k')+'">'+esc(p.verdict)+'</span>';
+      d.innerHTML='<div class="ph2"><span class="ty">'+esc(p.type)+'</span>'+
+        '<span class="fr">'+p.target+'모둠에게</span>'+
+        (p.helpful==='Y'?'<span class="pstat k">⭐ +1점</span>':'')+
+        (fresh?'<span class="pnew">NEW</span>':'')+
+        '<span style="margin-left:auto">'+stat+'</span></div><p></p>'+
+        (p.reason?'<div class="sub" style="margin:4px 0 0">모둠의 이유 · '+esc(p.reason)+'</div>':'');
+      d.querySelector('p').textContent=p.text;
+      L.appendChild(d);
+      if(p.jat) seen[p.key]=p.jat;
+    });
+    store(seenK,JSON.stringify(seen));
+  },function(err){ $('rpML').innerHTML='<div class="empty">'+esc(err)+'</div>'; });
+}
+
+/* 발표 모드 */
+var SL={list:[],i:0,run:false,left:180,tick:null};
+function rpSlides(pages,teamNo,props,memText){
+  var g=function(k){ return pages[k]||{}; };
+  var c=g('cover'), pl=g('plan'), ev=g('evid'), an=g('anal');
+  var S=[{tp:'title',no:c.caseNo||'',t:c.title||'사건 제목 없음',sub:(memText||'')}];
+  if((c.motive||'').trim()) S.push({tp:'kb',k:'수사 동기',b:c.motive});
+  if(c.photo) S.push({tp:'ph',k:'현장',id:c.photo});
+  if((pl.q||'').trim()) S.push({tp:'kb',k:'수사 질문',b:pl.q});
+  if((pl.hypo||'').trim()) S.push({tp:'kb',k:'가설',b:pl.hypo});
+  if((pl.diff||'').trim()||(pl.same||'').trim())
+    S.push({tp:'two',k:'다르게 한 것',b:pl.diff||'-',k2:'같게 한 것',b2:pl.same||'-'});
+  var rows=(ev.rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r)}; })
+    .filter(function(r){ return r.c&&r.a!=null; });
+  if(rows.length) S.push({tp:'graph',rows:rows,unit:ev.unit||''});
+  if((ev.concl||'').trim()) S.push({tp:'kb',k:'결론',b:ev.concl,gold:true});
+  if(an.photo) S.push({tp:'ph',k:'힘 분석',id:an.photo});
+  if((an.prop||'').trim()) S.push({tp:'kb',k:'우리의 제안',b:an.prop});
+  if((an.basis||'').trim()||(an.unk||'').trim())
+    S.push({tp:'two',k:'근거 (잰 값)',b:an.basis||'-',k2:'아직 확인하지 못한 것',b2:an.unk||'-'});
+  var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
+  if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
+  SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
+  SL.left=180;
+  var v=$('slv');
+  if(!v){
+    v=document.createElement('div'); v.id='slv';
+    v.innerHTML='<div class="top"><span class="tmchip" id="slTeam"></span>'+
+      '<button class="timer" id="slTime" type="button">⏱ 3:00</button>'+
+      '<button class="x" id="slX" type="button">✕ 닫기</button></div>'+
+      '<div class="body" id="slBody"></div>'+
+      '<div class="foot"><span>왼쪽을 누르면 이전 · 오른쪽을 누르면 다음</span><span class="pgn" id="slPg"></span></div>';
+    document.body.appendChild(v);
+    $('slX').addEventListener('click',function(){ v.classList.remove('on'); rpSlStop(); });
+    $('slTime').addEventListener('click',rpSlTimer);
+    $('slBody').addEventListener('click',function(e){
+      var r=this.getBoundingClientRect();
+      if((e.clientX-r.left)<r.width/3) rpSlGo(-1); else rpSlGo(1);
+    });
+  }
+  $('slTeam').textContent=teamNo+'모둠';
+  $('slTime').textContent='⏱ 3:00'; $('slTime').classList.remove('lowt');
+  v.classList.add('on');
+  rpSlDraw();
+}
+function rpSlGo(d){
+  var n=SL.i+d;
+  if(n<0||n>=SL.list.length) return;
+  SL.i=n; rpSlDraw();
+}
+function rpSlDraw(){
+  var s=SL.list[SL.i], b=$('slBody'), h='';
+  if(s.tp==='title'){
+    h='<div class="k">힘 탐정 사무소 · 사건 '+esc(s.no||'F-?')+'</div>'+
+      '<div class="big">'+esc(s.t)+'</div>'+
+      (s.sub?'<div class="sub2">수사팀 · '+esc(s.sub)+'</div>':'');
+  } else if(s.tp==='kb'){
+    h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+'">'+esc(s.b)+'</div>';
+  } else if(s.tp==='two'){
+    h='<div class="two"><div><div class="k">'+esc(s.k)+'</div><div class="big">'+esc(s.b)+'</div></div>'+
+      '<div><div class="k">'+esc(s.k2)+'</div><div class="big">'+esc(s.b2)+'</div></div></div>';
+  } else if(s.tp==='ph'){
+    h='<div class="k">'+esc(s.k)+'</div><img class="ph" src="'+rpImg(s.id)+'" alt="사진">';
+  } else if(s.tp==='graph'){
+    var mx=0; s.rows.forEach(function(r){ if(r.a>mx) mx=r.a; });
+    var u=(s.unit||'').replace(/^.*\(|\)$/g,'');
+    h='<div class="k">재 보니 이랬다'+(s.unit?' · '+esc(s.unit):'')+'</div><div class="gslide">'+
+      s.rows.map(function(r){
+        return '<div class="grow"><div class="gl">'+esc(r.c)+'</div>'+
+          '<div class="gt"><div class="gb" style="width:'+Math.max(3,Math.round(r.a/mx*100))+'%"></div></div>'+
+          '<div class="gv">'+r.a+(u?' '+esc(u):'')+'</div></div>';
+      }).join('')+'</div>';
+  }
+  b.innerHTML=h;
+  $('slPg').textContent=(SL.i+1)+' / '+SL.list.length;
+}
+function rpSlTimer(){
+  if(SL.run){ rpSlStop(); return; }
+  SL.run=true;
+  SL.tick=setInterval(function(){
+    SL.left--;
+    var m=Math.floor(SL.left/60), s=SL.left%60, e=$('slTime');
+    e.textContent='⏱ '+m+':'+('0'+s).slice(-2);
+    if(SL.left<=30) e.classList.add('lowt');
+    if(SL.left<=0){ rpSlStop(); e.textContent='⏱ 끝!'; }
+  },1000);
+}
+function rpSlStop(){ SL.run=false; if(SL.tick){ clearInterval(SL.tick); SL.tick=null; } }
+
+/* 교사: 보고서 검토 */
+function drawRepTeacher(r,cls){
+  var box=$('tBody'); box.innerHTML='';
+  var items=r.items||[];
+  if(!items.length){ box.innerHTML='<div class="empty">아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.</div>'; return; }
+  var mb=document.createElement('div'); mb.className='matbox';
+  var mh='<h3>🧰 재료 준비 목록 · '+cls+'반</h3>';
+  items.forEach(function(t){
+    mh+='<div class="ml"><b>'+t.team+'모둠</b><span>'+(t.mat?esc(t.mat):'<i style="color:#9aa6b3">아직 쓰지 않음</i>')+'</span></div>';
+  });
+  mb.innerHTML=mh; box.appendChild(mb);
+  items.forEach(function(t){
+    var d=document.createElement('div'); d.className='trp';
+    var ap=t.approve||{};
+    d.innerHTML='<div class="h"><b>'+t.team+'모둠 · '+esc(t.title||'제목 없음')+'</b>'+
+      '<span class="chip '+(ap.st==='승인'?'ok':ap.st==='보완'?'fix':'no')+'">'+esc(ap.st||'검토 전')+'</span>'+
+      '<span class="mems"></span>'+
+      '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button>'+
+      '<button class="bPl" type="button">① 계획 보기</button></div>'+
+      '<div class="plan2 hide"></div>'+
+      '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
+      '<input type="text" placeholder="소장 의견 (학생의 계획 페이지에 보입니다)">'+
+      '<button class="bSv" type="button">저장</button></div>';
+    var mems=d.querySelector('.mems');
+    (t.members||[]).forEach(function(m){
+      var sp=document.createElement('span');
+      sp.textContent=m.num+'번 '+(m.name||''); sp.style.cssText='cursor:pointer;margin-right:6px;text-decoration:underline dotted;';
+      sp.title='누르면 모둠을 옮길 수 있어요';
+      sp.addEventListener('click',function(){
+        var nt=prompt(m.num+'번 '+(m.name||'')+' 학생을 몇 모둠으로 옮길까요? (1~8)');
+        if(!nt) return;
+        call({action:'teamFix',pin:PIN,cls:cls,num:m.num,team:nt},
+          function(){ alert('옮겼습니다. 새로고침을 누르면 반영됩니다.'); },function(e2){ alert(e2); });
+      });
+      mems.appendChild(sp);
+    });
+    d.querySelector('.ap input').value=ap.note||'';
+    var stSel=ap.st||'';
+    function paint(){
+      d.querySelector('.bOk').style.cssText=stSel==='승인'?'background:var(--ink);border-color:var(--ink);color:#fff':'';
+      d.querySelector('.bFx').style.cssText=stSel==='보완'?'background:#a4271a;border-color:#a4271a;color:#fff':'';
+    }
+    d.querySelector('.bOk').addEventListener('click',function(){ stSel='승인'; paint(); });
+    d.querySelector('.bFx').addEventListener('click',function(){ stSel='보완'; paint(); });
+    paint();
+    d.querySelector('.bSv').addEventListener('click',function(){
+      var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
+      btn.disabled=true; btn.textContent='저장 중...';
+      post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',
+        json:JSON.stringify({st:stSel,note:d.querySelector('.ap input').value.trim()})},
+        function(){ btn.disabled=false; btn.textContent='저장';
+          var ch=d.querySelector('.chip'); ch.textContent=stSel;
+          ch.className='chip '+(stSel==='승인'?'ok':'fix'); rpToast('저장했습니다'); },
+        function(err){ btn.disabled=false; btn.textContent='저장'; alert(err); });
+    });
+    d.querySelector('.bSl').addEventListener('click',function(){
+      var pg={};
+      for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
+      rpSlides(pg,t.team,[],(t.members||[]).map(function(m){return m.name;}).join(' · '));
+    });
+    d.querySelector('.bPl').addEventListener('click',function(){
+      var pd=d.querySelector('.plan2');
+      if(pd.classList.contains('hide')&&!pd.innerHTML){
+        var pj={}; try{ pj=JSON.parse((t.pages||{}).plan||'{}'); }catch(e){}
+        var fh='';
+        rpPage('plan').fs.forEach(function(f){
+          fh+='<div class="f"><b>'+esc(f.n)+'</b>'+esc(pj[f.f]||'—')+'</div>';
+        });
+        pd.innerHTML=fh;
+      }
+      pd.classList.toggle('hide');
+    });
+    box.appendChild(d);
+  });
+}
+/* 교사: 검증 회의 현황판 */
+function rpBoardLoad(){
+  var box=$('tBody'), cls=$('tCls').value;
+  call({action:'board',pin:PIN,cls:cls},function(r){
+    var h='<div class="matbox"><h3>📋 검증 회의 현황판 · '+cls+'반 '+
+      '<button class="ghost noprint" id="bdBig" style="margin-left:8px;width:auto">크게 보기</button>'+
+      '<span class="count" id="bdT" style="margin-left:8px"></span></h3>'+
+      '<table class="bstats"><tr><th>모둠</th><th>받은 카드</th><th>고침</th><th>지킴</th><th>⭐</th><th>가장 많은 카드</th></tr>';
+    (r.items||[]).forEach(function(t){
+      h+='<tr><td class="l2">'+t.team+'모둠</td><td><b>'+t.cards+'</b></td><td>'+t.fix+'</td><td>'+t.keep+'</td><td>'+t.star+'</td><td>'+esc(t.top||'—')+'</td></tr>';
+    });
+    h+='</table><div class="sub" style="margin:8px 2px 0">15초마다 저절로 새로고침됩니다. TV에 띄워 두면 참관자도 흐름을 볼 수 있어요.</div></div>';
+    box.innerHTML=h;
+    var now=new Date();
+    $('bdT').textContent='업데이트 '+now.getHours()+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+    $('bdBig').addEventListener('click',function(){ document.body.classList.toggle('bigboard'); });
+    clearTimeout(rpBoardLoad._t);
+    if(TEACHER&&$('tView').value==='board'&&!$('paneTeach').classList.contains('hide'))
+      rpBoardLoad._t=setTimeout(rpBoardLoad,15000);
+  },function(err){ box.innerHTML='<div class="empty">'+esc(err)+'</div>'; });
+}
+
+
 /* 탭 */
 function tab(which){
-  ['Mat','Write','List','Ref','Teach'].forEach(function(k){
+  ['Mat','Write','List','Rep','Ref','Teach'].forEach(function(k){
     $('tab'+k).classList.toggle('on', k===which);
     show($('pane'+k), k===which);
   });
   if(which==='Mat') loadMat();
   if(which==='List') render();
   if(which==='Ref'){ loadMyNotes(); loadMyRefs(); }
+  if(which==='Rep') repOpen();
   if(which==='Teach' && PIN){
     show($('pinBox'),false); show($('teachMain'),true);
     if(!$('tBody').innerHTML) tLoad();
   }
 }
-['Mat','Write','List','Ref','Teach'].forEach(function(k){
+['Mat','Write','List','Rep','Ref','Teach'].forEach(function(k){
   $('tab'+k).addEventListener('click', function(){ tab(k); });
 });
 
@@ -2028,6 +2909,16 @@ function tLoad(){
       function(r){ drawAI(r.text||'', r.count||0); }, fail);
     return;
   }
+  if(v==='rep'){
+    var rc=$('tCls').value;
+    if(!rc){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
+    call({action:'repTeacher',pin:PIN,cls:rc},function(r){ drawRepTeacher(r,rc); },fail);
+    return;
+  }
+  if(v==='board'){
+    if(!$('tCls').value){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
+    rpBoardLoad(); return;
+  }
   if(v==='b'){ call({action:'stats',pin:PIN,cls:$('tCls').value},
       function(r){ drawBadgeTools(r.items||[]); }, fail); return; }
   if(v==='s') call({action:'stats',pin:PIN,cls:$('tCls').value},
@@ -2459,7 +3350,7 @@ function drawStats(items){
   if(!items.length){ box.innerHTML='<div class="empty">기록이 없습니다.</div>'; return; }
   var t=document.createElement('table'); t.className='st2';
   t.innerHTML='<tr><th>반</th><th>번호</th><th>이름</th><th>탐정명</th><th>도장</th>'+
-    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th><th>성찰</th>'+
+    '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th><th>성찰</th><th>⭐</th>'+
     '<th>인정점수</th><th>해결</th><th>계급</th><th>명탐정까지</th></tr>';
   items.forEach(function(s){
     var sv=s.solved;
@@ -2478,7 +3369,7 @@ function drawStats(items){
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
-      '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
+      '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td>'+(s.help==null?'-':s.help)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
       '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):
         '<b style="color:var(--gold)">★ 달성</b>')+
         '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1</div></td>';
@@ -2488,7 +3379,7 @@ function drawStats(items){
   box.appendChild(t);
   var note=document.createElement('div');
   note.className='count'; note.style.marginTop='10px';
-  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변 + 성찰';
+  note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변 + 성찰 + 도움 제안(⭐)';
   box.appendChild(note);
 }
 </script>
