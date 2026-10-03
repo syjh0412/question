@@ -809,6 +809,13 @@
   .bigboard .btimer .btTime{font-size:clamp(100px,19vw,240px);}
   .bigboard .btRow button{font-size:16px;padding:10px 16px;}
   /* 참관 모드 */
+  #moff .toff{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--hair);
+    border-radius:11px;padding:10px 12px;margin-bottom:7px;cursor:pointer;}
+  #moff .toff .e{font-size:24px;flex:none;width:30px;text-align:center;}
+  #moff .toff .tx{flex:1;min-width:0;}
+  #moff .toff b{font-size:13px;display:block;}
+  #moff .toff .tx>span{font-size:11px;color:var(--soft);display:block;margin-top:2px;}
+  #moff .toff .gt{color:#b9c2cc;font-weight:800;font-size:16px;}
   .gcls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
   .gcls button{background:#fff;border:1.5px solid var(--hair);border-radius:11px;padding:15px 4px;
     font-weight:800;font-size:15px;cursor:pointer;color:var(--ink);}
@@ -1302,9 +1309,12 @@ function drawWho(){
       opts+='<option value="'+c+'"'+(String(c)===String(me.cls)?' selected':'')+'>'+c+'반</option>';
     }
     $('who').innerHTML=
+      '<span class="pchip" id="pChipT">🗄</span>'+
       '<span class="tmode">교사</span>'+
       '<select class="tsel" id="tSelCls">'+opts+'</select>'+
       '<div class="nm" style="margin-left:2px"><span>나가기</span></div>';
+    var pct=$('pChipT');
+    if(pct) pct.addEventListener('click', function(e){ e.stopPropagation(); tOffice(); });
     var sel=$('tSelCls');
     sel.addEventListener('click', function(e){ e.stopPropagation(); });
     sel.addEventListener('change', function(e){
@@ -1710,12 +1720,13 @@ var PARTNER_ON=false, MYP=null, PMAP={};
 var CHX={cards:null,fixLed:false,got:false};
 
 function myPartner(){ return (MYP!=null&&PARTNERS[MYP])?PARTNERS[MYP]:null; }
-function gearState(){
-  var m=ME||{}, x=CHX;
+function gearStateOf(m,x){
+  m=m||{}; x=x||{};
   return GEAR.map(function(g){ return !!g.t(m,x); });
 }
-function gearHTML(){
-  var st=gearState(), n=st.filter(Boolean).length;
+function gearState(){ return gearStateOf(ME||{},CHX); }
+function gearHTML(m,x){
+  var st=(m?gearStateOf(m,x):gearState()), n=st.filter(Boolean).length;
   return '<h4 class="mh">장비 진열장 <span class="mof-cnt">'+n+' / '+GEAR.length+'</span></h4>'+
     '<div class="mof-grid">'+GEAR.map(function(g,i){
       return '<div class="mof-it '+(st[i]?'got':'lock')+'"><span class="e">'+g.e+'</span><b>'+g.n+'</b><span>'+g.c+'</span></div>';
@@ -1901,6 +1912,77 @@ function drawCoupons(items){
         function(err){ bt.disabled=false; bt.textContent='지급'; alert(err); });
     });
   });
+}
+
+/* ── 교사: 반 전체 사무소 조회 ── */
+var TOFF={list:null,cpn:null};
+function tOffice(){
+  var b=$('moffBody');
+  b.innerHTML='<div class="empty">불러오는 중...</div>';
+  show($('moff'),true);
+  call({action:'stats',pin:PIN,cls:me.cls},function(r){
+    TOFF.list=r.items||[];
+    call({action:'couponList',pin:PIN,cls:me.cls},
+      function(r2){ TOFF.cpn=r2.items||[]; tOfficeList(); },
+      function(){ TOFF.cpn=[]; tOfficeList(); });
+  },function(err){ b.innerHTML='<div class="empty">'+esc(err)+'</div>'; });
+}
+function tCpnOf(num){
+  var m={};
+  (TOFF.cpn||[]).forEach(function(x){ if(String(x.num)===String(num)) m[x.cid]=x.given?'Y':'W'; });
+  return m;
+}
+function tMeOf(e){
+  return {q:e.q,a:e.a,got:e.got,adopted:e.adopted,picked:e.picked,extra:e.extra,
+    ref:e.ref,help:e.help,score:e.score,solved:e.solved,stampCount:e.stamp};
+}
+function tOfficeList(){
+  var b=$('moffBody');
+  var h='<div class="sub" style="margin:0 2px 10px">'+me.cls+'반 탐정들의 사무소입니다. 줄을 누르면 그 탐정의 파트너·장비·쿠폰이 자세히 보여요.</div>';
+  var items=(TOFF.list||[]).filter(function(e){ return String(e.cls)===String(me.cls); });
+  if(!items.length){ b.innerHTML=h+'<div class="empty">아직 활동 기록이 없습니다.</div>'; return; }
+  items.sort(function(a,b2){ return Number(a.num)-Number(b2.num); });
+  h+='<div id="toffL">'+items.map(function(e,i){
+    var P=(e.partner!=null&&PARTNERS[e.partner])?PARTNERS[e.partner]:null;
+    var x={cards:e.cards||0,fixLed:!!e.fix};
+    var g=gearStateOf(tMeOf(e),x).filter(Boolean).length;
+    var cm=tCpnOf(e.num), w=0,y=0;
+    for(var k in cm){ if(cm[k]==='Y') y++; else w++; }
+    return '<div class="toff" data-i="'+i+'">'+
+      '<span class="e">'+(P?P.e:'·')+'</span>'+
+      '<div class="tx"><b>'+e.num+'번 '+esc(e.name)+(e.det?' · '+esc(e.det):'')+'</b>'+
+      '<span>장비 '+g+'/'+GEAR.length+' · 쿠폰 받음 '+y+(w?' · <b style="color:#b0582a">결재 대기 '+w+'</b>':'')+'</span></div>'+
+      '<span class="gt">›</span></div>';
+  }).join('')+'</div>';
+  b.innerHTML=h;
+  var arr=items;
+  Array.prototype.forEach.call(document.querySelectorAll('#toffL .toff'),function(row){
+    row.addEventListener('click',function(){ tOfficeOne(arr[Number(row.dataset.i)]); });
+  });
+}
+function tOfficeOne(e){
+  var b=$('moffBody');
+  var P=(e.partner!=null&&PARTNERS[e.partner])?PARTNERS[e.partner]:null;
+  var m=tMeOf(e), x={cards:e.cards||0,fixLed:!!e.fix};
+  var cm=tCpnOf(e.num);
+  var h='<button class="back" id="toffBk" type="button" style="margin-bottom:10px">← '+me.cls+'반 전체</button>'+
+    '<div class="sub" style="margin:0 2px 10px"><b>'+e.num+'번 '+esc(e.name)+'</b>'+
+    (e.det?' · '+esc(e.det):'')+' · 인정 '+e.score+'점 · 도장 '+ (e.stamp||0) +'개</div>';
+  if(P) h+='<div class="mof-p"><span class="big">'+P.e+'</span><div><b>'+P.n+' 파트너</b><p>'+P.d+'</p></div></div>';
+  else h+='<div class="rnote" style="margin-bottom:4px">아직 수사 파트너를 고르지 않았습니다.</div>';
+  h+='<h4 class="mh">🍬 간식 쿠폰</h4>';
+  h+=CPNS.map(function(c){
+    var st=cm[c.id]==='Y'?'y':(cm[c.id]==='W'?'w':((c.t&&c.t(m,x))?'r':'l'));
+    var lab=st==='y'?'<span class="st y">지급 완료 ✓</span>':
+            st==='w'?'<span class="st w">결재 대기</span>':
+            st==='r'?'<span class="st" style="color:#1d4f78">달성 · 신청 전</span>':
+            '<span class="st" style="color:#9aa7b4">잠김</span>';
+    return '<div class="cpn'+(st==='l'?' lock':'')+'"><span class="e">🍬</span>'+
+      '<div class="tx"><b>'+c.n+'</b><div class="cd">'+c.c+'</div></div>'+lab+'</div>';
+  }).join('');
+  h+='<div id="mofGear">'+gearHTML(m,x)+'</div>';
+  b.innerHTML=h;
+  $('toffBk').addEventListener('click',tOfficeList);
 }
 
 function charCele(P){
