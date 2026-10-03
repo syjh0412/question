@@ -645,6 +645,12 @@
   .ptypes button{background:#fff;border:1.5px solid var(--hair);color:var(--ink2);font-size:12px;
     font-weight:700;border-radius:20px;padding:5px 11px;cursor:pointer;}
   .ptypes button.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .pslot{display:flex;gap:6px;margin:8px 0 0;}
+  .pslot button{flex:1;background:#fff;border:1.5px solid var(--hair);color:var(--ink2);
+    font-size:12.5px;font-weight:800;border-radius:9px;padding:8px 4px;cursor:pointer;}
+  .pslot button.on{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .pslot button em{font-style:normal;font-weight:700;font-size:10.5px;color:#1d6b42;margin-left:3px;}
+  .pslot button.on em{color:#9fe0b8;}
   .pcard{background:#fff;border:1px solid var(--hair);border-radius:10px;padding:11px 12px;margin-bottom:9px;}
   .pcard .ph2{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
   .pcard .ty{background:#e8f0fa;color:#1d4f78;font-size:11px;font-weight:800;border-radius:20px;padding:2px 9px;}
@@ -1866,13 +1872,16 @@ function rpVisit(isT){
   var box=$('repBody');
   box.innerHTML='<div class="rpbar">'+(isT?'':'<button class="back" id="rpBk2">← 보고서</button>')+
     '<b>🕵 수사 검증 회의</b></div>'+
-    '<div class="sub" style="color:#9fb3c8;margin:-2px 2px 10px">'+
+    '<div class="sub" id="rpVDesc" style="color:#9fb3c8;margin:-2px 2px 10px">'+
     (isT?'학생이 보는 검증 회의 화면입니다. 모둠 발표를 열어 볼 수 있어요.':
     '발표를 듣고 모둠마다 제안 카드를 1장 보낼 수 있어요. 발표 모둠이 내 카드를 ⭐로 고르면 인정 점수 1점!')+'</div>'+
     '<div id="rpVL"><div class="empty">불러오는 중...</div></div>';
   if(!isT) $('rpBk2').addEventListener('click',rpHome);
   call({action:'repTeams',cls:me.cls,num:me.num},function(res){
     var L=$('rpVL'); L.innerHTML='';
+    var two=!!res.two;
+    if(two&&!isT){ var dsc=$('rpVDesc');
+      if(dsc) dsc.innerHTML='발표를 듣고 모둠마다 <b>각자 제안 카드를 2장</b>까지 보낼 수 있어요. 발표 모둠이 내 카드를 ⭐로 고르면 카드마다 인정 점수 1점!'; }
     var items=res.items||[];
     if(!items.length){ L.innerHTML='<div class="empty">아직 등록된 수사팀이 없습니다.</div>'; return; }
     items.forEach(function(t){
@@ -1880,7 +1889,7 @@ function rpVisit(isT){
       var d=document.createElement('div'); d.className='vrow';
       d.innerHTML='<div class="t"><b>'+t.team+'모둠 · '+esc(t.title||'제목 없음')+'</b><span>카드 '+t.cards+'장</span></div>'+
         '<div class="vb"><button class="b1" type="button">🎤 발표 보기</button>'+
-        (isT?'':'<button class="b2'+(t.sent?' sent':'')+'" type="button">'+(t.sent?'✓ 카드 보냄 · 수정':'💌 제안 카드 보내기')+'</button>')+
+        (isT?'':'<button class="b2'+(rpSentN(t)?' sent':'')+'" type="button">'+rpSentLb(t,two)+'</button>')+
         '</div><div class="cardform hide"></div>';
       d.querySelector('.b1').addEventListener('click',function(){
         var bb=this; bb.disabled=true; bb.textContent='여는 중...';
@@ -1894,7 +1903,7 @@ function rpVisit(isT){
       if(!isT){
         var b2=d.querySelector('.b2'), cf=d.querySelector('.cardform');
         b2.addEventListener('click',function(){
-          if(cf.classList.contains('hide')&&!cf.innerHTML) rpCardForm(cf,t,b2);
+          if(cf.classList.contains('hide')&&!cf.innerHTML) rpCardForm(cf,t,b2,two);
           cf.classList.toggle('hide');
         });
       }
@@ -1906,27 +1915,66 @@ function rpVisit(isT){
     }
   },function(err){ $('rpVL').innerHTML='<div class="empty">'+esc(err)+'</div>'; });
 }
-function rpCardForm(cf,t,b2){
-  cf.innerHTML='<div class="ptypes"></div>'+
+function rpSentN(t){ return t.sent===true?1:(Number(t.sent)||0); }
+function rpSentLb(t,two){
+  var n=rpSentN(t);
+  if(!n) return '💌 제안 카드 보내기';
+  if(two) return n>=2?'✓ 2장 보냄 · 수정':'✓ 1장 보냄 · 더 쓰기';
+  return '✓ 카드 보냄 · 수정';
+}
+function rpCardForm(cf,t,b2,two){
+  cf.innerHTML=(two?'<div class="pslot">'+
+      '<button type="button" data-s="1" class="on">내 카드 ①<em></em></button>'+
+      '<button type="button" data-s="2">내 카드 ②<em></em></button></div>':'')+
+    '<div class="ptypes"></div>'+
     '<textarea style="min-height:62px;font-size:14px" placeholder="(   ) 때문에 (   )가 걱정돼요. (   )해 보면 어때요? — 한 문장이면 충분해요"></textarea>'+
     '<button class="jsave" type="button">카드 보내기</button>';
-  var tp='', tw=cf.querySelector('.ptypes');
+  var ta=cf.querySelector('textarea'), tw=cf.querySelector('.ptypes');
+  var st={'1':{tp:'',tx:'',has:false},'2':{tp:'',tx:'',has:false}}, slot='1';
+  (t.slots||[]).forEach(function(x){ if(st[x]) st[x].has=true; });
+  if(!two&&rpSentN(t)) st['1'].has=true;
   PTYPES.forEach(function(name){
     var b=document.createElement('button'); b.type='button'; b.textContent=name;
     b.addEventListener('click',function(){
-      tp=name;
-      Array.prototype.forEach.call(tw.children,function(x){ x.classList.toggle('on',x.textContent===tp); });
+      st[slot].tp=name;
+      Array.prototype.forEach.call(tw.children,function(x){ x.classList.toggle('on',x.textContent===name); });
     });
     tw.appendChild(b);
   });
+  function paint(){
+    Array.prototype.forEach.call(tw.children,function(x){ x.classList.toggle('on',x.textContent===st[slot].tp); });
+    ta.value=st[slot].tx;
+    if(two) Array.prototype.forEach.call(cf.querySelectorAll('.pslot button'),function(x){
+      x.classList.toggle('on',x.dataset.s===slot);
+      x.querySelector('em').textContent=st[x.dataset.s].has?'· 보냄':'';
+    });
+    cf.querySelector('.jsave').textContent=st[slot].has?'카드 고쳐 보내기':'카드 보내기';
+  }
+  if(two) Array.prototype.forEach.call(cf.querySelectorAll('.pslot button'),function(b){
+    b.addEventListener('click',function(){ st[slot].tx=ta.value; slot=b.dataset.s; paint(); });
+  });
+  ta.addEventListener('input',function(){ st[slot].tx=ta.value; });
+  call({action:'myprops',cls:me.cls,num:me.num},function(r2){
+    (r2.items||[]).forEach(function(pp){
+      if(String(pp.target)!==String(t.team)) return;
+      var sl=String(pp.key).split('|')[3]||'1';
+      if(st[sl]){ st[sl].tp=pp.type||''; st[sl].tx=pp.text||''; st[sl].has=true; }
+    });
+    paint();
+  },function(){});
+  paint();
   cf.querySelector('.jsave').addEventListener('click',function(){
-    var btn=this, tx=cf.querySelector('textarea').value.trim();
+    var btn=this; st[slot].tx=ta.value;
+    var tp=st[slot].tp, tx=st[slot].tx.trim();
     if(!tp){ alert('카드 종류를 골라 주세요'); return; }
     if(tx.length<5){ alert('한 문장으로 생각을 써 주세요 (5자 이상)'); return; }
     btn.disabled=true; btn.textContent='보내는 중...';
-    post({action:'propose',cls:me.cls,num:me.num,name:(me.det||me.name),target:t.team,type:tp,text:tx},
-      function(){ btn.disabled=false; btn.textContent='카드 보내기';
-        t.sent=true; b2.classList.add('sent'); b2.textContent='✓ 카드 보냄 · 수정';
+    post({action:'propose',cls:me.cls,num:me.num,name:(me.det||me.name),target:t.team,type:tp,text:tx,slot:slot},
+      function(){ btn.disabled=false; st[slot].has=true;
+        if(two){ t.slots=t.slots||[]; if(t.slots.indexOf(slot)<0) t.slots.push(slot); t.sent=t.slots.length; }
+        else t.sent=true;
+        b2.classList.add('sent'); b2.textContent=rpSentLb(t,two);
+        paint();
         cf.classList.add('hide'); rpToast(t.team+'모둠에게 카드를 보냈어요'); },
       function(err){ btn.disabled=false; btn.textContent='카드 보내기'; alert(err); });
   });
@@ -1946,10 +1994,11 @@ function rpMyProps(){
     items.forEach(function(p){
       var d=document.createElement('div'); d.className='pcard';
       var fresh=p.jat&&seen[p.key]!==p.jat;
+      var sl=String(p.key).split('|')[3]||'';
       var stat=!p.verdict?'<span class="pstat w">검토 전</span>':
         '<span class="pstat '+(p.verdict==='고침'?'f':'k')+'">'+esc(p.verdict)+'</span>';
       d.innerHTML='<div class="ph2"><span class="ty">'+esc(p.type)+'</span>'+
-        '<span class="fr">'+p.target+'모둠에게</span>'+
+        '<span class="fr">'+p.target+'모둠에게'+(sl?' · 카드'+(sl==='2'?'②':'①'):'')+'</span>'+
         (p.helpful==='Y'?'<span class="pstat k">⭐ +1점</span>':'')+
         (fresh?'<span class="pnew">NEW</span>':'')+
         '<span style="margin-left:auto">'+stat+'</span></div><p></p>'+
