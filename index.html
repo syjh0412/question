@@ -1004,7 +1004,7 @@
       </div>
 
       <div class="card">
-        <h2>선생님께만</h2>
+        <h2>소장님께만</h2>
         <div class="sub">여기에 쓴 글은 친구들에게 보이지 않습니다. 답장을 받은 뒤에도 얼마든지 다시 보낼 수 있어요.</div>
         <div class="msg" id="noteMsg"></div>
         <textarea id="noteText" placeholder="궁금한 것, 하고 싶은 말 무엇이든 괜찮아요" style="min-height:80px"></textarea>
@@ -1065,7 +1065,7 @@
           <select id="tView">
             <option value="q">사건 보기</option>
             <option value="r">성찰 보기</option>
-            <option value="n">선생님께만</option>
+            <option value="n">소장님께만</option>
             <option value="s">참여 집계</option>
             <option value="ai">AI 정리</option>
             <option value="b">명찰 · 승급</option>
@@ -3346,7 +3346,7 @@ $('btnNote').addEventListener('click', function(){
   var b=this; b.disabled=true; b.textContent='보내는 중...';
   call({action:'note',cls:me.cls,num:me.num,name:me.name,text:t},
     function(){ b.disabled=false; b.textContent='보내기'; $('noteText').value='';
-      msg($('noteMsg'),'선생님께 전달되었습니다.','ok'); loadMyNotes(); },
+      msg($('noteMsg'),'소장님께 전달되었습니다.','ok'); loadMyNotes(); },
     function(err){ b.disabled=false; b.textContent='보내기';
       msg($('noteMsg'),'보내지 못했습니다. '+err,'err'); });
 });
