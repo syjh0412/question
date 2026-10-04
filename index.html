@@ -100,6 +100,7 @@
     color:#9fb3c8;padding:11px 4px;font-size:13.5px;}
   .tabs button.on{background:#fff;border-color:#fff;color:var(--ink);}
   .tabs button#tabTeach{flex:0 0 46px;font-size:15px;}
+  .tabs button#tabNote{white-space:nowrap;letter-spacing:-.5px;}
   .tabs button em.dot{display:inline-block;width:7px;height:7px;border-radius:50%;
     background:#e05a4a;margin-left:5px;vertical-align:middle;}
 
@@ -908,6 +909,7 @@
       <button id="tabList">사건함<em class="dot hide" id="listDot"></em></button>
       <button id="tabRep">보고서</button>
       <button id="tabRef">성찰</button>
+      <button id="tabNote">💌<br>소장님</button>
       <button id="tabTeach" title="교사용">🔒</button>
     </div>
 
@@ -1002,7 +1004,9 @@
         <div class="sub">내가 남긴 성찰이 차시별로 모입니다. 생각이 자라면 같은 차시에 언제든 더 써도 됩니다.</div>
         <div id="myRefBox"><div class="empty">불러오는 중...</div></div>
       </div>
+    </div>
 
+    <div id="paneNote" class="hide narrow">
       <div class="card">
         <h2>소장님께만</h2>
         <div class="sub">여기에 쓴 글은 친구들에게 보이지 않습니다. 답장을 받은 뒤에도 얼마든지 다시 보낼 수 있어요.</div>
@@ -1437,7 +1441,7 @@ $('who').addEventListener('click', function(){
   me=null; PIN=''; TEACHER=false; GUEST=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
   show($('who'),false); show($('stampBar'),false);
   show($('tLoginCard'),false); show($('rankStrip'),true);
-  ['tabWrite','tabRef','tabTeach'].forEach(function(id){ show($(id),true); });
+  ['tabWrite','tabRef','tabNote','tabTeach'].forEach(function(id){ show($(id),true); });
   show($('main'),false); show($('login'),true);
   show($('pinBox'),true); show($('teachMain'),false);
   $('inPin').value=''; $('list').innerHTML=''; $('count').textContent='';
@@ -1475,7 +1479,7 @@ $('gBack').addEventListener('click', function(){
       me={cls:String(c),num:'관전',name:'참관',det:'참관 교사'};
       show($('gLoginCard'),false);
       enter(me);
-      show($('tabWrite'),false); show($('tabRef'),false); show($('tabTeach'),false);
+      show($('tabWrite'),false); show($('tabRef'),false); show($('tabNote'),false); show($('tabTeach'),false);
       tab('List');
     });
     g.appendChild(b);
@@ -2810,20 +2814,21 @@ function rpBoardLoad(){
 
 /* 탭 */
 function tab(which){
-  ['Mat','Write','List','Rep','Ref','Teach'].forEach(function(k){
+  ['Mat','Write','List','Rep','Ref','Note','Teach'].forEach(function(k){
     $('tab'+k).classList.toggle('on', k===which);
     show($('pane'+k), k===which);
   });
   if(which==='Mat') loadMat();
   if(which==='List') render();
-  if(which==='Ref'){ loadMyNotes(); loadMyRefs(); }
+  if(which==='Ref'){ loadMyRefs(); }
+  if(which==='Note'){ loadMyNotes(); }
   if(which==='Rep') repOpen();
   if(which==='Teach' && PIN){
     show($('pinBox'),false); show($('teachMain'),true);
     if(!$('tBody').innerHTML) tLoad();
   }
 }
-['Mat','Write','List','Rep','Ref','Teach'].forEach(function(k){
+['Mat','Write','List','Rep','Ref','Note','Teach'].forEach(function(k){
   $('tab'+k).addEventListener('click', function(){ tab(k); });
 });
 
