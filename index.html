@@ -875,7 +875,7 @@
     </div>
 
     <div class="card hide" id="tLoginCard">
-      <h2>선생님으로 들어가기</h2>
+      <h2>소장님으로 들어가기</h2>
       <div class="sub">반을 바꿔 가며 학생 화면을 볼 수 있습니다.</div>
       <div class="msg" id="tLoginMsg"></div>
       <input type="password" id="tLoginPin" inputmode="numeric" placeholder="••••">
@@ -896,7 +896,7 @@
     <div class="rankstrip" id="rankStrip">
       <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정 <i>→</i> ★</div>
       <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
-      <button class="tlink" id="tLoginOpen">선생님이신가요?</button>
+      <button class="tlink" id="tLoginOpen">소장님이신가요?</button>
       <button class="tlink" id="gLoginOpen">참관 오셨나요? 둘러보기</button>
     </div>
   </section>
@@ -1182,14 +1182,14 @@ function markSeen(q){
   if((SEEN[q.id]||0) === n) return false;
   SEEN[q.id]=n; saveSeen(); return true;
 }
-/* 내가 답한 남의 사건에 선생님 답글이 새로 달렸는지 — 이 기기에 적어 둡니다 */
+/* 내가 답한 남의 사건에 소장님 답글이 새로 달렸는지 — 이 기기에 적어 둡니다 */
 function seenTKey(){ return 'fd_seenT_'+(me?me.cls:'')+'_'+(me?me.num:''); }
 function loadSeenT(){ try{ SEEN_T=JSON.parse(pick(seenTKey())||'{}')||{}; }catch(e){ SEEN_T={}; } }
 function iAnswered(q){
   return !q.mine && (q.answers||[]).some(function(a){ return a.mine; });
 }
 function teacherAfterMe(q){
-  /* 내 첫 답변 뒤에 달린 선생님 답글 수 */
+  /* 내 첫 답변 뒤에 달린 소장님 답글 수 */
   var arr=q.answers||[], seenMine=false, n=0;
   for(var i=0;i<arr.length;i++){
     if(arr[i].mine && String(arr[i].num)!=='0') seenMine=true;
@@ -1411,7 +1411,7 @@ function openRule(){
        '성찰은 차시마다 1점입니다. 「오늘 알게 된 것」을 10자 이상 쓰면 그 차시 점수를 받습니다(같은 차시에 여러 번 써도 1점).<br>'+
        '한 사건은 제보를 아무리 많이 받아도 1점입니다. 여러 사건에서 받아야 점수가 쌓입니다.<br>'+
        '내 사건에 달린 답변 중 하나를 골라 주면, 골라 준 나도 1점을 받습니다.</div>';
-  h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 선생님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
+  h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 소장님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
        '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
   h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>명탐정 특별 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
@@ -1491,7 +1491,7 @@ $('tLoginGo').addEventListener('click', function(){
     PIN=v; TEACHER=true;
     show($('tLoginCard'),false); show($('rankStrip'),true);
     $('tLoginPin').value=''; msg($('tLoginMsg'),'');
-    enter({cls:'1',num:'0',name:'선생님',det:''});
+    enter({cls:'1',num:'0',name:'소장님',det:''});
     tab('List');
   }, function(err){
     b.disabled=false; b.textContent='들어가기';
@@ -1656,7 +1656,7 @@ var RPAGES=[
     {f:'same',t:'text',n:'같게 할 것'},
     {f:'meas',t:'text',n:'잴 것 (단위)',ph:'예) 마찰력(N), 3회 평균'},
     {f:'tools',t:'text',n:'쓸 도구',ph:'힘센서 · 용수철저울 · 전자저울 · 자 · 기타'},
-    {f:'mat',t:'ta',n:'필요한 재료와 개수',em:'선생님이 이 칸을 보고 재료를 준비해요',ph:'예) 실내화 1짝, 분무기 1개, 페트병(500mL) 1개'}]},
+    {f:'mat',t:'ta',n:'필요한 재료와 개수',em:'소장님이 이 칸을 보고 재료를 준비해요',ph:'예) 실내화 1짝, 분무기 1개, 페트병(500mL) 1개'}]},
   {k:'evid',n:'② 증거',ic:'📊',fs:[]},
   {k:'anal',n:'③ 힘 분석과 안전 제안',ic:'🧲',fs:[
     {f:'photo',t:'photo',n:'힘 화살표 사진',em:'갤러리 편집(✏️ 그리기)으로 사진 위에 화살표와 힘 이름을 그려서 올리세요'},
@@ -1754,7 +1754,7 @@ function openOffice(){
        '<div class="rnote" style="margin-bottom:9px">소장의 허가가 났습니다. 함께 수사할 파트너를 <b>한 번만</b> 고를 수 있어요. 신중하게!</div>'+
        '<div class="mof-pick" id="mofPick"></div><div id="mofSel"></div>';
   } else {
-    h+='<div class="rnote" style="margin-bottom:4px">수사 파트너는 선생님이 서버를 새로 배포하면 고를 수 있어요.</div>';
+    h+='<div class="rnote" style="margin-bottom:4px">수사 파트너는 소장님이 서버를 새로 배포하면 고를 수 있어요.</div>';
   }
   h+='<div id="mofCpn">'+cpnHTML()+'</div>';
   h+='<div id="mofGear">'+gearHTML()+'</div>';
@@ -1795,7 +1795,7 @@ function mofPickInit(){
           charCele(myPartner()||PARTNERS[sel]);
         },function(err){
           btn.disabled=false; btn.textContent='이 파트너와 수사 계약하기 (바꿀 수 없어요)';
-          alert(/알 수 없는 요청/.test(String(err))?'선생님이 서버를 새로 배포하면 파트너를 고를 수 있어요':err);
+          alert(/알 수 없는 요청/.test(String(err))?'소장님이 서버를 새로 배포하면 파트너를 고를 수 있어요':err);
         });
       });
     });
@@ -1835,7 +1835,7 @@ function cpnHTML(){
     h+=' <span class="mof-cnt">받음 '+got+' / '+CPNS.length+'</span>';
   }
   h+='</h4>';
-  if(!COUP_ON) return h+'<div class="rnote">선생님이 서버를 새로 배포하면 열립니다.</div>';
+  if(!COUP_ON) return h+'<div class="rnote">소장님이 서버를 새로 배포하면 열립니다.</div>';
   h+=CPNS.map(function(c){
     var st=cpnState(c), tail='';
     if(st==='y') tail='<span class="st y">지급 완료 ✓</span>';
@@ -1843,7 +1843,7 @@ function cpnHTML(){
     else tail='<button type="button" data-cid="'+c.id+'">보급 신청</button>';
     return '<div class="cpn '+(st==='lock'?'lock':(st==='ready'?'ready':''))+'">'+
       '<span class="e">🍬</span><div class="tx"><b>'+c.n+'</b>'+
-      '<div class="cd">'+c.c+(st==='w'?' · 수업 시간에 선생님께 받으세요':'')+'</div></div>'+tail+'</div>';
+      '<div class="cd">'+c.c+(st==='w'?' · 수업 시간에 소장님께 받으세요':'')+'</div></div>'+tail+'</div>';
   }).join('');
   h+='<div class="rnote" style="font-size:11.5px;margin-bottom:4px">쿠폰은 하나씩 한 번만! 신청서는 소장님 결재 화면에 올라가고, 간식은 수업 시간에 받습니다.</div>';
   return h;
@@ -1863,7 +1863,7 @@ function cpnBind(){
       },
       function(err){
         bt.disabled=false; bt.textContent='보급 신청';
-        alert(/알 수 없는 요청/.test(String(err))?'선생님이 서버를 새로 배포하면 신청할 수 있어요':err);
+        alert(/알 수 없는 요청/.test(String(err))?'소장님이 서버를 새로 배포하면 신청할 수 있어요':err);
       });
   });
 }
@@ -2052,7 +2052,7 @@ function repOpen(){
 }
 function rpFailBox(err){
   $('repBody').innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?
-    '수사 보고서는 선생님이 서버를 새로 배포하면 열립니다.<br>조금만 기다려 주세요.':
+    '수사 보고서는 소장님이 서버를 새로 배포하면 열립니다.<br>조금만 기다려 주세요.':
     '불러오지 못했습니다.<br>'+esc(err))+'</div>';
 }
 function rpLoad(cb){
@@ -2076,7 +2076,7 @@ function rpJoin(){
     '<div class="sub">우리 모둠을 고르면 모둠의 수사 보고서가 열립니다. 모둠 친구들은 각자 자기 태블릿으로 같은 보고서를 나눠 씁니다.</div>'+
     '<div class="ptypes" id="rpTP"></div><div style="height:6px"></div>'+
     '<button class="primary" id="rpJG" disabled>들어가기</button>'+
-    '<div class="sub" style="margin-top:10px;margin-bottom:0">잘못 골랐으면 선생님이 바로잡아 줄 수 있어요.</div></div>'+
+    '<div class="sub" style="margin-top:10px;margin-bottom:0">잘못 골랐으면 소장님이 바로잡아 줄 수 있어요.</div></div>'+
     '<div class="rpcard"><h2>들어가면 먼저 역할을 나누세요</h2>'+
     '<div class="sub" style="margin-bottom:0">보고서는 다섯 페이지입니다. 페이지마다 <b>맡은 탐정</b>을 정해 이름을 걸어 두세요.<br>'+
     '표지 · ① 수사 계획 · ② 증거 · ③ 힘 분석과 안전 제안은 나눠 맡고, ④ 받은 제안은 모둠이 함께 판단합니다.</div></div>';
@@ -2946,7 +2946,7 @@ function drawNewBand(){
     var t=document.createElement('div');
     t.className='newband tb'; t.id='newbandT';
     t.innerHTML='<span class="ic">🧑‍🏫</span>'+
-      '<span class="tx">내가 답한 사건에 선생님 답글이 <b>'+tn+'개</b> 달렸어요</span>'+
+      '<span class="tx">내가 답한 사건에 소장님 답글이 <b>'+tn+'개</b> 달렸어요</span>'+
       '<span class="go">보러 가기</span>';
     t.addEventListener('click', function(){
       ONLY_ANS=true; ONLY_MINE=false; ONLY_NA=false; render();
@@ -3125,7 +3125,7 @@ function card(it){
     '<span class="tagS'+(it.stage==='닫기'?' after':'')+'">'+(it.stage==='닫기'?'수업 후':'수업 전')+'</span>'+
     (coldCase(it)?'<span class="coldtag">🧊 콜드 케이스</span>':'')+
     (fresh?'<span class="fresh">🔔 새 답변 '+fresh+'개</span>':'')+
-    (tfresh?'<span class="tfresh">🧑‍🏫 선생님 답글</span>':'')+
+    (tfresh?'<span class="tfresh">🧑‍🏫 소장님 답글</span>':'')+
     (wait?'<span class="pick-wait">답변 '+arr0.length+'개 · 채택해 주세요</span>':'')+
     '<span class="who">'+(it.mine?'<b>내 사건</b> · ':'')+
       (it.anon?'익명':(it.num+'번 '+it.name))+'</span>';
@@ -3164,7 +3164,7 @@ function card(it){
     var ro=document.createElement('span');
     ro.className='n'; ro.style.marginLeft='0';
     ro.textContent='📌 제보 '+(it.tip||0);
-    ba=document.createElement('button'); ba.className='tans'; ba.textContent='선생님 답 달기';
+    ba=document.createElement('button'); ba.className='tans'; ba.textContent='소장님 답 달기';
     foot.appendChild(ro); foot.appendChild(ba); foot.appendChild(cnt);
   } else {
     bt=document.createElement('button');
@@ -3188,7 +3188,7 @@ function card(it){
 
   if(ba){
     var lab;
-    if(TEACHER) lab='선생님 답 달기';
+    if(TEACHER) lab='소장님 답 달기';
     else if(arr.length) lab='이어서 쓰기';
     else lab='답 달기';
     ba.textContent=lab;
@@ -3249,7 +3249,7 @@ function ansEl(a, q){
   var e=document.createElement('div');
   e.className='ans'+(a.adopted?' ad':'')+(isT?' tea':'');
   var n=document.createElement('div'); n.className='n';
-  n.innerHTML=(isT?'<span class="tbadge">선생님</span>':'<span>'+a.num+'번 '+a.name+'</span>')+
+  n.innerHTML=(isT?'<span class="tbadge">소장님</span>':'<span>'+a.num+'번 '+a.name+'</span>')+
     (a.adopted?'<span>⭐ 채택</span>':'');
   if(q.mine){
     var pk=document.createElement('button');
@@ -3299,10 +3299,10 @@ function doAnswer(it, cardEl, ta, btn, alist, cnt){
   if(t.length<10){ alert('답변은 10자 이상 써 주세요'); ta.focus(); return; }
   btn.disabled=true; btn.textContent='...';
   call({action:'answer',qid:it.id,cls:me.cls,num:me.num,name:me.name,
-        det:(TEACHER?'선생님':(me.det||'')),text:t},
+        det:(TEACHER?'소장님':(me.det||'')),text:t},
     function(){
       btn.disabled=false; btn.textContent='올리기'; ta.value='';
-      var a={num:me.num,name:(TEACHER?'선생님':(me.det||me.name)),text:t,adopted:false,mine:true};
+      var a={num:me.num,name:(TEACHER?'소장님':(me.det||me.name)),text:t,adopted:false,mine:true};
       it.answers.push(a);
       alist.appendChild(ansEl(a,it));
       cnt.textContent='답변 '+it.answers.length+'개';
@@ -3313,9 +3313,9 @@ function doAnswer(it, cardEl, ta, btn, alist, cnt){
       b.textContent=(LVICON[lv]?LVICON[lv]+' ':'')+LVNAME[lv];
       cardEl.querySelector('.ansbox').classList.remove('open');
       var bb=cardEl.querySelector('.foot button:not(.tip):not(.tans)');
-      if(bb) bb.textContent = TEACHER ? '선생님 답 달기' : '이어서 쓰기';
+      if(bb) bb.textContent = TEACHER ? '소장님 답 달기' : '이어서 쓰기';
       var tb=cardEl.querySelector('.foot button.tans');
-      if(tb) tb.textContent='선생님 답 달기';
+      if(tb) tb.textContent='소장님 답 달기';
       load(true);
     },
     function(err){ btn.disabled=false; btn.textContent='올리기'; alert(err); });
@@ -3439,7 +3439,7 @@ function loadMyNotes(){
     if(!msgs.length) return;
 
     var h=document.createElement('div');
-    h.className='count'; h.textContent='선생님과 주고받은 쪽지';
+    h.className='count'; h.textContent='소장님과 주고받은 쪽지';
     box.appendChild(h);
 
     var wrap=document.createElement('div'); wrap.className='chat';
@@ -3448,7 +3448,7 @@ function loadMyNotes(){
       var row=document.createElement('div');
       row.className='bub'+(isT?' t':' s');
       var who=document.createElement('div'); who.className='w';
-      who.textContent=(isT?'선생님':'나')+' · '+m.time;
+      who.textContent=(isT?'소장님':'나')+' · '+m.time;
       var p=document.createElement('div'); p.className='x'; p.textContent=m.text;
       row.appendChild(who); row.appendChild(p);
       wrap.appendChild(row);
@@ -3594,7 +3594,7 @@ function tLoad(){
     call({action:'couponList',pin:PIN,cls:$('tCls').value},
       function(r){ drawCoupons(r.items||[]); },
       function(err){ box.innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?
-        '선생님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
+        '소장님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
     return;
   }
   if(v==='b'){ call({action:'stats',pin:PIN,cls:$('tCls').value},
@@ -3905,7 +3905,7 @@ function tCard(it){
   var alist=document.createElement('div');
   d.appendChild(alist);
 
-  /* 선생님 답글 — 사건함으로 가지 않고 여기서 바로 */
+  /* 소장님 답글 — 사건함으로 가지 않고 여기서 바로 */
   var tb=document.createElement('div'); tb.className='tbox';
   var tta=document.createElement('textarea');
   tta.placeholder='답을 주기보다 되물어 보세요. 예) 그럼 뭘 재 보면 알 수 있을까? (10자 이상)';
@@ -3922,10 +3922,10 @@ function tCard(it){
     var t=tta.value.trim();
     if(t.length<10){ alert('답글은 10자 이상 써 주세요'); tta.focus(); return; }
     tbs.disabled=true; tbs.textContent='...';
-    call({action:'answer',qid:it.id,cls:it.cls,num:'0',name:'선생님',det:'선생님',text:t},
+    call({action:'answer',qid:it.id,cls:it.cls,num:'0',name:'소장님',det:'소장님',text:t},
       function(res){
         tbs.disabled=false; tbs.textContent='올리기'; tta.value='';
-        var a={id:res.id,cls:it.cls,num:0,name:'선생님',det:'선생님',text:t,adopted:false};
+        var a={id:res.id,cls:it.cls,num:0,name:'소장님',det:'소장님',text:t,adopted:false};
         (it.answers=it.answers||[]).push(a);
         alist.appendChild(taEl(a));
         tb.classList.remove('open'); rb.classList.remove('on'); rb.textContent='답글';
@@ -3941,7 +3941,7 @@ function taEl(a){
     var isT=String(a.num)==='0';
     var e=document.createElement('div'); e.className='ta'+(a.adopted?' ad':'')+(isT?' tea':'');
     var b=document.createElement('b');
-    b.textContent=(isT?'선생님':a.cls+'-'+a.num+' '+a.name)+(a.adopted?' ⭐':'');
+    b.textContent=(isT?'소장님':a.cls+'-'+a.num+' '+a.name)+(a.adopted?' ⭐':'');
     var sp=document.createElement('span'); sp.textContent=a.text;
     var db=document.createElement('button'); db.className='del'; db.textContent='×';
     db.addEventListener('click', function(){
@@ -3991,7 +3991,7 @@ function drawNotes(items){
       var isT = x.who==='교사';
       var row=document.createElement('div'); row.className='bub'+(isT?' t':' s');
       var who=document.createElement('div'); who.className='w';
-      who.textContent=(isT?'선생님':(n.name||'학생'))+' · '+x.time;
+      who.textContent=(isT?'소장님':(n.name||'학생'))+' · '+x.time;
       var p=document.createElement('div'); p.className='x'; p.textContent=x.text;
       row.appendChild(who); row.appendChild(p);
       chat.appendChild(row);
@@ -4008,7 +4008,7 @@ function drawNotes(items){
       call({action:'reply',pin:PIN,cls:n.cls,num:n.num,text:t}, function(){
         bt.disabled=false; bt.textContent='답장 보내기'; ta.value='';
         var row=document.createElement('div'); row.className='bub t';
-        var who=document.createElement('div'); who.className='w'; who.textContent='선생님 · 방금';
+        var who=document.createElement('div'); who.className='w'; who.textContent='소장님 · 방금';
         var p=document.createElement('div'); p.className='x'; p.textContent=t;
         row.appendChild(who); row.appendChild(p);
         chat.appendChild(row);
