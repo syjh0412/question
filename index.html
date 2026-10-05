@@ -632,6 +632,46 @@
     padding:8px 12px;font-weight:700;font-size:12.5px;cursor:pointer;}
   .phslot .empty2{border:1.5px dashed #b6c0cb;border-radius:9px;padding:22px 10px;text-align:center;
     color:var(--soft);font-size:12.5px;background:#fafbfc;}
+  .pgc .tx b em.pno{font-style:normal;font-size:11px;font-weight:900;color:#fff;background:var(--blue);
+    border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:1px;}
+  .rpgh{color:#fff;margin:16px 2px 8px;}
+  .rpgh .r1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .rpgh .r1 b{font-size:16px;}
+  .rpgh .r1 button{margin-left:auto;background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:9px;
+    padding:5px 10px;font-weight:800;font-size:12px;cursor:pointer;}
+  .rpgh .chip{font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 8px;}
+  .rpgh .chip.ok{background:#eaf5ee;color:#1d6b42;} .rpgh .chip.fix{background:#fdecea;color:#a4271a;}
+  .rpgh .s{font-size:12px;color:#9fb3c8;margin-top:3px;line-height:1.5;}
+  .rpgh .w{font-size:12px;color:#f6dc8c;margin-top:4px;font-weight:700;}
+  .rpgh .n{font-size:12.5px;background:#fdf3e6;color:#9a6f12;border-radius:8px;padding:6px 9px;margin-top:6px;}
+  .rpref{background:#1d2b3d;border:1px solid #3a4c66;border-radius:10px;padding:8px 11px;margin-bottom:10px;color:#cfdced;}
+  .rpref summary{font-size:13px;font-weight:800;cursor:pointer;}
+  .rpref .rdwrap{margin-top:8px;background:#fffdf8;border-radius:9px;padding:10px;}
+  .rdwrap{color:var(--ink);}
+  .rdg{font-size:15px;font-weight:900;color:var(--ink);margin:10px 0 6px;}
+  .rdpart{border-bottom:1px dashed var(--hair);padding:8px 0 10px;}
+  .rdpart:last-child{border-bottom:0;}
+  .rdh{font-size:13.5px;font-weight:900;color:var(--blue);margin-bottom:4px;}
+  .rdh span{font-size:11px;font-weight:700;color:var(--soft);margin-left:6px;}
+  .rdf{margin-top:6px;font-size:13px;line-height:1.55;}
+  .rdf b{display:block;font-size:11.5px;color:var(--soft);font-weight:800;}
+  .rdf i{color:#b0b8c2;font-size:12px;}
+  .rdt{white-space:pre-wrap;}
+  .rdph{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:4px;}
+  .rdph figure{margin:0;}
+  .rdph img{width:100%;height:110px;object-fit:cover;border-radius:7px;border:1px solid var(--hair);}
+  .rdph figcaption{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.4;}
+  .rdtab{border-collapse:collapse;font-size:12px;margin-top:4px;}
+  .rdtab th,.rdtab td{border:1px solid var(--hair);padding:3px 7px;text-align:center;}
+  .rdtab th{background:#eef2f6;}
+  .rdu{font-size:11.5px;color:var(--soft);margin-top:2px;}
+  .phitem{background:#fff;border:1px solid var(--hair);border-radius:10px;padding:8px;margin-bottom:8px;}
+  .phitem textarea.phcap{min-height:44px;margin-top:6px;font-size:13px;}
+  .phslot .phn{font-size:11px;color:var(--soft);align-self:center;}
+  .unitrow{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .unitrow span{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--ink2);}
+  .unitrow input{flex:1;}
+  #slv .phcap2{color:#cfdced;font-size:clamp(15px,2.6vw,26px);font-weight:700;margin-top:1.6vh;max-width:92%;line-height:1.4;}
   .vrow{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:12px;padding:13px 14px;margin-bottom:9px;
     box-shadow:0 3px 14px rgba(0,0,0,.28);}
   .vrow .t{display:flex;align-items:center;gap:8px;}
@@ -1645,29 +1685,61 @@ $('btnOther').addEventListener('click', function(){
 /* ───────── 수사 보고서 ───────── */
 var RP={loaded:false,team:null,members:[],pages:{},vers:{},meta:{},approve:null,editing:{},props:[],view:'home',cur:null,pingT:null,_ed:null};
 var RPAGES=[
-  {k:'cover',n:'표지',ic:'📁',fs:[
-    {f:'caseNo',t:'text',n:'사건 번호',ph:'예) F-05'},
-    {f:'title',t:'text',n:'사건 제목',ph:'예) 비 오는 날의 1층 계단'},
-    {f:'motive',t:'ta',n:'수사 동기',ph:'이 장소에서 무엇을 보았나요? 왜 위험하다고 생각했나요? (두세 줄)'},
-    {f:'photo',t:'photo',n:'현장 사진',em:'사람 얼굴이 나오지 않게'}]},
-  {k:'plan',n:'① 수사 계획',ic:'🧭',fs:[
-    {f:'q',t:'ta',n:'수사 질문',ph:'예) 계단이 젖으면 패드 위와 돌 부분 중 어디의 마찰력이 더 줄어들까?'},
-    {f:'obj',t:'text',n:'힘을 받는 물체',ph:'예) 계단을 밟는 신발'},
-    {f:'forces',t:'ta',n:'작용하는 힘과 방향',ph:'예) 신발이 미끄러지려는 방향과 반대로 마찰력'},
-    {f:'hypo',t:'text',n:'가설',ph:'(      )할수록 (      )할 것이다'},
-    {f:'diff',t:'text',n:'다르게 할 것'},
-    {f:'same',t:'text',n:'같게 할 것'},
-    {f:'meas',t:'text',n:'잴 것 (단위)',ph:'예) 마찰력(N), 3회 평균'},
-    {f:'tools',t:'text',n:'쓸 도구',ph:'힘센서 · 용수철저울 · 전자저울 · 자 · 기타'},
-    {f:'mat',t:'ta',n:'필요한 재료와 개수',em:'소장님이 이 칸을 보고 재료를 준비해요',ph:'예) 실내화 1짝, 분무기 1개, 페트병(500mL) 1개'}]},
-  {k:'evid',n:'② 증거',ic:'📊',fs:[]},
-  {k:'anal',n:'③ 힘 분석과 안전 제안',ic:'🧲',fs:[
-    {f:'photo',t:'photo',n:'힘 화살표 사진',em:'갤러리 편집(✏️ 그리기)으로 사진 위에 화살표와 힘 이름을 그려서 올리세요'},
-    {f:'prop',t:'ta',n:'우리의 제안',ph:'어떤 힘을 · 얼마나 · 어느 방향으로 바꾸자 (장치 · 관리 방법 · 사용 규칙)'},
-    {f:'basis',t:'ta',n:'근거 (우리가 잰 값)',ph:'예) 패드 위는 젖어도 마찰력이 0.4N만 줄었다'},
-    {f:'unk',t:'ta',n:'아직 확인하지 못한 것',ph:'재 보지 못한 것은 솔직하게 (탐정 수칙 3)'}]},
-  {k:'rx',n:'④ 받은 제안',ic:'💌',fs:[]}
+  {k:'cover',pg:'cover',n:'표지 · 사건 번호와 제목',ic:'📁',fs:[
+    {f:'caseNo',t:'text',n:'사건 번호',ph:'예) ③'},
+    {f:'title',t:'text',n:'사건 제목',ph:'예) 과학실 엉덩방아 사건'}]},
+  {k:'rx',pg:'rx',n:'받은 제안 · 고침과 지킴',ic:'💌',fs:[]}
 ];
+/* 계획서 4부분 + 측정·결과·결론 4부분 — 네 명이 한 부분씩 맡는다 */
+var RGROUPS=[
+  {pg:'plan',n:'📝 수사 계획서',sub:'네 명이 한 부분씩 맡아 씁니다. 다른 친구가 쓴 부분도 읽고 함께 고칠 수 있어요.',parts:[
+    {k:'p1',no:'1~3',n:'발견 장면 · 궁금증 · 힘 분석',ic:'🔍',fs:[
+      {f:'scene',t:'ta',n:'1. 발견 장면',ph:'어디에서 무엇을 보았나요? 왜 위험하거나 신기하다고 생각했나요?'},
+      {f:'scenePh',t:'photos',n:'발견 장면 사진',em:'사진마다 설명을 붙이세요 · 사람 얼굴이 나오지 않게'},
+      {f:'wonder',t:'ta',n:'2. 궁금증',ph:'예) 물이 묻은 바닥에서는 왜 더 잘 미끄러질까?'},
+      {f:'forces',t:'ta',n:'3. 힘 분석 — 힘을 받는 물체 · 작용하는 힘 · 방향',ph:'예) 신발이 앞으로 미끄러지려 하면, 바닥이 신발에 뒤쪽으로 마찰력을 작용한다'},
+      {f:'forcePh',t:'photos',n:'힘 화살표 그림',em:'사진 위에 화살표와 힘 이름을 그려 올리고 설명을 붙이세요'}]},
+    {k:'p2',no:'4~5',n:'실험 질문 · 가설',ic:'❓',fs:[
+      {f:'qA',t:'ta',n:'4. 실험 질문 — 실험 A',ph:'예) 바닥에 물이 묻으면 마찰력은 어떻게 달라질까?'},
+      {f:'hA',t:'ta',n:'5. 가설 — 실험 A',ph:'(      )할수록 (      )할 것이다. 왜냐하면 (      ) 때문이다'},
+      {f:'qB',t:'ta',n:'4. 실험 질문 — 실험 B',em:'실험 B를 하지 않으면 비워 두세요',opt:1},
+      {f:'hB',t:'ta',n:'5. 가설 — 실험 B',opt:1}]},
+    {k:'p3',no:'6~7',n:'변인 · 준비물',ic:'⚖️',fs:[
+      {f:'indA',t:'text',n:'6. 조작 변인 (다르게 할 것) — 실험 A',ph:'예) 바닥 상태: 마름 / 물 / 물+미끄럼방지 매트'},
+      {f:'depA',t:'text',n:'종속 변인 (잴 것과 단위) — 실험 A',ph:'예) 마찰력(N), 3회 평균'},
+      {f:'ctlA',t:'ta',n:'통제 변인 (같게 할 것) — 실험 A',ph:'예) 같은 블록, 같은 추, 같은 바닥재, 같은 속도로 끌기'},
+      {f:'indB',t:'text',n:'조작 변인 — 실험 B',opt:1},
+      {f:'depB',t:'text',n:'종속 변인 — 실험 B',opt:1},
+      {f:'ctlB',t:'ta',n:'통제 변인 — 실험 B',opt:1},
+      {f:'mat',t:'ta',n:'7. 준비물과 개수',em:'소장님이 이 칸을 보고 재료를 준비해요',ph:'예) 힘센서 1, 나무블록 1, 분무기 1, 장판 조각 2'}]},
+    {k:'p4',no:'8~10',n:'실험 과정 · 예상 결과 · 예상 결론',ic:'🧪',fs:[
+      {f:'proc',t:'ta',n:'8. 실험 과정',ph:'① ...\n② ...\n③ 같은 조건에서 3번 재고 평균을 낸다'},
+      {f:'expect',t:'ta',n:'9. 예상 결과',ph:'가설이 맞다면 측정값이 어떻게 나올까요?'},
+      {f:'expConc',t:'ta',n:'10. 예상 결론과 안전 제안',ph:'예상대로 나온다면 무엇을 알 수 있고, 어떤 안전 제안을 할 수 있을까요?'}]}
+  ]},
+  {pg:'evid',n:'🔬 실험 측정 · 결과 · 결론',sub:'실험은 함께 하고, 기록은 네 명이 한 부분씩 나눠 입력합니다.',parts:[
+    {k:'m1',no:'A',n:'실험 A 측정',ic:'📏',fs:[
+      {f:'rowsA',t:'table',u:'unitA',n:'실험 A 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
+      {f:'phA',t:'photos',n:'실험 A 사진',em:'사진마다 설명을 붙이세요'},
+      {f:'obsA',t:'ta',n:'측정하면서 본 것',ph:'예) 젖은 바닥에서는 블록이 처음에 툭 하고 미끄러졌다',opt:1}]},
+    {k:'m2',no:'B',n:'실험 B 측정',ic:'📐',fs:[
+      {f:'rowsB',t:'table',u:'unitB',n:'실험 B 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
+      {f:'phB',t:'photos',n:'실험 B 사진',em:'사진마다 설명을 붙이세요'},
+      {f:'obsB',t:'ta',n:'측정하면서 본 것',opt:1}]},
+    {k:'m3',no:'결과',n:'실제 결과 · 가설과 비교',ic:'📊',fs:[
+      {f:'resA',t:'ta',n:'실험 A의 실제 결과',ph:'측정값으로 말하기: (     ) 조건에서 가장 크게, (     ) 조건에서 가장 작게 나왔다'},
+      {f:'resB',t:'ta',n:'실험 B의 실제 결과',opt:1},
+      {f:'cmp',t:'ta',n:'가설과 비교',ph:'가설이 맞았나요, 달랐나요? 다르다면 왜 그랬을까요? (예상 결과와 견주어 보세요)'}]},
+    {k:'m4',no:'결론',n:'결론 · 안전 제안 · 아직 모르는 것',ic:'🧲',fs:[
+      {f:'concl',t:'ta',n:'결론',ph:'재 보니 (      )할수록 (      )했다'},
+      {f:'prop',t:'ta',n:'안전 제안',ph:'어떤 힘을 · 얼마나 · 어느 방향으로 바꾸자 (장치 · 관리 방법 · 사용 규칙)'},
+      {f:'basis',t:'ta',n:'제안의 근거 (우리가 잰 값)',ph:'예) 젖은 바닥의 마찰력은 마른 바닥의 절반쯤이었다'},
+      {f:'unk',t:'ta',n:'아직 모르는 것',ph:'재 보지 못한 것, 모형과 실제가 다를 수 있는 점 (탐정 수칙 3)'}]}
+  ]}
+];
+var RPARTS={};
+RPAGES.forEach(function(P){ RPARTS[P.k]=P; });
+RGROUPS.forEach(function(G){ G.parts.forEach(function(P){ P.pg=G.pg; RPARTS[P.k]=P; }); });
 var PTYPES=['증거가 부족해요','변인이 섞였어요','힘 분석이 달라요','모형과 실제가 달라요','차이가 우연일 수도 있어요','제안의 부작용이 걱정돼요','이 점이 좋아요'];
 
 function post(params,done,fail){
@@ -2021,21 +2093,107 @@ function rpAvg(r){
   var m=vs.reduce(function(a,b){return a+b;},0)/vs.length;
   return Math.round(m*100)/100;
 }
+function rpPh(v){
+  if(!v) return [];
+  if(typeof v==='string') return [{id:v,cap:''}];
+  if(!Array.isArray(v)) return [];
+  return v.filter(function(x){ return x&&x.id; }).map(function(x){ return {id:x.id,cap:x.cap||''}; });
+}
+function rpEmpty(v){ return v==null||(Array.isArray(v)?!v.length:!String(v).trim()); }
+/* 예전 보고서(표지·계획·증거·분석) 내용을 새 칸으로 옮겨 보여 준다 */
+function rpNorm(pages){
+  pages=pages||{};
+  var c=pages.cover||{}, an=pages.anal||{};
+  var pl=JSON.parse(JSON.stringify(pages.plan||{})), ev=JSON.parse(JSON.stringify(pages.evid||{}));
+  function d(o,f,v){ if(rpEmpty(o[f])&&!rpEmpty(v)) o[f]=v; }
+  d(pl,'scene',c.motive);
+  pl.scenePh=rpPh(pl.scenePh); if(!pl.scenePh.length) pl.scenePh=rpPh(c.photo);
+  if(String(pl.obj||'').trim()) pl.forces='힘을 받는 물체: '+pl.obj+(String(pl.forces||'').trim()?'\n'+pl.forces:'');
+  pl.forcePh=rpPh(pl.forcePh); if(!pl.forcePh.length) pl.forcePh=rpPh(an.photo);
+  d(pl,'qA',pl.q); d(pl,'hA',pl.hypo); d(pl,'indA',pl.diff); d(pl,'depA',pl.meas); d(pl,'ctlA',pl.same);
+  if(String(pl.tools||'').trim()&&String(pl.mat||'').indexOf(pl.tools)<0)
+    pl.mat=(String(pl.mat||'').trim()?pl.mat+'\n':'')+'도구: '+pl.tools;
+  d(ev,'rowsA',ev.rows); d(ev,'unitA',ev.unit);
+  ev.phA=rpPh(ev.phA); if(!ev.phA.length) ev.phA=rpPh(ev.photo);
+  ev.phB=rpPh(ev.phB);
+  d(ev,'prop',an.prop); d(ev,'basis',an.basis); d(ev,'unk',an.unk);
+  return {cover:c,plan:pl,evid:ev};
+}
+function rpData(P){ var n=rpNorm(RP.pages); return n[P.pg]||RP.pages[P.pg]||{}; }
+function rpRowsOk(rows){ return (rows||[]).some(function(r){ return (r.c||'')&&rpAvg(r)!=null; }); }
+function rpFilled(F,j){
+  if(F.t==='table') return rpRowsOk(j[F.f]);
+  if(F.t==='photos') return rpPh(j[F.f]).length>0;
+  return !rpEmpty(j[F.f]);
+}
 function rpProg(k){
-  var j=rpJ(k);
-  if(k==='evid'){
-    var n=0;
-    if((j.rows||[]).some(function(r){ return (r.c||'')&&rpAvg(r)!=null; })) n++;
-    if(j.unit) n++; if((j.concl||'').trim()) n++; if(j.photo) n++;
-    return {a:n,b:4};
-  }
   if(k==='rx'){
     var t=RP.props.length, d=RP.props.filter(function(p){return p.verdict;}).length;
     return {a:d,b:t};
   }
-  var P=rpPage(k), a=0;
-  P.fs.forEach(function(f){ if(String(j[f.f]||'').trim()) a++; });
-  return {a:a,b:P.fs.length};
+  var P=RPARTS[k], j=rpData(P), a=0, b=0;
+  P.fs.forEach(function(F){
+    var ok=rpFilled(F,j);
+    if(!F.opt){ b++; if(ok) a++; }
+  });
+  return {a:a,b:b};
+}
+/* 내 부분의 칸만 최신 내용에 덮어써서 저장 — 친구가 동시에 다른 부분을 저장해도 지워지지 않는다 */
+function rpMergeSave(page,vals,btn,silent,tries){
+  tries=tries||0;
+  var base=JSON.parse(JSON.stringify(RP.pages[page]||{}));
+  for(var f in vals) base[f]=vals[f];
+  if(btn){ btn.disabled=true; btn.textContent='저장 중...'; }
+  post({action:'pageSave',cls:me.cls,team:RP.team,page:page,json:JSON.stringify(base),
+    baseVer:RP.vers[page]||0,num:me.num,name:(me.det||me.name)},
+    function(res){
+      if(btn){ btn.disabled=false; btn.textContent='저장하기'; }
+      RP.vers[page]=res.ver; RP.pages[page]=base; RP.meta[page]={by:(me.det||me.name),at:'방금'};
+      if(!silent) rpToast('저장했습니다');
+    },
+    function(err,res){
+      if(res&&res.conflict&&tries<3){
+        RP.vers[page]=res.ver||0;
+        try{ RP.pages[page]=JSON.parse(res.j||'{}'); }catch(e){}
+        rpMergeSave(page,vals,btn,silent,tries+1); return;
+      }
+      if(btn){ btn.disabled=false; btn.textContent='저장하기'; }
+      alert(err);
+    });
+}
+function rpNow(){ var d=new Date(); return (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2); }
+function rpWho(num){
+  var n=''; RP.members.forEach(function(m){ if(String(m.num)===String(num)) n=m.det||m.name; }); return n;
+}
+/* 읽기 전용으로 한 부분 그리기 (전체 보기 · 교사 보기 · 편집 중 참고) */
+function rpReadPart(P,j,roleName){
+  var h='<div class="rdpart"><div class="rdh">'+P.ic+' '+esc(P.no?P.no+' · ':'')+esc(P.n)+
+    (roleName?'<span>맡음 '+esc(roleName)+'</span>':'')+'</div>';
+  var any=false;
+  P.fs.forEach(function(F){
+    if(!rpFilled(F,j)){ if(!F.opt) h+='<div class="rdf"><b>'+esc(F.n)+'</b><i>아직 비어 있어요</i></div>'; return; }
+    any=true;
+    h+='<div class="rdf"><b>'+esc(F.n)+'</b>';
+    if(F.t==='photos'){
+      h+='<div class="rdph">'+rpPh(j[F.f]).map(function(p){
+        return '<figure><img src="'+rpImg(p.id)+'" alt="사진"><figcaption>'+esc(p.cap||'(설명 없음)')+'</figcaption></figure>';
+      }).join('')+'</div>';
+    } else if(F.t==='table'){
+      var u=j[F.u]||'';
+      h+='<table class="rdtab"><tr><th>조건</th><th>1회</th><th>2회</th><th>3회</th><th>평균</th></tr>'+
+        (j[F.f]||[]).filter(function(r){ return r.c||r.v1||r.v2||r.v3; }).map(function(r){
+          var a=rpAvg(r);
+          return '<tr><td>'+esc(r.c||'')+'</td><td>'+esc(r.v1||'')+'</td><td>'+esc(r.v2||'')+'</td><td>'+esc(r.v3||'')+'</td><td><b>'+(a==null?'-':a)+'</b></td></tr>';
+        }).join('')+'</table>'+(u?'<div class="rdu">단위 · '+esc(u)+'</div>':'');
+    } else h+='<div class="rdt">'+esc(j[F.f])+'</div>';
+    h+='</div>';
+  });
+  return h+'</div>';
+}
+function rpReadGroup(G,j,roles,except){
+  return G.parts.filter(function(P){ return P.k!==except; }).map(function(P){
+    return rpReadPart(P,j,roles?rpWho(roles[P.k]):'');
+  }).join('');
 }
 function rpPingStart(k){
   rpPingStop();
@@ -2081,8 +2239,9 @@ function rpJoin(){
     '<button class="primary" id="rpJG" disabled>들어가기</button>'+
     '<div class="sub" style="margin-top:10px;margin-bottom:0">잘못 골랐으면 소장님이 바로잡아 줄 수 있어요.</div></div>'+
     '<div class="rpcard"><h2>들어가면 먼저 역할을 나누세요</h2>'+
-    '<div class="sub" style="margin-bottom:0">보고서는 다섯 페이지입니다. 페이지마다 <b>맡은 탐정</b>을 정해 이름을 걸어 두세요.<br>'+
-    '표지 · ① 수사 계획 · ② 증거 · ③ 힘 분석과 안전 제안은 나눠 맡고, ④ 받은 제안은 모둠이 함께 판단합니다.</div></div>';
+    '<div class="sub" style="margin-bottom:0">수사 계획서는 <b>네 부분</b>(1~3 발견·궁금증·힘 분석 / 4~5 질문·가설 / 6~7 변인·준비물 / 8~10 과정·예상), '+
+    '실험 기록도 <b>네 부분</b>(실험 A 측정 / 실험 B 측정 / 실제 결과·가설 비교 / 결론·안전 제안)입니다.<br>'+
+    '한 사람이 계획서 한 부분, 실험 기록 한 부분을 맡아 이름을 걸어 두세요. 받은 제안은 모둠이 함께 판단합니다.</div></div>';
   box.innerHTML=h;
   var tp=$('rpTP'), sel=0;
   for(var i=1;i<=8;i++){
@@ -2107,57 +2266,84 @@ function rpJoin(){
 function rpHome(){
   RP.view='home'; RP.cur=null; rpPingStop();
   var box=$('repBody'), c=rpJ('cover');
-  var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||'F-?')+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
+  var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||'?')+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
     '<h2>'+esc(c.title||'사건 제목을 아직 정하지 않았어요')+'</h2><div class="mem">'+
     RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
   h+='<div class="rpacts">'+
     '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
     '<button class="a2" id="rpVB">🕵 검증 회의</button>'+
     '<button class="a3" id="rpMB">📨 내 제안</button></div>';
-  if(!pick('fd_rolehint_'+me.cls+'_'+RP.team)){
-    h+='<div class="tnote2" id="rpRH" style="cursor:pointer"><b>역할 나누기</b> · 페이지마다 「맡은 탐정」을 정해 이름을 걸어 두세요. 맡지 않은 페이지도 함께 고칠 수 있습니다. <u>알겠어요</u></div>';
+  if(!pick('fd_rolehint2_'+me.cls+'_'+RP.team)){
+    h+='<div class="tnote2" id="rpRH" style="cursor:pointer"><b>네 명이 나눠 쓰기</b> · 계획서 네 부분, 측정·결과·결론 네 부분에 각각 「맡은 탐정」을 한 명씩 걸어 두세요. 한 사람이 계획서 한 부분, 결과 한 부분을 맡으면 골고루 나뉩니다. 저장할 때는 <b>내 부분만</b> 저장되니 동시에 써도 괜찮아요. <u>알겠어요</u></div>';
   }
   box.innerHTML=h;
-  if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint_'+me.cls+'_'+RP.team,'1'); this.remove(); });
+  if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint2_'+me.cls+'_'+RP.team,'1'); this.remove(); });
   $('rpSB').addEventListener('click',function(){
     rpSlides(RP.pages,RP.team,RP.props,RP.members.map(function(m){return m.det||m.name;}).join(' · '));
   });
   $('rpVB').addEventListener('click',function(){ rpVisit(false); });
   $('rpMB').addEventListener('click',rpMyProps);
   var roles=rpJ('roles');
-  RPAGES.forEach(function(P){
-    var d=document.createElement('div'); d.className='pgc';
-    var meta=RP.meta[P.k]||{}, pr=rpProg(P.k), chips='';
-    if(P.k==='plan'){
+  box.appendChild(rpPartCard(RPARTS.cover,roles));
+  RGROUPS.forEach(function(G,gi){
+    var gh=document.createElement('div'); gh.className='rpgh';
+    var chips='';
+    if(G.pg==='plan'){
       var ap=RP.approve;
       if(ap&&ap.st==='승인') chips+='<span class="chip ok">✔ 소장 승인</span>';
       else if(ap&&ap.st==='보완') chips+='<span class="chip fix">△ 보완 요청</span>';
-      if(ap&&ap.note) chips+='<span class="chip note">소장 의견</span>';
     }
-    var sub=P.k==='rx' ? ('카드 '+RP.props.length+'장 · 판단 '+RP.props.filter(function(p){return p.verdict;}).length+'장')
-      : (meta.by?('마지막 저장 '+esc(meta.by)+(meta.at?' · '+esc(meta.at):'')):'아직 쓰지 않았어요');
-    d.innerHTML='<span class="ic">'+P.ic+'</span><div class="tx"><b>'+P.n+'</b><span>'+sub+'</span>'+
-      '<span class="roleRow"></span></div>'+
-      '<div class="st"><span class="pr'+(pr.b&&pr.a===pr.b?' full':'')+'">'+pr.a+'/'+pr.b+'</span><br>'+chips+'</div>';
-    if(P.k!=='rx'){
-      var rr=d.querySelector('.roleRow');
-      var selR=document.createElement('select');
-      selR.style.cssText='width:auto;font-size:11.5px;padding:3px 6px;margin-top:4px;border-radius:7px;border:1px solid var(--hair);';
-      var o0=document.createElement('option'); o0.value=''; o0.textContent='맡은 탐정 정하기'; selR.appendChild(o0);
-      RP.members.forEach(function(m){
-        var o=document.createElement('option'); o.value=m.num; o.textContent='맡음: '+(m.det||m.name);
-        if(String(roles[P.k]||'')===String(m.num)) o.selected=true; selR.appendChild(o);
-      });
-      selR.addEventListener('click',function(e){ e.stopPropagation(); });
-      selR.addEventListener('change',function(e){
-        e.stopPropagation(); roles[P.k]=selR.value; RP.pages.roles=roles;
-        rpSaveNow('roles',roles,true,null);
-      });
-      rr.appendChild(selR);
-    }
-    d.addEventListener('click',function(){ rpEdit(P.k); });
-    box.appendChild(d);
+    var cnt={}; G.parts.forEach(function(P){ if(roles[P.k]) cnt[roles[P.k]]=(cnt[roles[P.k]]||0)+1; });
+    var dup=Object.keys(cnt).filter(function(x){ return cnt[x]>1; }).map(rpWho);
+    gh.innerHTML='<div class="r1"><b>'+G.n+'</b>'+chips+'<button type="button">📖 전체 보기</button></div>'+
+      '<div class="s">'+esc(G.sub)+'</div>'+
+      (dup.length?'<div class="w">⚠ '+esc(dup.join(', '))+' 탐정이 두 부분 이상 맡았어요. 한 명이 한 부분씩 맡아 보세요.</div>':'')+
+      (G.pg==='plan'&&RP.approve&&RP.approve.note?'<div class="n">소장 의견 · '+esc(RP.approve.note)+'</div>':'');
+    gh.querySelector('button').addEventListener('click',function(){ rpReadAll(gi); });
+    box.appendChild(gh);
+    G.parts.forEach(function(P){ box.appendChild(rpPartCard(P,roles)); });
   });
+  box.appendChild(rpPartCard(RPARTS.rx,roles));
+}
+function rpPartCard(P,roles){
+  var d=document.createElement('div'); d.className='pgc';
+  var pr=rpProg(P.k), j=RP.pages[P.pg]||{}, sub;
+  if(P.k==='rx') sub='카드 '+RP.props.length+'장 · 판단 '+RP.props.filter(function(p){return p.verdict;}).length+'장 · 모둠이 함께';
+  else if(j['_by_'+P.k]) sub='마지막 저장 '+esc(j['_by_'+P.k])+(j['_at_'+P.k]?' · '+esc(j['_at_'+P.k]):'');
+  else if(P.k==='cover'&&RP.meta.cover&&RP.meta.cover.by) sub='마지막 저장 '+esc(RP.meta.cover.by);
+  else sub=pr.a?'이전 보고서에서 옮겨 온 내용이 있어요':'아직 쓰지 않았어요';
+  d.innerHTML='<span class="ic">'+P.ic+'</span><div class="tx"><b>'+(P.no?'<em class="pno">'+esc(P.no)+'</em>':'')+esc(P.n)+'</b><span>'+sub+'</span>'+
+    '<span class="roleRow"></span></div>'+
+    '<div class="st"><span class="pr'+(pr.b&&pr.a===pr.b?' full':'')+'">'+pr.a+'/'+pr.b+'</span></div>';
+  if(P.k!=='rx'){
+    var rr=d.querySelector('.roleRow');
+    var selR=document.createElement('select');
+    selR.style.cssText='width:auto;font-size:11.5px;padding:3px 6px;margin-top:4px;border-radius:7px;border:1px solid var(--hair);';
+    var o0=document.createElement('option'); o0.value=''; o0.textContent='맡은 탐정 정하기'; selR.appendChild(o0);
+    RP.members.forEach(function(m){
+      var o=document.createElement('option'); o.value=m.num; o.textContent='맡음: '+(m.det||m.name);
+      if(String(roles[P.k]||'')===String(m.num)) o.selected=true; selR.appendChild(o);
+    });
+    selR.addEventListener('click',function(e){ e.stopPropagation(); });
+    selR.addEventListener('change',function(e){
+      e.stopPropagation(); roles[P.k]=selR.value; RP.pages.roles=roles;
+      var v={}; v[P.k]=selR.value;
+      rpMergeSave('roles',v,null,true);
+      setTimeout(rpHome,300);
+    });
+    rr.appendChild(selR);
+  }
+  d.addEventListener('click',function(){ rpEdit(P.k); });
+  return d;
+}
+/* 계획서 / 결과 전체 읽기 */
+function rpReadAll(gi){
+  RP.view='read'; rpPingStop();
+  var G=RGROUPS[gi], n=rpNorm(RP.pages), roles=rpJ('roles');
+  var box=$('repBody');
+  box.innerHTML='<div class="rpbar"><button class="back" id="rpBkR">← 보고서</button><b>'+G.n+'</b></div>'+
+    '<div class="rpcard rdwrap">'+rpReadGroup(G,n[G.pg]||{},roles)+'</div>';
+  $('rpBkR').addEventListener('click',rpHome);
 }
 
 function rpSaveNow(page,obj,silent,btn){
@@ -2182,39 +2368,54 @@ function rpSaveNow(page,obj,silent,btn){
     });
 }
 
-/* 페이지 편집 */
+/* 부분 편집 */
 function rpEdit(k){
   RP.view='edit'; RP.cur=k;
-  var box=$('repBody'), P=rpPage(k);
-  RP._ed=JSON.parse(JSON.stringify(rpJ(k)));
-  var h='<div class="rpbar"><button class="back" id="rpBk">← 보고서</button><b>'+P.n+'</b>'+
-    '<span class="who2">'+(RP.meta[k]&&RP.meta[k].by?('마지막 저장 '+esc(RP.meta[k].by)):'')+'</span></div>';
+  var box=$('repBody'), P=RPARTS[k];
+  var h='<div class="rpbar"><button class="back" id="rpBk">← 보고서</button><b>'+P.ic+' '+esc(P.n)+'</b></div>';
   var ed=RP.editing[k];
   if(ed&&ed!==(me.det||me.name))
-    h+='<div class="editbadge">👀 '+esc(ed)+' 탐정이 이 페이지를 보고 있어요. 같은 칸을 동시에 고치면 한 사람 것만 남아요.</div>';
-  if(k==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
+    h+='<div class="editbadge">👀 '+esc(ed)+' 탐정이 이 부분을 보고 있어요. 같은 칸을 동시에 고치면 나중에 저장한 것만 남아요.</div>';
+  var G=null; RGROUPS.forEach(function(g){ if(g.pg===P.pg) G=g; });
+  if(P.pg==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
     h+='<div class="tnote2"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?' · '+esc(RP.approve.note):'')+'</div>';
-  h+='<div class="rpcard rpform" id="rpF"></div>'+
-    (k==='rx'?'':'<div class="rpsave"><button id="rpSv">저장하기</button></div>');
-  if(k==='rx') h+='<div class="rpsave"><button id="rpSv">저장하기</button></div>';
+  if(G) h+='<details class="rpref"><summary>📖 친구들이 쓴 다른 부분 보기</summary><div class="rdwrap" id="rpRef"></div></details>';
+  h+='<div class="rpcard rpform" id="rpF"></div><div class="rpsave"><button id="rpSv">저장하기</button></div>';
   box.innerHTML=h;
   $('rpBk').addEventListener('click',function(){ rpPingStop(); rpLoad(); });
+  if(G) $('rpRef').innerHTML=rpReadGroup(G,rpNorm(RP.pages)[G.pg]||{},rpJ('roles'),k);
   var F=$('rpF');
-  if(k==='evid') rpEvidForm(F);
-  else if(k==='rx') rpRxForm(F);
-  else rpStdForm(F,P);
-  $('rpSv').addEventListener('click',function(){
-    var obj=rpCollect(k,P);
-    rpSaveNow(k,obj,false,this);
-  });
+  if(k==='rx'){
+    RP._ed=JSON.parse(JSON.stringify(rpJ('rx')));
+    rpRxForm(F);
+    $('rpSv').addEventListener('click',function(){
+      var j=RP._ed||{}; j.summary=$('rp_rx_sum')?$('rp_rx_sum').value.trim():'';
+      rpSaveNow('rx',j,false,this);
+    });
+  } else {
+    var src=rpData(P); RP._ed={};
+    P.fs.forEach(function(Fd){
+      if(Fd.t==='photos') RP._ed[Fd.f]=rpPh(src[Fd.f]);
+      else if(Fd.t==='table'){ RP._ed[Fd.f]=JSON.parse(JSON.stringify(src[Fd.f]||[])); RP._ed[Fd.u]=src[Fd.u]||''; }
+      else RP._ed[Fd.f]=src[Fd.f]||'';
+    });
+    rpPartForm(F,P);
+    $('rpSv').addEventListener('click',function(){
+      var v=rpPartCollect(P);
+      if(P.k!=='cover'){ v['_by_'+P.k]=(me.det||me.name); v['_at_'+P.k]=rpNow(); }
+      if(P.k==='p1') v.obj='';
+      rpMergeSave(P.pg,v,this,false);
+    });
+  }
   rpPingStart(k);
 }
-function rpStdForm(F,P){
+function rpPartForm(F,P){
   P.fs.forEach(function(f){
     var lab=document.createElement('label');
     lab.innerHTML=esc(f.n)+(f.em?' <em>'+esc(f.em)+'</em>':'');
     F.appendChild(lab);
-    if(f.t==='photo'){ F.appendChild(rpPhotoSlot(f.f)); }
+    if(f.t==='photos') F.appendChild(rpPhotos(f.f,P.pg));
+    else if(f.t==='table') rpTableForm(F,f);
     else if(f.t==='ta'){
       var ta=document.createElement('textarea'); ta.id='rp_in_'+f.f;
       ta.placeholder=f.ph||''; ta.value=RP._ed[f.f]||''; F.appendChild(ta);
@@ -2224,54 +2425,104 @@ function rpStdForm(F,P){
     }
   });
 }
-function rpCollect(k,P){
-  var j=RP._ed||{};
-  if(k==='evid'){
-    j.rows=[];
-    for(var i=0;i<4;i++){
-      j.rows.push({c:($('ev_c'+i)?$('ev_c'+i).value.trim():''),
-        v1:($('ev_1_'+i)?$('ev_1_'+i).value.trim():''),
-        v2:($('ev_2_'+i)?$('ev_2_'+i).value.trim():''),
-        v3:($('ev_3_'+i)?$('ev_3_'+i).value.trim():'')});
-    }
-    j.unit=$('ev_unit')?$('ev_unit').value.trim():'';
-    j.concl=$('ev_concl')?$('ev_concl').value.trim():'';
-    return j;
-  }
-  if(k==='rx'){ j.summary=$('rp_rx_sum')?$('rp_rx_sum').value.trim():''; return j; }
+function rpPartCollect(P){
+  var v={};
   P.fs.forEach(function(f){
-    if(f.t==='photo') return;
-    var e=$('rp_in_'+f.f); if(e) j[f.f]=e.value.trim();
+    if(f.t==='photos') v[f.f]=rpPh(RP._ed[f.f]);
+    else if(f.t==='table'){
+      var rows=[];
+      for(var i=0;i<4;i++){
+        var g=function(s){ var e=$(f.f+s+i); return e?e.value.trim():''; };
+        rows.push({c:g('_c'),v1:g('_1_'),v2:g('_2_'),v3:g('_3_')});
+      }
+      v[f.f]=rows;
+      v[f.u]=$('rp_in_'+f.u)?$('rp_in_'+f.u).value.trim():'';
+    } else { var e=$('rp_in_'+f.f); if(e) v[f.f]=e.value.trim(); }
   });
-  return j;
+  return v;
 }
-function rpPhotoSlot(field){
+/* 사진 여러 장 + 사진마다 설명 */
+function rpPhotos(field,pg){
   var w=document.createElement('div'); w.className='phslot';
+  function list(){ if(!Array.isArray(RP._ed[field])) RP._ed[field]=rpPh(RP._ed[field]); return RP._ed[field]; }
   function draw(){
-    var id=RP._ed[field];
-    w.innerHTML=id?'<img src="'+rpImg(id)+'" alt="사진">':'<div class="empty2">아직 사진이 없어요</div>';
-    var bb=document.createElement('div'); bb.className='phbtns';
-    var up=document.createElement('button'); up.type='button'; up.textContent=id?'사진 바꾸기':'📷 사진 올리기';
-    var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
-    up.addEventListener('click',function(){ fi.click(); });
-    fi.addEventListener('change',function(){
-      var f=fi.files[0]; if(!f) return;
-      up.disabled=true; up.textContent='올리는 중...';
-      rpShrink(f,function(b64){
-        post({action:'photo',cls:me.cls,team:RP.team,page:RP.cur,field:field,data:b64},
-          function(res){ RP._ed[field]=res.id; draw(); rpToast('사진을 올렸어요. 아래 저장하기까지 눌러 주세요.'); },
-          function(err){ up.disabled=false; up.textContent='다시 시도'; alert(err); });
-      });
+    var L=list(); w.innerHTML='';
+    if(!L.length){ var em=document.createElement('div'); em.className='empty2'; em.textContent='아직 사진이 없어요'; w.appendChild(em); }
+    L.forEach(function(p,i){
+      var it=document.createElement('div'); it.className='phitem';
+      it.innerHTML='<img src="'+rpImg(p.id)+'" alt="사진">';
+      var cap=document.createElement('textarea'); cap.className='phcap'; cap.rows=2;
+      cap.placeholder='사진 설명 — 무엇을 찍었나요? 어디를 보면 되나요? (예: 젖은 장판 위에서 블록을 끄는 모습)';
+      cap.value=p.cap||'';
+      cap.addEventListener('input',function(){ p.cap=cap.value; });
+      it.appendChild(cap);
+      var bb=document.createElement('div'); bb.className='phbtns';
+      if(i>0){ var upb=document.createElement('button'); upb.type='button'; upb.textContent='↑ 앞으로';
+        upb.addEventListener('click',function(){ var t=L[i-1]; L[i-1]=L[i]; L[i]=t; draw(); }); bb.appendChild(upb); }
+      var del=document.createElement('button'); del.type='button'; del.textContent='사진 빼기';
+      del.addEventListener('click',function(){ if(confirm('이 사진을 뺄까요?')){ L.splice(i,1); draw(); } });
+      bb.appendChild(del); it.appendChild(bb);
+      w.appendChild(it);
     });
-    bb.appendChild(up); bb.appendChild(fi);
-    if(id){
-      var del=document.createElement('button'); del.type='button'; del.textContent='삭제';
-      del.addEventListener('click',function(){ RP._ed[field]=''; draw(); });
-      bb.appendChild(del);
+    if(L.length<4){
+      var bb2=document.createElement('div'); bb2.className='phbtns';
+      var up=document.createElement('button'); up.type='button'; up.textContent=L.length?'📷 사진 더 올리기':'📷 사진 올리기';
+      var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+      up.addEventListener('click',function(){ fi.click(); });
+      fi.addEventListener('change',function(){
+        var f=fi.files[0]; if(!f) return;
+        up.disabled=true; up.textContent='올리는 중...';
+        rpShrink(f,function(b64){
+          post({action:'photo',cls:me.cls,team:RP.team,page:pg,field:field,data:b64},
+            function(res){ list().push({id:res.id,cap:''}); draw();
+              rpToast('사진을 올렸어요. 설명을 쓰고 저장하기를 눌러 주세요.'); },
+            function(err){ up.disabled=false; up.textContent='다시 시도'; alert(err); });
+        });
+      });
+      bb2.appendChild(up); bb2.appendChild(fi);
+      var nt=document.createElement('span'); nt.className='phn'; nt.textContent='최대 4장';
+      bb2.appendChild(nt);
+      w.appendChild(bb2);
     }
-    w.appendChild(bb);
   }
   draw(); return w;
+}
+function rpTableForm(F,fd){
+  var rows=RP._ed[fd.f]||[]; while(rows.length<4) rows.push({});
+  var p=fd.f;
+  var lab2=document.createElement('div'); lab2.className='unitrow';
+  lab2.innerHTML='<span>잰 것과 단위</span>';
+  var un=document.createElement('input'); un.type='text'; un.id='rp_in_'+fd.u;
+  un.placeholder='예) 마찰력(N)'; un.value=RP._ed[fd.u]||''; lab2.appendChild(un); F.appendChild(lab2);
+  var t=document.createElement('table'); t.className='mtab';
+  var h='<tr><th style="width:34%">바꾼 조건</th><th>1회</th><th>2회</th><th>3회</th><th style="width:16%">평균</th></tr>';
+  for(var i=0;i<4;i++){
+    var r=rows[i]||{};
+    h+='<tr><td><input id="'+p+'_c'+i+'" placeholder="'+(i===0?'예) 마른 바닥':'')+'" value="'+esc(r.c||'')+'"></td>'+
+      '<td><input id="'+p+'_1_'+i+'" inputmode="decimal" value="'+esc(r.v1||'')+'"></td>'+
+      '<td><input id="'+p+'_2_'+i+'" inputmode="decimal" value="'+esc(r.v2||'')+'"></td>'+
+      '<td><input id="'+p+'_3_'+i+'" inputmode="decimal" value="'+esc(r.v3||'')+'"></td>'+
+      '<td class="avg" id="'+p+'_a'+i+'">-</td></tr>';
+  }
+  t.innerHTML=h; F.appendChild(t);
+  var lab3=document.createElement('label'); lab3.innerHTML='그래프 <em>평균값으로 저절로 그려져요</em>'; F.appendChild(lab3);
+  var gw=document.createElement('div'); gw.className='gwrap'; F.appendChild(gw);
+  function redraw(){
+    var rs=[], mx=0;
+    for(var i=0;i<4;i++){
+      var r={c:$(p+'_c'+i).value.trim(),v1:$(p+'_1_'+i).value,v2:$(p+'_2_'+i).value,v3:$(p+'_3_'+i).value};
+      var a=rpAvg(r);
+      $(p+'_a'+i).textContent=a==null?'-':a;
+      if(r.c&&a!=null){ rs.push({c:r.c,a:a}); if(a>mx) mx=a; }
+    }
+    if(!rs.length){ gw.innerHTML='<div class="empty" style="padding:8px 0">조건과 측정값을 넣으면 그래프가 그려져요</div>'; return; }
+    var u=un.value.trim();
+    gw.innerHTML=rs.map(function(r){
+      return '<div class="grow"><div class="gl">'+esc(r.c)+'</div><div class="gt"><div class="gb" style="width:'+
+        (mx>0?Math.max(3,Math.round(r.a/mx*100)):3)+'%"></div></div><div class="gv">'+r.a+(u?' '+esc(u.replace(/^.*\(|\)$/g,'')):'')+'</div></div>';
+    }).join('');
+  }
+  t.addEventListener('input',redraw); un.addEventListener('input',redraw); redraw();
 }
 function rpShrink(file,done){
   var rd=new FileReader();
@@ -2287,49 +2538,6 @@ function rpShrink(file,done){
     img.src=rd.result;
   };
   rd.readAsDataURL(file);
-}
-function rpEvidForm(F){
-  var j=RP._ed; if(!j.rows) j.rows=[{},{},{},{}];
-  while(j.rows.length<4) j.rows.push({});
-  var lab=document.createElement('label');
-  lab.innerHTML='측정표 <em>조건마다 3번 재고, 평균은 저절로 계산돼요</em>'; F.appendChild(lab);
-  var t=document.createElement('table'); t.className='mtab';
-  var h='<tr><th style="width:34%">바꾼 조건</th><th>1회</th><th>2회</th><th>3회</th><th style="width:16%">평균</th></tr>';
-  for(var i=0;i<4;i++){
-    h+='<tr><td><input id="ev_c'+i+'" placeholder="'+(i===0?'예) 돌, 마름':'')+'" value="'+esc(j.rows[i].c||'')+'"></td>'+
-      '<td><input id="ev_1_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v1||'')+'"></td>'+
-      '<td><input id="ev_2_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v2||'')+'"></td>'+
-      '<td><input id="ev_3_'+i+'" inputmode="decimal" value="'+esc(j.rows[i].v3||'')+'"></td>'+
-      '<td class="avg" id="ev_a'+i+'">-</td></tr>';
-  }
-  t.innerHTML=h; F.appendChild(t);
-  var lab2=document.createElement('label'); lab2.textContent='잰 것과 단위'; F.appendChild(lab2);
-  var un=document.createElement('input'); un.type='text'; un.id='ev_unit';
-  un.placeholder='예) 마찰력(N)'; un.value=j.unit||''; F.appendChild(un);
-  var lab3=document.createElement('label'); lab3.innerHTML='그래프 <em>평균값으로 저절로 그려져요</em>'; F.appendChild(lab3);
-  var gw=document.createElement('div'); gw.className='gwrap'; gw.id='ev_g'; F.appendChild(gw);
-  var lab4=document.createElement('label'); lab4.textContent='결론 한 줄'; F.appendChild(lab4);
-  var co=document.createElement('input'); co.type='text'; co.id='ev_concl';
-  co.placeholder='재 보니 (      )할수록 (      )했다'; co.value=j.concl||''; co.style.fontWeight='800'; F.appendChild(co);
-  var lab5=document.createElement('label'); lab5.textContent='실험 사진'; F.appendChild(lab5);
-  F.appendChild(rpPhotoSlot('photo'));
-  function redraw(){
-    var rows=[], mx=0;
-    for(var i=0;i<4;i++){
-      var r={c:$('ev_c'+i).value.trim(),v1:$('ev_1_'+i).value,v2:$('ev_2_'+i).value,v3:$('ev_3_'+i).value};
-      var a=rpAvg(r);
-      $('ev_a'+i).textContent=a==null?'-':a;
-      if(r.c&&a!=null){ rows.push({c:r.c,a:a}); if(a>mx) mx=a; }
-    }
-    var g=$('ev_g');
-    if(!rows.length){ g.innerHTML='<div class="empty" style="padding:8px 0">조건과 측정값을 넣으면 그래프가 그려져요</div>'; return; }
-    var u=$('ev_unit').value.trim();
-    g.innerHTML=rows.map(function(r){
-      return '<div class="grow"><div class="gl">'+esc(r.c)+'</div><div class="gt"><div class="gb" style="width:'+
-        Math.max(3,Math.round(r.a/mx*100))+'%"></div></div><div class="gv">'+r.a+(u?' '+esc(u.replace(/^.*\(|\)$/g,'')):'')+'</div></div>';
-    }).join('');
-  }
-  F.addEventListener('input',redraw); redraw();
 }
 function rpRxForm(F){
   var j=RP._ed;
@@ -2530,24 +2738,38 @@ function rpMyProps(){
 /* 발표 모드 */
 var SL={list:[],i:0,run:false,left:180,tick:null};
 function rpSlides(pages,teamNo,props,memText){
-  var g=function(k){ return pages[k]||{}; };
-  var c=g('cover'), pl=g('plan'), ev=g('evid'), an=g('anal');
+  var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
   var S=[{tp:'title',no:c.caseNo||'',t:c.title||'사건 제목 없음',sub:(memText||'')}];
-  if((c.motive||'').trim()) S.push({tp:'kb',k:'수사 동기',b:c.motive});
-  if(c.photo) S.push({tp:'ph',k:'현장',id:c.photo});
-  if((pl.q||'').trim()) S.push({tp:'kb',k:'수사 질문',b:pl.q});
-  if((pl.hypo||'').trim()) S.push({tp:'kb',k:'가설',b:pl.hypo});
-  if((pl.diff||'').trim()) S.push({tp:'kb',k:'다르게 한 것',b:pl.diff});
-  if((pl.same||'').trim()) S.push({tp:'kb',k:'같게 한 것',b:pl.same});
-  if((pl.meas||'').trim()) S.push({tp:'kb',k:'잰 것',b:pl.meas});
-  var rows=(ev.rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r)}; })
-    .filter(function(r){ return r.c&&r.a!=null; });
-  if(rows.length) S.push({tp:'graph',rows:rows,unit:ev.unit||''});
-  if((ev.concl||'').trim()) S.push({tp:'kb',k:'결론',b:ev.concl,gold:true});
-  if(an.photo) S.push({tp:'ph',k:'힘 분석',id:an.photo});
-  if((an.prop||'').trim()) S.push({tp:'kb',k:'우리의 제안',b:an.prop});
-  if((an.basis||'').trim()) S.push({tp:'kb',k:'근거 — 우리가 잰 값',b:an.basis,gold:true});
-  if((an.unk||'').trim()) S.push({tp:'kb',k:'아직 확인하지 못한 것',b:an.unk});
+  var tx=function(v){ return String(v||'').trim(); };
+  var kb=function(k,v,gold){ if(tx(v)) S.push({tp:'kb',k:k,b:tx(v),gold:!!gold}); };
+  var phs=function(k,arr){ rpPh(arr).forEach(function(p,i,a){ S.push({tp:'ph',k:k+(a.length>1?' '+(i+1)+'/'+a.length:''),id:p.id,cap:p.cap||''}); }); };
+  var two=function(k,b,k2,b2){
+    if(tx(b)&&tx(b2)) S.push({tp:'two',k:k,b:tx(b),k2:k2,b2:tx(b2)});
+    else { kb(k,b); kb(k2,b2); }
+  };
+  var vars=function(ind,dep,ctl){
+    return [tx(ind)?'다르게 · '+tx(ind):'',tx(dep)?'잰 것 · '+tx(dep):'',tx(ctl)?'같게 · '+tx(ctl):''].filter(Boolean).join('\n');
+  };
+  var graph=function(k,rows,unit){
+    var rs=(rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r)}; }).filter(function(r){ return r.c&&r.a!=null; });
+    if(rs.length) S.push({tp:'graph',k:k,rows:rs,unit:unit||''});
+  };
+  kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
+  kb('2. 궁금증',pl.wonder);
+  kb('3. 힘 분석',pl.forces); phs('힘 화살표',pl.forcePh);
+  two('실험 질문 A',pl.qA,'가설 A',pl.hA);
+  two('실험 질문 B',pl.qB,'가설 B',pl.hB);
+  kb('변인 · 실험 A',vars(pl.indA,pl.depA,pl.ctlA));
+  kb('변인 · 실험 B',vars(pl.indB,pl.depB,pl.ctlB));
+  kb('실험 과정',pl.proc);
+  graph('실험 A · 재 보니',ev.rowsA,ev.unitA); phs('실험 A',ev.phA); kb('실험 A · 측정하며 본 것',ev.obsA);
+  graph('실험 B · 재 보니',ev.rowsB,ev.unitB); phs('실험 B',ev.phB); kb('실험 B · 측정하며 본 것',ev.obsB);
+  kb('실험 A · 실제 결과',ev.resA); kb('실험 B · 실제 결과',ev.resB);
+  kb('가설과 비교',ev.cmp);
+  kb('결론',ev.concl,true);
+  kb('안전 제안',ev.prop);
+  kb('근거 — 우리가 잰 값',ev.basis,true);
+  kb('아직 모르는 것',ev.unk);
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
@@ -2590,11 +2812,12 @@ function rpSlDraw(){
     h='<div class="two"><div><div class="k">'+esc(s.k)+'</div><div class="big">'+esc(s.b)+'</div></div>'+
       '<div><div class="k">'+esc(s.k2)+'</div><div class="big">'+esc(s.b2)+'</div></div></div>';
   } else if(s.tp==='ph'){
-    h='<div class="k">'+esc(s.k)+'</div><img class="ph" src="'+rpImg(s.id)+'" alt="사진">';
+    h='<div class="k">'+esc(s.k)+'</div><img class="ph" src="'+rpImg(s.id)+'" alt="사진">'+
+      (s.cap?'<div class="phcap2">'+esc(s.cap)+'</div>':'');
   } else if(s.tp==='graph'){
     var mx=0; s.rows.forEach(function(r){ if(r.a>mx) mx=r.a; });
     var u=(s.unit||'').replace(/^.*\(|\)$/g,'');
-    h='<div class="k">재 보니 이랬다'+(s.unit?' · '+esc(s.unit):'')+'</div><div class="gslide">'+
+    h='<div class="k">'+esc(s.k||'재 보니 이랬다')+(s.unit?' · '+esc(s.unit):'')+'</div><div class="gslide">'+
       s.rows.map(function(r){
         return '<div class="grow"><div class="gl">'+esc(r.c)+'</div>'+
           '<div class="gt"><div class="gb" style="width:'+Math.max(3,Math.round(r.a/mx*100))+'%"></div></div>'+
@@ -2625,7 +2848,8 @@ function drawRepTeacher(r,cls){
   var mb=document.createElement('div'); mb.className='matbox';
   var mh='<h3>🧰 재료 준비 목록 · '+cls+'반</h3>';
   items.forEach(function(t){
-    mh+='<div class="ml"><b>'+t.team+'모둠</b><span>'+(t.mat?esc(t.mat):'<i style="color:#9aa6b3">아직 쓰지 않음</i>')+'</span></div>';
+    var tm=t.mat; if(!tm){ try{ tm=JSON.parse((t.pages||{}).plan||'{}').mat; }catch(e){} }
+    mh+='<div class="ml"><b>'+t.team+'모둠</b><span>'+(tm?esc(tm):'<i style="color:#9aa6b3">아직 쓰지 않음</i>')+'</span></div>';
   });
   mb.innerHTML=mh; box.appendChild(mb);
   items.forEach(function(t){
@@ -2636,7 +2860,7 @@ function drawRepTeacher(r,cls){
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
       '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button>'+
-      '<button class="bPl" type="button">① 계획 보기</button></div>'+
+      '<button class="bPl" type="button">📝 계획서·결과 읽기</button></div>'+
       '<div class="plan2 hide"></div>'+
       '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
       '<input type="text" placeholder="소장 의견 (학생의 계획 페이지에 보입니다)">'+
@@ -2681,12 +2905,13 @@ function drawRepTeacher(r,cls){
     d.querySelector('.bPl').addEventListener('click',function(){
       var pd=d.querySelector('.plan2');
       if(pd.classList.contains('hide')&&!pd.innerHTML){
-        var pj={}; try{ pj=JSON.parse((t.pages||{}).plan||'{}'); }catch(e){}
-        var fh='';
-        rpPage('plan').fs.forEach(function(f){
-          fh+='<div class="f"><b>'+esc(f.n)+'</b>'+esc(pj[f.f]||'—')+'</div>';
-        });
-        pd.innerHTML=fh;
+        var pg={};
+        for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
+        var N=rpNorm(pg), ro=pg.roles||{};
+        var who=function(num){ var n=''; (t.members||[]).forEach(function(m){ if(String(m.num)===String(num)) n=m.name||''; }); return n; };
+        pd.innerHTML='<div class="rdwrap">'+RGROUPS.map(function(G){
+          return '<div class="rdg">'+G.n+'</div>'+G.parts.map(function(P){ return rpReadPart(P,N[G.pg]||{},who(ro[P.k])); }).join('');
+        }).join('')+'</div>';
       }
       pd.classList.toggle('hide');
     });
