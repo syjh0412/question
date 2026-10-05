@@ -3539,12 +3539,15 @@ function matCard(m){
     boxes.push({box:vbox, btn:bv, label:label});
   });
 
-  if(m.snorkl){
+  // 스노클 칸: 쉼표 · 줄바꿈 · 공백으로 여러 개 (문제 1, 문제 2 …)
+  var snks = String(m.snorkl||'').split(/[,\n\s]+/).filter(function(x){ return x.indexOf('http')===0; });
+  snks.forEach(function(url, i){
     var s=document.createElement('a');
-    s.href=m.snorkl; s.target='_blank'; s.rel='noopener';
-    s.className='snorkl'; s.textContent='스노클 풀기';
+    s.href=url; s.target='_blank'; s.rel='noopener';
+    s.className='snorkl';
+    s.textContent = snks.length>1 ? ('스노클 '+(i+1)) : '스노클 풀기';
     btns.appendChild(s);
-  }
+  });
 
   d.appendChild(btns);
   boxes.forEach(function(o){ d.appendChild(o.box); });
