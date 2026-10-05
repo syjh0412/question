@@ -1308,7 +1308,7 @@ function drawWho(){
 
   if(TEACHER){
     var opts='';
-    for(var c=1;c<=6;c++){
+    for(var c=1;c<=4;c++){
       opts+='<option value="'+c+'"'+(String(c)===String(me.cls)?' selected':'')+'>'+c+'반</option>';
     }
     $('who').innerHTML=
@@ -1472,7 +1472,7 @@ $('gBack').addEventListener('click', function(){
 });
 (function(){
   var g=$('gCls');
-  for(var c=1;c<=6;c++){(function(c){
+  for(var c=1;c<=4;c++){(function(c){
     var b=document.createElement('button'); b.type='button'; b.textContent=c+'반 참관';
     b.addEventListener('click',function(){
       GUEST=true; TEACHER=false;
