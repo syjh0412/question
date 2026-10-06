@@ -2191,11 +2191,12 @@ function rpCaseOf(pages,cls,team){
   return {no:no,finder:c.finder||'',by:c.by||'소장',D:CASES[no]};
 }
 /* 사건 고르기 (학생) */
-function rpCasePick(){
+function rpCasePick(keep){
   RP.view='pick'; rpPingStop();
+  if(keep!==true) RP._taken=null;
   var box=$('repBody'), cur=rpCaseOf(RP.pages,me.cls,RP.team);
   box.innerHTML='<div class="rpbar"><button class="back" id="rpBkK">← 보고서</button><b>📂 사건 고르기</b></div>'+
-    '<div class="tnote2"><b>한 사건은 한 모둠만</b> 맡습니다. 먼저 고른 모둠이 맡고, 소장님이 확정하면 그때부터는 바꿀 수 없어요. '+
+    '<div class="tnote2">사건을 누르면 사건 파일을 먼저 볼 수 있어요. <b>한 사건은 한 모둠만</b> 맡습니다. 먼저 고른 모둠이 맡고, 소장님이 확정하면 그때부터는 바꿀 수 없어요. '+
     '우리가 모은 현장 단서와 가장 가까운 사건을 모둠이 의논해서 고르세요.</div>'+
     '<div id="rpKL"><div class="empty">다른 모둠이 고른 사건을 확인하는 중...</div></div>';
   $('rpBkK').addEventListener('click',rpHome);
@@ -2208,17 +2209,13 @@ function rpCasePick(){
       d.innerHTML='<div class="pn">'+CASE_NUM[n]+'</div><div class="pb"><b>'+esc(D.t)+'</b><span class="ps">'+esc(D.sub)+' · '+esc(D.f.join(', '))+'</span>'+
         '<span class="pa">'+esc(D.ask)+'</span>'+
         (tk?'<em>'+tk+'모둠이 수사 중</em>':(mine?'<em class="m">우리 사건</em>':''))+'</div>';
-      if(!tk&&!mine) d.addEventListener('click',function(){
-        if(!confirm('사건 '+CASE_NUM[n]+' 「'+D.t+'」을 우리 모둠 사건으로 고를까요?')) return;
-        RP.pages['case']=RP.pages['case']||{};
-        rpMergeSave('case',{no:n,by:'학생',who:(me.det||me.name)},null,true);
-        RP.pages['case']=Object.assign({},RP.pages['case'],{no:n,by:'학생'});
-        rpToast('사건 '+CASE_NUM[n]+'을 골랐어요. 소장님이 확인하면 확정됩니다.');
-        setTimeout(rpCaseView,300);
-      });
+      d.addEventListener('click',function(){ rpCasePreview(n,tk,mine); });
       L.appendChild(d);
     })(n);}
   }
+  RP._pickDraw=draw;
+  if(RP._taken){ taken=RP._taken; draw(); return; }
+  RP._taken=taken;
   call({action:'repTeams',cls:me.cls,num:me.num},function(res){
     var others=(res.items||[]).filter(function(t){ return String(t.team)!==String(RP.team); });
     var left=others.length; if(!left){ draw(); return; }
@@ -2245,7 +2242,7 @@ function rpCaseHTML(cs,cls,team,compact){
   var D=cs.D, X=cfOf(cs.no);
   var h='<div class="cfile'+(compact?' compact':'')+'"><div class="cf-tab">사건 파일 '+CASE_NUM[cs.no]+'</div>'+
     '<div class="cf-stamp">접수</div>'+
-    '<div class="cf-meta">의뢰 고천중학교 → 힘 탐정 사무소 · 담당 '+esc(cls)+'반 '+esc(team)+'모둠 수사팀</div>'+
+    '<div class="cf-meta">의뢰 고천중학교 → 힘 탐정 사무소 · '+(team==null?'담당 수사팀 모집 중':'담당 '+esc(cls)+'반 '+esc(team)+'모둠 수사팀')+'</div>'+
     '<h3>'+esc(D.t)+'</h3><div class="cf-sub">'+esc(D.sub)+'</div>'+
     '<div class="cf-forces">'+D.f.map(function(x){ return '<span>'+esc(x)+'</span>'; }).join('')+'</div>';
   h+='<div class="cf-k">의뢰 내용</div><div class="cf-ask">'+esc(D.ask)+'</div>';
@@ -2515,6 +2512,25 @@ function rpPartCard(P,roles){
   }
   d.addEventListener('click',function(){ rpEdit(P.k); });
   return d;
+}
+/* 사건 고르기 전 미리 보기 */
+function rpCasePreview(n,tk,mine){
+  RP.view='preview';
+  var D=CASES[n], box=$('repBody');
+  box.innerHTML='<div class="rpbar"><button class="back" id="rpBkV">← 사건 목록</button><b>📂 사건 '+CASE_NUM[n]+' 살펴보기</b></div>'+
+    rpCaseHTML({no:n,finder:'',by:'',D:D},me.cls,null)+
+    '<div class="rpsave">'+(tk?'<button disabled>'+tk+'모둠이 수사 중인 사건이에요</button>':
+      (mine?'<button disabled>이미 우리 모둠 사건이에요</button>':'<button id="rpTake">이 사건을 우리 모둠 사건으로 고르기</button>'))+'</div>';
+  window.scrollTo(0,0);
+  $('rpBkV').addEventListener('click',function(){ rpCasePick(true); });
+  if($('rpTake')) $('rpTake').addEventListener('click',function(){
+    if(!confirm('사건 '+CASE_NUM[n]+' 「'+D.t+'」을 우리 모둠 사건으로 고를까요?\n모둠 친구들과 의논했나요?')) return;
+    rpMergeSave('case',{no:n,by:'학생',who:(me.det||me.name)},null,true);
+    RP.pages['case']=Object.assign({},RP.pages['case']||{},{no:n,by:'학생'});
+    RP._taken=null;
+    rpToast('사건 '+CASE_NUM[n]+'을 골랐어요. 소장님이 확인하면 확정됩니다.');
+    setTimeout(rpCaseView,300);
+  });
 }
 /* 사건 파일 보기 */
 function rpCaseView(){
