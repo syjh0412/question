@@ -1317,13 +1317,20 @@ function newTotal(){
 }
 
 var seq=0;
-function call(params, done, fail){
+var READ_ACT={report:1,repTeams:1,feed:1,teamInfo:1,materials:1,myprops:1,repTeacher:1,board:1,myrefs:1};
+function call(params, done, fail, _try){
   if(GUEST && !GUEST_OK[params.action]){
     var gm='참관 모드에서는 둘러보기만 할 수 있어요';
     if(fail) fail(gm); else alert(gm); return;
   }
+  var retry=READ_ACT[params.action]&&!_try;
+  var fail0=fail;
+  fail=function(e){
+    if(retry&&/초과|연결/.test(String(e))){ setTimeout(function(){ call(params,done,fail0,1); },1200); return; }
+    if(fail0) fail0(e);
+  };
   var cb='cb_'+(++seq)+'_'+Date.now(), s;
-  var timer=setTimeout(function(){ clean(); if(fail) fail('시간이 초과되었습니다'); },20000);
+  var timer=setTimeout(function(){ clean(); if(fail) fail('시간이 초과되었습니다'); },35000);
   function clean(){ clearTimeout(timer); try{delete window[cb];}catch(e){window[cb]=undefined;}
     if(s&&s.parentNode) s.parentNode.removeChild(s); }
   window[cb]=function(res){ clean(); if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류'); };
@@ -2214,17 +2221,20 @@ function rpCasePick(keep){
     })(n);}
   }
   RP._pickDraw=draw;
-  if(RP._taken){ taken=RP._taken; draw(); return; }
-  RP._taken=taken;
+  if(RP._taken&&RP._takenAt&&Date.now()-RP._takenAt<120000){ taken=RP._taken; draw(); return; }
+  RP._taken=taken; RP._takenAt=Date.now();
   call({action:'repTeams',cls:me.cls,num:me.num},function(res){
     var others=(res.items||[]).filter(function(t){ return String(t.team)!==String(RP.team); });
     var left=others.length; if(!left){ draw(); return; }
-    others.forEach(function(t){
+    var q=others.slice();
+    function one(){
+      var t=q.shift(); if(!t) return;
       call({action:'report',cls:me.cls,team:t.team},function(r2){
         try{ var cj=JSON.parse(((r2.pages||{})['case']||{}).j||'{}'); if(CASES[cj.no]) taken[cj.no]=taken[cj.no]||t.team; }catch(e){}
-        if(--left===0) draw();
-      },function(){ if(--left===0) draw(); });
-    });
+        if(--left===0) draw(); else one();
+      },function(){ if(--left===0) draw(); else one(); });
+    }
+    one(); one();
   },function(){ draw(); });
 }
 /* 사건 파일 공통 자료(현장 사진·단서를 모은 탐정): 공개 코드가 아니라 서버(0반 0모둠 casefiles)에 저장 */
@@ -2363,8 +2373,8 @@ function rpReadGroup(G,j,roles,except){
 }
 function rpPingStart(k){
   rpPingStop();
-  var send=function(){ call({action:'editPing',cls:me.cls,team:RP.team,page:k,name:(me.det||me.name)},function(){},function(){}); };
-  send(); RP.pingT=setInterval(send,40000);
+  var send=function(){ if(document.hidden) return; call({action:'editPing',cls:me.cls,team:RP.team,page:k,name:(me.det||me.name)},function(){},function(){}); };
+  send(); RP.pingT=setInterval(send,90000);
 }
 function rpPingStop(){ if(RP.pingT){ clearInterval(RP.pingT); RP.pingT=null; } }
 
@@ -2372,9 +2382,17 @@ function repOpen(){
   if(TEACHER||GUEST){ rpVisit(true); return; }
   if(RP.loaded){ if(RP.view==='edit'&&RP.cur) rpEdit(RP.cur); else rpHome(); return; }
   $('repBody').innerHTML='<div class="empty">불러오는 중...</div>';
+  var tk='fd_team_'+me.cls+'_'+me.num, ct=pick(tk);
+  if(ct){
+    RP.team=ct; rpLoad();
+    call({action:'teamInfo',cls:me.cls,num:me.num},function(res){
+      if(res.team&&String(res.team)!==String(ct)){ store(tk,String(res.team)); RP.team=res.team; rpLoad(); }
+    },function(){});
+    return;
+  }
   call({action:'teamInfo',cls:me.cls,num:me.num},function(res){
     if(!res.team){ rpJoin(); return; }
-    RP.team=res.team; rpLoad();
+    store(tk,String(res.team)); RP.team=res.team; rpLoad();
   },rpFailBox);
 }
 function rpFailBox(err){
@@ -2392,8 +2410,25 @@ function rpLoad(cb){
     }
     RP.approve=RP.pages.approve||null;
     RP.members=res.members||[]; RP.editing=res.editing||{}; RP.props=res.props||[];
-    cfLoad(function(){ if(cb) cb(); else rpHome(); });
+    RP.loadedAt=Date.now();
+    if(cb) cb(); else rpHome();
+    if(!CFD) cfLoad(function(){ if(RP.view==='case') rpCaseView(); });
   },rpFailBox);
+}
+/* 조용히 새로 받아 오기: 홈에 있을 때만 다시 그림 */
+function rpRefreshQuiet(){
+  if(RP.loadedAt&&Date.now()-RP.loadedAt<60000) return;
+  RP.loadedAt=Date.now();
+  call({action:'report',cls:me.cls,team:RP.team},function(res){
+    var pg=res.pages||{};
+    for(var k in pg){
+      try{ RP.pages[k]=JSON.parse(pg[k].j||'{}'); }catch(e){}
+      RP.vers[k]=pg[k].ver||0; RP.meta[k]={by:pg[k].by||'',at:pg[k].at||''};
+    }
+    RP.approve=RP.pages.approve||null;
+    RP.members=res.members||RP.members; RP.editing=res.editing||{}; RP.props=res.props||RP.props;
+    if(RP.view==='home') rpHome();
+  },function(){});
 }
 
 /* 모둠 등록 */
@@ -2423,7 +2458,7 @@ function rpJoin(){
   $('rpJG').addEventListener('click',function(){
     var bt=this; bt.disabled=true; bt.textContent='등록 중...';
     call({action:'teamJoin',cls:me.cls,num:me.num,name:me.name,det:me.det||'',team:sel},
-      function(){ RP.team=sel; rpLoad(); },
+      function(){ RP.team=sel; store('fd_team_'+me.cls+'_'+me.num,String(sel)); rpLoad(); },
       function(err){ bt.disabled=false; bt.textContent='들어가기'; alert(err); });
   });
 }
@@ -2536,6 +2571,7 @@ function rpCasePreview(n,tk,mine){
 function rpCaseView(){
   RP.view='case'; rpPingStop();
   var cs=rpCaseOf(RP.pages,me.cls,RP.team), box=$('repBody');
+  if(!CFD) cfLoad(function(){ if(RP.view==='case') rpCaseView(); });
   box.innerHTML='<div class="rpbar"><button class="back" id="rpBkC">← 보고서</button><b>📂 사건 파일</b></div>'+
     (cs?rpCaseHTML(cs,me.cls,RP.team):'<div class="empty">아직 배정된 사건이 없습니다.</div>')+
     (cs&&cs.by==='학생'?'<div class="tnote2">모둠이 고른 사건입니다. 소장님이 확정하기 전에는 <u id="rpChg" style="cursor:pointer">다른 사건으로 바꿀 수 있어요</u>.</div>':'')+
@@ -2593,7 +2629,7 @@ function rpEdit(k){
   if(G) h+='<details class="rpref"><summary>📖 친구들이 쓴 다른 부분 보기</summary><div class="rdwrap" id="rpRef"></div></details>';
   h+='<div class="rpcard rpform" id="rpF"></div><div class="rpsave"><button id="rpSv">저장하기</button></div>';
   box.innerHTML=h;
-  $('rpBk').addEventListener('click',function(){ rpPingStop(); rpLoad(); });
+  $('rpBk').addEventListener('click',function(){ rpPingStop(); rpHome(); rpRefreshQuiet(); });
   if(G) $('rpRef').innerHTML=rpReadGroup(G,rpNorm(RP.pages)[G.pg]||{},rpJ('roles'),k);
   var F=$('rpF');
   if(k==='rx'){
