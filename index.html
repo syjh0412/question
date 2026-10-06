@@ -4129,7 +4129,10 @@ function tLoad(){
   }
   if(v==='rep'){
     var rc=$('tCls').value;
-    if(!rc){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
+    if(!rc){ box.innerHTML='<button type="button" class="cfedit-b" id="cfOpen0">📂 사건 파일 편집 — 현장 사진 · 단서를 모은 탐정 (네 반 공통)</button>'+
+      '<div class="empty">모둠 보고서를 보려면 위에서 반을 고르세요.</div>';
+      $('cfOpen0').addEventListener('click',function(){ cfEditor(function(){ $('tReload').click(); }); });
+      return; }
     call({action:'repTeacher',pin:PIN,cls:rc},function(r){ drawRepTeacher(r,rc); },fail);
     return;
   }
