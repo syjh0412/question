@@ -832,7 +832,9 @@
   #slv .x{margin-left:auto;background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:10px;
     font-size:15px;padding:5px 13px;cursor:pointer;}
   #slv .body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:3vh 6vw;text-align:center;overflow:hidden;}
+    padding:3vh 6vw;text-align:center;overflow-y:auto;}
+  #slv .body.long{justify-content:flex-start;}
+  #slv .body .big.fit{text-align:left;}
   #slv .k{color:#d9a441;font-size:clamp(16px,3.2vw,30px);font-weight:800;letter-spacing:.12em;margin-bottom:2.2vh;}
   #slv .big{color:#fff;font-size:clamp(28px,7vw,80px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
     white-space:pre-wrap;word-break:keep-all;}
@@ -3109,7 +3111,19 @@ function rpSlDraw(){
           '<div class="gv">'+r.a+(u?' '+esc(u):'')+'</div></div>';
       }).join('')+'</div>';
   }
-  b.innerHTML=h;
+  b.innerHTML=h; b.classList.remove('long'); b.scrollTop=0;
+  /* 글이 길면 화면에 들어갈 때까지 글씨를 줄이고, 그래도 넘치면 위에서부터 스크롤 */
+  var bigs=b.querySelectorAll('.big');
+  if(bigs.length){
+    var fs0=parseFloat(getComputedStyle(bigs[0]).fontSize)||40, fs=fs0, guard=0;
+    while(b.scrollHeight>b.clientHeight+2 && fs>18 && guard<40){
+      fs=Math.max(18,fs*0.9); guard++;
+      Array.prototype.forEach.call(bigs,function(x){ x.style.fontSize=fs+'px'; });
+    }
+    if(fs<fs0*0.6) Array.prototype.forEach.call(bigs,function(x){ x.classList.add('fit'); });
+    if(b.scrollHeight>b.clientHeight+2) b.classList.add('long');
+  }
+
   $('slPg').textContent=(SL.i+1)+' / '+SL.list.length;
 }
 function rpSlTimer(){
