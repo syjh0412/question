@@ -4299,6 +4299,8 @@ function printDoc(title, css, body){
 
 /* 명찰 한 장 */
 function badgeHTML(x, prefill){
+  /* 이름은 명렬표(roster)를 우선: 글에 남은 이름이 잘못 들어가 있어도 명찰은 명렬표대로 */
+  var rn=lookName(String(x.cls),String(x.num)); if(rn){ x=Object.assign({},x,{name:rn}); }
   var ri = prefill ? rkOfStat(x) : 0;
   var stars = (prefill && ri===6) ? Math.min(12, x.solved||0) : 0;
   var big = x.det ? x.det : x.name;
