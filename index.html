@@ -2244,8 +2244,12 @@ function cfLoad(cb,force){
   call({action:'report',cls:'0',team:'0'},function(res){
     var pg=(res.pages||{}).casefiles||{};
     try{ CFD=JSON.parse(pg.j||'{}')||{}; }catch(e){ CFD={}; }
+    try{ localStorage.setItem('fd_cfd',JSON.stringify(CFD)); }catch(e){}
     CFV=pg.ver||0; if(cb) cb();
-  },function(){ CFD=CFD||{}; if(cb) cb(); });
+  },function(){
+    if(!CFD){ try{ CFD=JSON.parse(localStorage.getItem('fd_cfd')||'null'); }catch(e){} }
+    CFD=CFD||{}; if(cb) cb();
+  });
 }
 function cfOf(no){ var x=(CFD||{})[no]||{}; return {names:String(x.names||'').trim(),ph:rpPh(x.ph)}; }
 function rpCaseHTML(cs,cls,team,compact){
@@ -2400,8 +2404,21 @@ function rpFailBox(err){
     '수사 보고서는 소장님이 서버를 새로 배포하면 열립니다.<br>조금만 기다려 주세요.':
     '불러오지 못했습니다.<br>'+esc(err))+'</div>';
 }
+function rpApply(res){
+    RP.loaded=true; RP.pages={}; RP.vers={}; RP.meta={};
+    var pg=res.pages||{};
+    for(var k in pg){
+      try{ RP.pages[k]=JSON.parse(pg[k].j||'{}'); }catch(e){ RP.pages[k]={}; }
+      RP.vers[k]=pg[k].ver||0; RP.meta[k]={by:pg[k].by||'',at:pg[k].at||''};
+    }
+    RP.approve=RP.pages.approve||null;
+    RP.members=res.members||[]; RP.editing=res.editing||{}; RP.props=res.props||[];
+}
+function rpCacheKey(){ return 'fd_rpc_'+me.cls+'_'+RP.team; }
 function rpLoad(cb){
   call({action:'report',cls:me.cls,team:RP.team},function(res){
+    try{ localStorage.setItem(rpCacheKey(),JSON.stringify({at:Date.now(),res:res})); }catch(e){}
+    RP.offline=false;
     RP.loaded=true; RP.pages={}; RP.vers={}; RP.meta={};
     var pg=res.pages||{};
     for(var k in pg){
@@ -2413,7 +2430,12 @@ function rpLoad(cb){
     RP.loadedAt=Date.now();
     if(cb) cb(); else rpHome();
     if(!CFD) cfLoad(function(){ if(RP.view==='case') rpCaseView(); });
-  },rpFailBox);
+  },function(err){
+    /* 비상: 서버가 답하지 않으면 이 태블릿에 저장해 둔 마지막 보고서로 연다 (발표 모드 가능) */
+    var c=null; try{ c=JSON.parse(localStorage.getItem(rpCacheKey())||'null'); }catch(e){}
+    if(c&&c.res){ rpApply(c.res); RP.offline=c.at||1; RP.loadedAt=Date.now(); if(cb) cb(); else rpHome(); return; }
+    rpFailBox(err);
+  });
 }
 /* 조용히 새로 받아 오기: 홈에 있을 때만 다시 그림 */
 function rpRefreshQuiet(){
@@ -2477,7 +2499,12 @@ function rpHome(){
   if(!pick('fd_rolehint2_'+me.cls+'_'+RP.team)){
     h+='<div class="tnote2" id="rpRH" style="cursor:pointer"><b>네 명이 나눠 쓰기</b> · 계획서 네 부분, 측정·결과·결론 네 부분에 각각 「맡은 탐정」을 한 명씩 걸어 두세요. 한 사람이 계획서 한 부분, 결과 한 부분을 맡으면 골고루 나뉩니다. 저장할 때는 <b>내 부분만</b> 저장되니 동시에 써도 괜찮아요. <u>알겠어요</u></div>';
   }
+  if(RP.offline){
+    var od=new Date(RP.offline);
+    h+='<div class="editbadge" id="rpOff" style="cursor:pointer">📴 서버가 느려서 이 태블릿에 저장된 보고서('+(od.getMonth()+1)+'/'+od.getDate()+' '+od.getHours()+':'+('0'+od.getMinutes()).slice(-2)+')를 보여 주고 있어요. 발표 모드는 그대로 쓸 수 있어요. <u>다시 연결해 보기</u></div>';
+  }
   box.innerHTML=h;
+  if($('rpOff')) $('rpOff').addEventListener('click',function(){ this.textContent='연결하는 중...'; rpLoad(); });
   if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint2_'+me.cls+'_'+RP.team,'1'); this.remove(); });
   $('rpSB').addEventListener('click',function(){
     rpSlides(RP.pages,RP.team,RP.props,RP.members.map(function(m){return m.det||m.name;}).join(' · '));
@@ -3030,6 +3057,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
+  SL.pre=S.filter(function(x){ return x.tp==='ph'; }).map(function(x){ var im=new Image(); im.src=rpImg(x.id); return im; });
   SL.left=180;
   var v=$('slv');
   if(!v){
