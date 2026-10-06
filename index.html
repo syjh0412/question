@@ -672,6 +672,35 @@
   .unitrow span{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--ink2);}
   .unitrow input{flex:1;}
   #slv .phcap2{color:#cfdced;font-size:clamp(15px,2.6vw,26px);font-weight:700;margin-top:1.6vh;max-width:92%;line-height:1.4;}
+  .casecard{display:flex;align-items:center;gap:11px;border-radius:12px;padding:13px 14px;margin-bottom:12px;cursor:pointer;
+    background:linear-gradient(#f6e7c1,#ecd9a6);border:1px solid #c9a75a;box-shadow:0 3px 14px rgba(0,0,0,.28);}
+  .casecard .ic{font-size:24px;}
+  .casecard .tx{flex:1;min-width:0;}
+  .casecard .tx b{display:block;font-size:15px;color:#3b2a0c;}
+  .casecard .tx span{display:block;font-size:12px;color:#5c4718;margin-top:3px;line-height:1.45;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .casecard .go{flex:none;background:#3b2a0c;color:#f6e7c1;font-size:12px;font-weight:800;border-radius:8px;padding:6px 10px;}
+  .casecard.none{cursor:default;opacity:.85;}
+  .cfile{position:relative;background:linear-gradient(#fbf1d6,#f3e3b8);border:1px solid #c9a75a;border-radius:4px 12px 12px 12px;
+    padding:22px 16px 16px;margin:14px 0 12px;color:#2d2210;box-shadow:0 3px 14px rgba(0,0,0,.3);}
+  .cfile .cf-tab{position:absolute;top:-13px;left:-1px;background:#e7cf8f;border:1px solid #c9a75a;border-bottom:0;
+    border-radius:8px 8px 0 0;padding:3px 12px;font-size:11.5px;font-weight:900;color:#5c4718;letter-spacing:.06em;}
+  .cfile .cf-stamp{position:absolute;top:14px;right:14px;border:2.5px solid #b3261e;color:#b3261e;font-weight:900;font-size:14px;
+    padding:2px 9px;border-radius:6px;transform:rotate(-8deg);opacity:.8;letter-spacing:.2em;}
+  .cfile .cf-meta{font-size:11px;color:#7a6330;font-weight:700;margin-right:64px;}
+  .cfile h3{font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-.02em;}
+  .cfile .cf-sub{font-size:13px;color:#5c4718;margin-top:2px;}
+  .cfile .cf-forces{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+  .cfile .cf-forces span{background:#2b6ea3;color:#fff;font-size:11.5px;font-weight:800;border-radius:20px;padding:2px 9px;}
+  .cfile .cf-k{font-size:11.5px;font-weight:900;color:#7a6330;margin-top:13px;letter-spacing:.04em;}
+  .cfile .cf-ask{margin-top:4px;background:#fffaf0;border-left:4px solid #b3261e;padding:9px 11px;font-size:14px;line-height:1.6;font-weight:700;}
+  .cfile .cf-t{font-size:13.5px;line-height:1.55;margin-top:3px;}
+  .cfile .cf-ul{margin:4px 0 0 18px;font-size:13.5px;line-height:1.55;}
+  .cfile.compact{margin:8px 0 2px;padding:18px 12px 12px;}
+  .cfile.compact h3{font-size:17px;}
+  .rpref .cfile{color:#2d2210;}
+  .trp .ap.cs{margin-top:6px;}
+  .trp .ap.cs select{width:auto;flex:0 0 auto;font-size:12.5px;}
   .vrow{background:linear-gradient(#fffdf8,#fdfaf3);border-radius:12px;padding:13px 14px;margin-bottom:9px;
     box-shadow:0 3px 14px rgba(0,0,0,.28);}
   .vrow .t{display:flex;align-items:center;gap:8px;}
@@ -785,6 +814,7 @@
   #slv .big{color:#fff;font-size:clamp(28px,7vw,80px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
     white-space:pre-wrap;word-break:keep-all;}
   #slv .big.gold{color:#f6dc8c;}
+  #slv .big.sm{font-size:clamp(20px,4.4vw,46px);text-align:left;max-width:1000px;}
   #slv .sub2{color:#9fb3c8;font-size:clamp(14px,2.4vw,22px);margin-top:2.4vh;line-height:1.5;}
   #slv .two{display:grid;grid-template-columns:1fr 1fr;gap:4vw;width:100%;max-width:1100px;text-align:left;}
   #slv .two .k{margin-bottom:1vh;}
@@ -2093,6 +2123,68 @@ function rpAvg(r){
   var m=vs.reduce(function(a,b){return a+b;},0)/vs.length;
   return Math.round(m*100)/100;
 }
+/* ───────── 사건 파일 ─────────
+   학생 실명은 넣지 않는다(이 파일은 공개 저장소에 올라감). 최초 발견 탐정 이름은 소장이 앱에서 입력해 서버에만 저장. */
+var CASES={
+  1:{t:'교실 속 완충재',sub:'문 끝 고무와 나무 의자',f:['탄성력'],place:'교실 미닫이문의 닫히는 쪽 끝, 교실 나무 의자',
+    clues:['문 끝에 붙은 고무가 충격을 흡수해 주는 것 같다','고무가 뜯겨 나간 문이 있다','나무 의자에 털썩 앉으면 엉덩이와 등이 아프다','"충격을 숫자로 어떻게 재지?"'],
+    ask:'문 끝 고무가 뜯긴 교실이 있습니다. 고무가 정말 손가락을 지켜 주는지, 다시 붙인다면 어떤 재료가 좋은지 힘으로 알아봐 주십시오.',
+    keep:['실제 문에 손가락이나 물건을 끼우지 않는다','찰흙 같은 모형은 손을 펴서 떨어뜨리고 던지지 않는다']},
+  2:{t:'계단',sub:'어느 계단이 가장 미끄러울까',f:['마찰력'],place:'나무 스탠드, 회색 페인트 계단(검은 미끄럼방지 줄), 주차장 쪽 돌계단',
+    clues:['비가 오면 계단이 미끄러울 것 같다','계단마다 재질이 다르다','미끄럼방지 줄이 붙은 계단과 없는 계단이 있다'],
+    ask:'우리 학교 계단 가운데 어디가 가장 미끄러운지, 미끄럼방지 줄이 정말 도움이 되는지 숫자로 알려 주십시오.',
+    keep:['계단에서 뛰지 않는다','사람이 직접 미끄러져 보지 않는다','다른 학생이 지나가면 멈춘다']},
+  3:{t:'과학실 엉덩방아 사건',sub:'물이 묻은 실내 바닥',f:['마찰력'],place:'과학실 바닥(복도와 같은 재질), 개수대 주변, 비 오는 날 복도',
+    clues:['과학실 바닥에 물이 묻어 친구가 미끄러져 엉덩방아를 찧고 크게 다칠 뻔했다 (소장 목격)','과학실 바닥은 복도와 같은 재질이다','비 오는 날 복도는 우산에서 떨어진 물로 미끄럽다'],
+    ask:'소장이 직접 본 사고입니다. 물이 바닥을 얼마나 위험하게 만드는지, 어떻게 하면 다시 안전해지는지 밝혀 주십시오. 여러분의 보고서대로 과학실을 바꾸겠습니다.',
+    keep:['사람은 절대 미끄러져 보지 않는다','물을 뿌린 곳에는 표지를 세우고, 끝나면 바로 닦는다']},
+  4:{t:'농구장 바닥',sub:'물과 낙엽',f:['마찰력'],place:'운동장 농구장',
+    clues:['바닥이 고르지 않아 비가 오면 물이 고이는 곳이 있다','가을에는 낙엽이 쌓인다','뛰다가 미처 못 보고 밟아 미끄러질 수 있다'],
+    ask:'농구장에서 물이나 낙엽을 밟으면 얼마나 미끄러운지, 무엇을 먼저 치워야 하는지 알려 주십시오.',
+    keep:['사람이 직접 미끄러져 보지 않는다','끝나면 낙엽을 쓸고 물을 닦는다']},
+  5:{t:'운동장 바닥은 왜 모두 다를까',sub:'마찰과 공의 반발',f:['마찰력','탄성력'],place:'농구장, 인조잔디, 트랙, 페인트 칠한 시멘트, 철 배수구 덮개',
+    clues:['농구장 바닥은 탄성이 있어 다칠 위험이 줄어든다','인조잔디 덕분에 잘 넘어지지 않는다','철 배수구 덮개는 미끄러지기 쉽다','농구 골대에 공이 걸려 있다'],
+    ask:'운동장 바닥은 왜 장소마다 다른 재료로 만들었을까요? 바닥마다 힘으로 어떤 특징이 있는지, 어디를 조심해야 하는지 알려 주십시오.',
+    keep:['다른 학생이 운동하는 구역을 피한다','배수구 덮개 위에서 뛰지 않는다','골대를 흔들지 않는다']},
+  6:{t:'골대 보호 패드',sub:'지금 그대로 충분할까',f:['탄성력'],place:'농구 골대와 축구 골대의 기둥',
+    clues:['딱딱한 기둥에 두꺼운 보호 패드가 감겨 있다','패드 상태는 좋지만 높이가 높지 않다','키 큰 학생에게는 짧다','왜 앞쪽에만 있을까?'],
+    ask:'골대 패드가 지금 그대로 충분한지, 고쳐야 할 곳이 있는지 판단해 주십시오. 측정해 보니 지금 그대로가 맞다면, 그것도 훌륭한 결론입니다.',
+    keep:['패드에 일부러 몸을 부딪치지 않는다','관찰은 경기 구역 밖에서, 사진에 얼굴이 나오지 않게']},
+  7:{t:'스탠드 지붕',sub:'지붕은 왜 떨어지지 않을까',f:['중력','힘의 평형'],place:'운동장 스탠드 위 초록색 지붕',
+    clues:['지붕에는 아래쪽으로 중력이 작용하고 기둥이 떠받친다','철 기둥이 천장을 들어 올리고 있다'],
+    ask:'스탠드 지붕은 왜 떨어지지 않을까요? 눈이 많이 쌓이면 무엇이 달라지고, 무엇을 확인해야 하는지 알려 주십시오.',
+    keep:['지붕이나 기둥에 올라가지 않는다','무거운 물체는 끈을 단단히 묶어 매단다']},
+  8:{t:'안전망과 펜스',sub:'공을 막는 그물',f:['탄성력','힘의 평형'],place:'운동장 쪽 창문 앞 안전망, 펜스',
+    clues:['공을 던지면 그물이 다시 튕겨 내고 창문이 깨지지 않는다','그물이 충격을 흡수해 준다','펜스 종류에 따라 튕겨 나오는 정도가 다를까?'],
+    ask:'공이 세게 맞아도 그물이 창문까지 밀려나지 않는지, 그물은 어떻게 설치해야 안전한지 알려 주십시오.',
+    keep:['실제 안전망에 매달리거나 공을 세게 차지 않는다']}
+};
+var CASE_NUM=['','①','②','③','④','⑤','⑥','⑦','⑧'];
+/* 1반 기본 배정 (모둠 → 사건). 소장이 앱에서 배정하면 그것이 우선한다 */
+var CASE_DEF={'1':{1:1,2:2,3:5,4:7,5:3,6:4,7:6}};
+function rpCaseOf(pages,cls,team){
+  var c=(pages&&pages['case'])||{};
+  var no=Number(c.no)||((CASE_DEF[String(cls)]||{})[team])||0;
+  if(!CASES[no]) return null;
+  return {no:no,finder:c.finder||'',D:CASES[no]};
+}
+function rpCaseHTML(cs,cls,team,compact){
+  var D=cs.D;
+  var h='<div class="cfile'+(compact?' compact':'')+'"><div class="cf-tab">사건 파일 '+CASE_NUM[cs.no]+'</div>'+
+    '<div class="cf-stamp">접수</div>'+
+    '<div class="cf-meta">의뢰 고천중학교 → 힘 탐정 사무소 · 담당 '+esc(cls)+'반 '+esc(team)+'모둠 수사팀</div>'+
+    '<h3>'+esc(D.t)+'</h3><div class="cf-sub">'+esc(D.sub)+'</div>'+
+    '<div class="cf-forces">'+D.f.map(function(x){ return '<span>'+esc(x)+'</span>'; }).join('')+'</div>';
+  h+='<div class="cf-k">의뢰 내용</div><div class="cf-ask">'+esc(D.ask)+'</div>';
+  if(compact) return h+'</div>';
+  h+='<div class="cf-k">현장</div><div class="cf-t">'+esc(D.place)+'</div>'+
+    '<div class="cf-k">현장 단서</div><ul class="cf-ul">'+D.clues.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+
+    '<div class="cf-k">최초 발견</div><div class="cf-t">'+(cs.finder?esc(cs.finder)+' 탐정':'우리 반 탐정들이 모은 현장 단서')+'</div>'+
+    '<div class="cf-k">수사 중 꼭 지킬 것</div><ul class="cf-ul">'+D.keep.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+
+    '<div class="cf-k">수사 방법</div><div class="cf-t">무엇을 알아낼지(실험 질문), 무엇을 바꾸고 무엇을 잴지는 <b>우리 수사팀이 정합니다</b>. 소장은 답을 주지 않습니다.</div>'+
+    '<div class="cf-k">보고 기한</div><div class="cf-t">수사 검증 회의 — 다른 수사팀의 검증을 받은 뒤 학교에 보고합니다.</div>';
+  return h+'</div>';
+}
 function rpPh(v){
   if(!v) return [];
   if(typeof v==='string') return [{id:v,cap:''}];
@@ -2265,9 +2357,9 @@ function rpJoin(){
 /* 모둠 홈 */
 function rpHome(){
   RP.view='home'; RP.cur=null; rpPingStop();
-  var box=$('repBody'), c=rpJ('cover');
-  var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||'?')+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
-    '<h2>'+esc(c.title||'사건 제목을 아직 정하지 않았어요')+'</h2><div class="mem">'+
+  var box=$('repBody'), c=rpJ('cover'), cs=rpCaseOf(RP.pages,me.cls,RP.team);
+  var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||(cs?CASE_NUM[cs.no]:'?'))+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
+    '<h2>'+esc(c.title||(cs?cs.D.t:'사건 제목을 아직 정하지 않았어요'))+'</h2><div class="mem">'+
     RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
   h+='<div class="rpacts">'+
     '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
@@ -2284,6 +2376,16 @@ function rpHome(){
   $('rpVB').addEventListener('click',function(){ rpVisit(false); });
   $('rpMB').addEventListener('click',rpMyProps);
   var roles=rpJ('roles');
+  var cc=document.createElement('div'); cc.className='casecard';
+  if(cs){
+    cc.innerHTML='<span class="ic">📂</span><div class="tx"><b>사건 파일 '+CASE_NUM[cs.no]+' · '+esc(cs.D.t)+'</b>'+
+      '<span>'+esc(cs.D.ask)+'</span></div><span class="go">열기</span>';
+    cc.addEventListener('click',rpCaseView);
+  } else {
+    cc.className='casecard none';
+    cc.innerHTML='<span class="ic">📂</span><div class="tx"><b>사건 파일</b><span>소장님이 사건을 배정하면 여기에 도착합니다.</span></div>';
+  }
+  box.appendChild(cc);
   box.appendChild(rpPartCard(RPARTS.cover,roles));
   RGROUPS.forEach(function(G,gi){
     var gh=document.createElement('div'); gh.className='rpgh';
@@ -2336,6 +2438,16 @@ function rpPartCard(P,roles){
   d.addEventListener('click',function(){ rpEdit(P.k); });
   return d;
 }
+/* 사건 파일 보기 */
+function rpCaseView(){
+  RP.view='case'; rpPingStop();
+  var cs=rpCaseOf(RP.pages,me.cls,RP.team), box=$('repBody');
+  box.innerHTML='<div class="rpbar"><button class="back" id="rpBkC">← 보고서</button><b>📂 사건 파일</b></div>'+
+    (cs?rpCaseHTML(cs,me.cls,RP.team):'<div class="empty">아직 배정된 사건이 없습니다.</div>')+
+    (cs?'<div class="rpsave"><button id="rpGoP1">이 사건으로 계획서 쓰기 →</button></div>':'');
+  $('rpBkC').addEventListener('click',rpHome);
+  if($('rpGoP1')) $('rpGoP1').addEventListener('click',function(){ rpEdit('p1'); });
+}
 /* 계획서 / 결과 전체 읽기 */
 function rpReadAll(gi){
   RP.view='read'; rpPingStop();
@@ -2379,6 +2491,9 @@ function rpEdit(k){
   var G=null; RGROUPS.forEach(function(g){ if(g.pg===P.pg) G=g; });
   if(P.pg==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
     h+='<div class="tnote2"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?' · '+esc(RP.approve.note):'')+'</div>';
+  var csE=rpCaseOf(RP.pages,me.cls,RP.team);
+  if(csE&&(P.pg==='plan'||k==='cover'))
+    h+='<details class="rpref"'+(k==='p1'?' open':'')+'><summary>📂 사건 파일 다시 보기</summary>'+rpCaseHTML(csE,me.cls,RP.team,true)+'</details>';
   if(G) h+='<details class="rpref"><summary>📖 친구들이 쓴 다른 부분 보기</summary><div class="rdwrap" id="rpRef"></div></details>';
   h+='<div class="rpcard rpform" id="rpF"></div><div class="rpsave"><button id="rpSv">저장하기</button></div>';
   box.innerHTML=h;
@@ -2394,6 +2509,9 @@ function rpEdit(k){
     });
   } else {
     var src=rpData(P); RP._ed={};
+    if(k==='cover'&&csE){ src=JSON.parse(JSON.stringify(src));
+      if(!String(src.caseNo||'').trim()) src.caseNo=CASE_NUM[csE.no];
+      if(!String(src.title||'').trim()) src.title=csE.D.t; }
     P.fs.forEach(function(Fd){
       if(Fd.t==='photos') RP._ed[Fd.f]=rpPh(src[Fd.f]);
       else if(Fd.t==='table'){ RP._ed[Fd.f]=JSON.parse(JSON.stringify(src[Fd.f]||[])); RP._ed[Fd.u]=src[Fd.u]||''; }
@@ -2737,9 +2855,14 @@ function rpMyProps(){
 
 /* 발표 모드 */
 var SL={list:[],i:0,run:false,left:180,tick:null};
-function rpSlides(pages,teamNo,props,memText){
+function rpSlides(pages,teamNo,props,memText,cls){
   var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
-  var S=[{tp:'title',no:c.caseNo||'',t:c.title||'사건 제목 없음',sub:(memText||'')}];
+  var cs=rpCaseOf(pages,cls||(me&&me.cls),teamNo);
+  var S=[{tp:'title',no:c.caseNo||(cs?CASE_NUM[cs.no]:''),t:c.title||(cs?cs.D.t:'사건 제목 없음'),sub:(memText||'')}];
+  if(cs){
+    S.push({tp:'kb',k:'사건 의뢰 · 살펴볼 힘: '+cs.D.f.join(', '),b:cs.D.ask});
+    S.push({tp:'kb',k:'현장 단서'+(cs.finder?' · 최초 발견 '+cs.finder+' 탐정':''),b:cs.D.clues.map(function(x){ return '· '+x; }).join('\n'),sm:true});
+  }
   var tx=function(v){ return String(v||'').trim(); };
   var kb=function(k,v,gold){ if(tx(v)) S.push({tp:'kb',k:k,b:tx(v),gold:!!gold}); };
   var phs=function(k,arr){ rpPh(arr).forEach(function(p,i,a){ S.push({tp:'ph',k:k+(a.length>1?' '+(i+1)+'/'+a.length:''),id:p.id,cap:p.cap||''}); }); };
@@ -2807,7 +2930,7 @@ function rpSlDraw(){
       '<div class="big">'+esc(s.t)+'</div>'+
       (s.sub?'<div class="sub2">수사팀 · '+esc(s.sub)+'</div>':'');
   } else if(s.tp==='kb'){
-    h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+'">'+esc(s.b)+'</div>';
+    h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+(s.sm?' sm':'')+'">'+esc(s.b)+'</div>';
   } else if(s.tp==='two'){
     h='<div class="two"><div><div class="k">'+esc(s.k)+'</div><div class="big">'+esc(s.b)+'</div></div>'+
       '<div><div class="k">'+esc(s.k2)+'</div><div class="big">'+esc(s.b2)+'</div></div></div>';
@@ -2864,7 +2987,27 @@ function drawRepTeacher(r,cls){
       '<div class="plan2 hide"></div>'+
       '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
       '<input type="text" placeholder="소장 의견 (학생의 계획 페이지에 보입니다)">'+
-      '<button class="bSv" type="button">저장</button></div>';
+      '<button class="bSv" type="button">저장</button></div>'+
+      '<div class="ap cs"><select class="cSel"></select>'+
+      '<input type="text" class="cFind" placeholder="최초 발견 탐정 이름 (탐정 이름으로)">'+
+      '<button class="cSv" type="button">사건 배정</button></div>';
+    (function(){
+      var pg0={}; for(var k0 in (t.pages||{})){ try{ pg0[k0]=JSON.parse(t.pages[k0]||'{}'); }catch(e){ pg0[k0]={}; } }
+      var cur=rpCaseOf(pg0,cls,t.team), sel=d.querySelector('.cSel');
+      var o0=document.createElement('option'); o0.value=''; o0.textContent='📂 사건 고르기'; sel.appendChild(o0);
+      for(var n=1;n<=8;n++){ var o=document.createElement('option'); o.value=n;
+        o.textContent='사건 '+CASE_NUM[n]+' '+CASES[n].t; if(cur&&cur.no===n) o.selected=true; sel.appendChild(o); }
+      d.querySelector('.cFind').value=(cur&&cur.finder)||'';
+      d.querySelector('.cSv').addEventListener('click',function(){
+        var btn=this; if(!sel.value){ alert('사건을 골라 주세요'); return; }
+        btn.disabled=true; btn.textContent='저장 중...';
+        var cj={no:Number(sel.value),finder:d.querySelector('.cFind').value.trim()};
+        post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'case',json:JSON.stringify(cj)},
+          function(){ btn.disabled=false; btn.textContent='사건 배정';
+            t.pages=t.pages||{}; t.pages['case']=JSON.stringify(cj); rpToast(t.team+'모둠에 사건 '+CASE_NUM[cj.no]+'을 배정했습니다'); },
+          function(err){ btn.disabled=false; btn.textContent='사건 배정'; alert(err); });
+      });
+    })();
     var mems=d.querySelector('.mems');
     (t.members||[]).forEach(function(m){
       var sp=document.createElement('span');
@@ -2900,7 +3043,7 @@ function drawRepTeacher(r,cls){
     d.querySelector('.bSl').addEventListener('click',function(){
       var pg={};
       for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
-      rpSlides(pg,t.team,[],(t.members||[]).map(function(m){return m.name;}).join(' · '));
+      rpSlides(pg,t.team,[],(t.members||[]).map(function(m){return m.name;}).join(' · '),cls);
     });
     d.querySelector('.bPl').addEventListener('click',function(){
       var pd=d.querySelector('.plan2');
