@@ -672,6 +672,17 @@
   .unitrow span{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--ink2);}
   .unitrow input{flex:1;}
   #slv .phcap2{color:#cfdced;font-size:clamp(15px,2.6vw,26px);font-weight:700;margin-top:1.6vh;max-width:92%;line-height:1.4;}
+  .cf-ph{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:12px;}
+  .cf-ph.sm{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+  .cf-ph figure{margin:0;background:#fffaf0;border:1px solid #d9c38a;border-radius:6px;padding:5px;transform:rotate(-.6deg);
+    box-shadow:0 2px 6px rgba(0,0,0,.18);}
+  .cf-ph figure:nth-child(even){transform:rotate(.8deg);}
+  .cf-ph img{width:100%;height:120px;object-fit:cover;border-radius:3px;display:block;background:#eee;}
+  .cf-ph figcaption{font-size:11.5px;line-height:1.4;margin-top:4px;color:#3b2a0c;}
+  .cfedit-b{width:100%;margin-bottom:10px;background:linear-gradient(#f6e7c1,#ecd9a6);border:1px solid #c9a75a;color:#3b2a0c;
+    font-weight:800;border-radius:10px;padding:10px;cursor:pointer;}
+  .cfe .phitem input{margin-top:6px;}
+  .cfe .phitem button{margin-top:6px;}
   .pickc{display:flex;gap:11px;background:linear-gradient(#fbf1d6,#f3e3b8);border:1px solid #c9a75a;border-radius:12px;
     padding:12px 13px;margin-bottom:9px;cursor:pointer;color:#2d2210;box-shadow:0 3px 14px rgba(0,0,0,.28);}
   .pickc .pn{flex:none;font-size:24px;font-weight:900;color:#b3261e;line-height:1.1;}
@@ -2219,18 +2230,33 @@ function rpCasePick(){
     });
   },function(){ draw(); });
 }
+/* 사건 파일 공통 자료(현장 사진·단서를 모은 탐정): 공개 코드가 아니라 서버(0반 0모둠 casefiles)에 저장 */
+var CFD=null, CFV=0;
+function cfLoad(cb,force){
+  if(CFD&&!force){ if(cb) cb(); return; }
+  call({action:'report',cls:'0',team:'0'},function(res){
+    var pg=(res.pages||{}).casefiles||{};
+    try{ CFD=JSON.parse(pg.j||'{}')||{}; }catch(e){ CFD={}; }
+    CFV=pg.ver||0; if(cb) cb();
+  },function(){ CFD=CFD||{}; if(cb) cb(); });
+}
+function cfOf(no){ var x=(CFD||{})[no]||{}; return {names:String(x.names||'').trim(),ph:rpPh(x.ph)}; }
 function rpCaseHTML(cs,cls,team,compact){
-  var D=cs.D;
+  var D=cs.D, X=cfOf(cs.no);
   var h='<div class="cfile'+(compact?' compact':'')+'"><div class="cf-tab">사건 파일 '+CASE_NUM[cs.no]+'</div>'+
     '<div class="cf-stamp">접수</div>'+
     '<div class="cf-meta">의뢰 고천중학교 → 힘 탐정 사무소 · 담당 '+esc(cls)+'반 '+esc(team)+'모둠 수사팀</div>'+
     '<h3>'+esc(D.t)+'</h3><div class="cf-sub">'+esc(D.sub)+'</div>'+
     '<div class="cf-forces">'+D.f.map(function(x){ return '<span>'+esc(x)+'</span>'; }).join('')+'</div>';
   h+='<div class="cf-k">의뢰 내용</div><div class="cf-ask">'+esc(D.ask)+'</div>';
+  if(X.ph.length) h+='<div class="cf-ph'+(compact?' sm':'')+'">'+X.ph.map(function(p){
+      return '<figure><img src="'+rpImg(p.id)+'" alt="현장 사진" loading="lazy">'+(p.cap?'<figcaption>'+esc(p.cap)+'</figcaption>':'')+'</figure>';
+    }).join('')+'</div>';
   if(compact) return h+'</div>';
   h+='<div class="cf-k">현장</div><div class="cf-t">'+esc(D.place)+'</div>'+
     '<div class="cf-k">현장 단서</div><ul class="cf-ul">'+D.clues.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+
-    '<div class="cf-k">최초 발견</div><div class="cf-t">'+(cs.finder?esc(cs.finder)+' 탐정':'우리 반 탐정들이 모은 현장 단서')+'</div>'+
+    '<div class="cf-k">현장 단서를 모은 탐정</div><div class="cf-t">'+(X.names?esc(X.names):'네 반 탐정들이 패들렛 현장 단서 수집소에 모은 단서')+
+      (cs.finder?'<br><b>최초 발견</b> '+esc(cs.finder):'')+'</div>'+
     '<div class="cf-k">수사 중 꼭 지킬 것</div><ul class="cf-ul">'+D.keep.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+
     '<div class="cf-k">수사 방법</div><div class="cf-t">무엇을 알아낼지(실험 질문), 무엇을 바꾸고 무엇을 잴지는 <b>우리 수사팀이 정합니다</b>. 소장은 답을 주지 않습니다.</div>'+
     '<div class="cf-k">보고 기한</div><div class="cf-t">수사 검증 회의 — 다른 수사팀의 검증을 받은 뒤 학교에 보고합니다.</div>';
@@ -2369,7 +2395,7 @@ function rpLoad(cb){
     }
     RP.approve=RP.pages.approve||null;
     RP.members=res.members||[]; RP.editing=res.editing||{}; RP.props=res.props||[];
-    if(cb) cb(); else rpHome();
+    cfLoad(function(){ if(cb) cb(); else rpHome(); });
   },rpFailBox);
 }
 
@@ -2764,7 +2790,7 @@ function rpCardEl(p){
 
 /* 검증 회의 (다른 모둠 보고서) */
 function rpVisit(isT){
-  RP.view='visit';
+  RP.view='visit'; cfLoad();
   var box=$('repBody');
   box.innerHTML='<div class="rpbar">'+(isT?'':'<button class="back" id="rpBk2">← 보고서</button>')+
     '<b>🕵 수사 검증 회의</b></div>'+
@@ -2915,7 +2941,9 @@ function rpSlides(pages,teamNo,props,memText,cls){
   var S=[{tp:'title',no:c.caseNo||(cs?CASE_NUM[cs.no]:''),t:c.title||(cs?cs.D.t:'사건 제목 없음'),sub:(memText||'')}];
   if(cs){
     S.push({tp:'kb',k:'사건 의뢰 · 살펴볼 힘: '+cs.D.f.join(', '),b:cs.D.ask});
-    S.push({tp:'kb',k:'현장 단서'+(cs.finder?' · 최초 발견 '+cs.finder+' 탐정':''),b:cs.D.clues.map(function(x){ return '· '+x; }).join('\n'),sm:true});
+    var CX=cfOf(cs.no);
+    S.push({tp:'kb',k:'현장 단서'+(CX.names?' · '+CX.names:'')+(cs.finder?' · 최초 발견 '+cs.finder:''),b:cs.D.clues.map(function(x){ return '· '+x; }).join('\n'),sm:true});
+    CX.ph.forEach(function(p,i,a){ S.push({tp:'ph',k:'현장 사진'+(a.length>1?' '+(i+1)+'/'+a.length:''),id:p.id,cap:p.cap||''}); });
   }
   var tx=function(v){ return String(v||'').trim(); };
   var kb=function(k,v,gold){ if(tx(v)) S.push({tp:'kb',k:k,b:tx(v),gold:!!gold}); };
@@ -3017,11 +3045,91 @@ function rpSlTimer(){
 }
 function rpSlStop(){ SL.run=false; if(SL.tick){ clearInterval(SL.tick); SL.tick=null; } }
 
+/* 교사: 사건 파일 편집 */
+function cfEditor(back){
+  var box=$('tBody'); box.innerHTML='<div class="empty">불러오는 중...</div>';
+  cfLoad(function(){
+    var ED=JSON.parse(JSON.stringify(CFD||{}));
+    box.innerHTML='';
+    var top=document.createElement('div'); top.className='matbox';
+    top.innerHTML='<h3>📂 사건 파일 편집 (네 반 공통)</h3>'+
+      '<div class="sub" style="margin:4px 0 8px">여기에 넣은 사진과 이름은 서버에만 저장되어 학생 사건 파일과 발표 모드에 나옵니다. 사진은 얼굴이 나오지 않은 것으로 골라 주세요.</div>'+
+      '<details><summary style="cursor:pointer;font-weight:700">이름 한꺼번에 붙여넣기</summary>'+
+      '<textarea id="cfBulk" style="min-height:120px;margin-top:6px" placeholder="한 줄에 한 사건씩&#10;① 1반 ○○○, 4반 ○○○&#10;② 1반 ○○○, 2반 ○○○"></textarea>'+
+      '<button type="button" id="cfBulkGo" style="margin-top:6px">칸에 채우기</button></details>'+
+      '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" id="cfBack">← 보고서 검토로</button></div>';
+    box.appendChild(top);
+    var list=document.createElement('div'); box.appendChild(list);
+    function card(n){
+      var x=ED[n]=ED[n]||{}; x.ph=rpPh(x.ph);
+      var d=document.createElement('div'); d.className='trp cfe';
+      d.innerHTML='<div class="h"><b>사건 '+CASE_NUM[n]+' '+esc(CASES[n].t)+'</b></div>'+
+        '<label style="font-size:12.5px;font-weight:700">단서를 모은 탐정</label>'+
+        '<input type="text" class="cfN" placeholder="예) 1반 ○○○, 3반 ○○○">'+
+        '<label style="font-size:12.5px;font-weight:700;display:block;margin-top:8px">현장 사진 (최대 4장, 사진마다 설명)</label><div class="cfP"></div>';
+      var ni=d.querySelector('.cfN'); ni.value=x.names||'';
+      ni.addEventListener('input',function(){ x.names=ni.value; });
+      var pw=d.querySelector('.cfP');
+      function draw(){
+        pw.innerHTML='';
+        x.ph.forEach(function(p,i){
+          var it=document.createElement('div'); it.className='phitem';
+          it.innerHTML='<img src="'+rpImg(p.id)+'" alt="사진" style="width:100%;max-height:200px;object-fit:contain">';
+          var c=document.createElement('input'); c.type='text'; c.placeholder='사진 설명'; c.value=p.cap||'';
+          c.addEventListener('input',function(){ p.cap=c.value; });
+          var del=document.createElement('button'); del.type='button'; del.textContent='사진 빼기';
+          del.addEventListener('click',function(){ x.ph.splice(i,1); draw(); });
+          it.appendChild(c); it.appendChild(del); pw.appendChild(it);
+        });
+        if(x.ph.length<4){
+          var up=document.createElement('button'); up.type='button'; up.textContent='📷 사진 올리기';
+          var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+          up.addEventListener('click',function(){ fi.click(); });
+          fi.addEventListener('change',function(){
+            var f=fi.files[0]; if(!f) return; up.disabled=true; up.textContent='올리는 중...';
+            rpShrink(f,function(b64){
+              post({action:'photo',cls:'0',team:'0',page:'casefiles',field:'c'+n,data:b64,pin:PIN},
+                function(res){ x.ph.push({id:res.id,cap:''}); draw(); rpToast('올렸어요. 설명을 쓰고 아래 저장을 눌러 주세요.'); },
+                function(err){ up.disabled=false; up.textContent='다시 시도'; alert(err); });
+            });
+          });
+          pw.appendChild(up); pw.appendChild(fi);
+        }
+      }
+      draw();
+      return d;
+    }
+    for(var n=1;n<=8;n++) list.appendChild(card(n));
+    var sv=document.createElement('div'); sv.className='rpsave';
+    sv.innerHTML='<button type="button" id="cfSave">사건 파일 저장</button>';
+    box.appendChild(sv);
+    $('cfBack').addEventListener('click',back);
+    $('cfBulkGo').addEventListener('click',function(){
+      String($('cfBulk').value||'').split('\n').forEach(function(line){
+        var m=line.trim().match(/^([①②③④⑤⑥⑦⑧]|[1-8])[\s.:)·-]*(.*)$/); if(!m) return;
+        var n=CASE_NUM.indexOf(m[1]); if(n<1) n=Number(m[1]);
+        if(n>=1&&n<=8){ ED[n]=ED[n]||{}; ED[n].names=m[2].trim(); }
+      });
+      Array.prototype.forEach.call(list.querySelectorAll('.cfN'),function(el,i){ el.value=(ED[i+1]&&ED[i+1].names)||''; });
+      rpToast('칸에 채웠어요. 확인하고 저장을 눌러 주세요.');
+    });
+    $('cfSave').addEventListener('click',function(){
+      var btn=this; btn.disabled=true; btn.textContent='저장 중...';
+      post({action:'tpage',pin:PIN,cls:'0',team:'0',page:'casefiles',json:JSON.stringify(ED)},
+        function(){ btn.disabled=false; btn.textContent='사건 파일 저장'; CFD=ED; rpToast('사건 파일을 저장했습니다'); },
+        function(err){ btn.disabled=false; btn.textContent='사건 파일 저장'; alert(err); });
+    });
+  },true);
+}
 /* 교사: 보고서 검토 */
 function drawRepTeacher(r,cls){
-  var box=$('tBody'); box.innerHTML='';
+  var box=$('tBody'); box.innerHTML=''; cfLoad();
+  var eb=document.createElement('button'); eb.type='button'; eb.className='cfedit-b noprint';
+  eb.textContent='📂 사건 파일 편집 — 현장 사진 · 단서를 모은 탐정 (네 반 공통)';
+  eb.addEventListener('click',function(){ cfEditor(function(){ drawRepTeacher(r,cls); }); });
+  box.appendChild(eb);
   var items=r.items||[];
-  if(!items.length){ box.innerHTML='<div class="empty">아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.</div>'; return; }
+  if(!items.length){ var em0=document.createElement('div'); em0.className='empty'; em0.textContent='아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.'; box.appendChild(em0); return; }
   var mb=document.createElement('div'); mb.className='matbox';
   var mh='<h3>🧰 재료 준비 목록 · '+cls+'반</h3>';
   items.forEach(function(t){
