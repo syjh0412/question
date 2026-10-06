@@ -1775,7 +1775,8 @@ var RGROUPS=[
       {f:'ctlB',t:'ta',n:'통제 변인 — 실험 B',opt:1},
       {f:'mat',t:'ta',n:'7. 준비물과 개수',em:'소장님이 이 칸을 보고 재료를 준비해요',ph:'예) 힘센서 1, 나무블록 1, 분무기 1, 장판 조각 2'}]},
     {k:'p4',no:'8~10',n:'실험 과정 · 예상 결과 · 예상 결론',ic:'🧪',fs:[
-      {f:'proc',t:'ta',n:'8. 실험 과정',ph:'① ...\n② ...\n③ 같은 조건에서 3번 재고 평균을 낸다'},
+      {f:'procA',t:'ta',n:'8. 실험 과정 — 실험 A',ph:'① ...\n② ...\n③ 같은 조건에서 3번 재고 평균을 낸다'},
+      {f:'procB',t:'ta',n:'8. 실험 과정 — 실험 B',em:'실험 B를 하지 않으면 비워 두세요',opt:1},
       {f:'expect',t:'ta',n:'9. 예상 결과',ph:'가설이 맞다면 측정값이 어떻게 나올까요?'},
       {f:'expConc',t:'ta',n:'10. 예상 결론과 안전 제안',ph:'예상대로 나온다면 무엇을 알 수 있고, 어떤 안전 제안을 할 수 있을까요?'}]}
   ]},
@@ -2292,6 +2293,11 @@ function rpNorm(pages){
   pl.scenePh=rpPh(pl.scenePh); if(!pl.scenePh.length) pl.scenePh=rpPh(c.photo);
   if(String(pl.obj||'').trim()) pl.forces='힘을 받는 물체: '+pl.obj+(String(pl.forces||'').trim()?'\n'+pl.forces:'');
   pl.forcePh=rpPh(pl.forcePh); if(!pl.forcePh.length) pl.forcePh=rpPh(an.photo);
+  if(rpEmpty(pl.procA)&&rpEmpty(pl.procB)&&!rpEmpty(pl.proc)){
+    var pr=String(pl.proc), m=pr.match(/(^|\n)\s*[\(\[]?\s*(실험\s*B|B\s*[\):.\]]|\(B\))/);
+    if(m&&m.index>0){ pl.procA=pr.slice(0,m.index).trim(); pl.procB=pr.slice(m.index).trim(); }
+    else pl.procA=pr;
+  }
   d(pl,'qA',pl.q); d(pl,'hA',pl.hypo); d(pl,'indA',pl.diff); d(pl,'depA',pl.meas); d(pl,'ctlA',pl.same);
   if(String(pl.tools||'').trim()&&String(pl.mat||'').indexOf(pl.tools)<0)
     pl.mat=(String(pl.mat||'').trim()?pl.mat+'\n':'')+'도구: '+pl.tools;
@@ -3047,7 +3053,9 @@ function rpSlides(pages,teamNo,props,memText,cls){
   two('실험 질문 B',pl.qB,'가설 B',pl.hB);
   kb('변인 · 실험 A',vars(pl.indA,pl.depA,pl.ctlA));
   kb('변인 · 실험 B',vars(pl.indB,pl.depB,pl.ctlB));
-  kb('실험 과정',pl.proc);
+  var hasB=String(pl.procB||'').trim();
+  kb(hasB?'실험 과정 · 실험 A':'실험 과정',pl.procA);
+  kb('실험 과정 · 실험 B',pl.procB);
   graph('실험 A · 재 보니',ev.rowsA,ev.unitA); phs('실험 A',ev.phA); kb('실험 A · 측정하며 본 것',ev.obsA);
   graph('실험 B · 재 보니',ev.rowsB,ev.unitB); phs('실험 B',ev.phB); kb('실험 B · 측정하며 본 것',ev.obsB);
   kb('실험 A · 실제 결과',ev.resA); kb('실험 B · 실제 결과',ev.resB);
