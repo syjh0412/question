@@ -1319,6 +1319,7 @@ function newTotal(){
 }
 
 var seq=0;
+var NETLOG=[];
 var READ_ACT={report:1,repTeams:1,feed:1,teamInfo:1,materials:1,myprops:1,repTeacher:1,board:1,myrefs:1};
 function call(params, done, fail, _try){
   if(GUEST && !GUEST_OK[params.action]){
@@ -1331,11 +1332,12 @@ function call(params, done, fail, _try){
     if(retry&&/초과|연결/.test(String(e))){ setTimeout(function(){ call(params,done,fail0,1); },1200); return; }
     if(fail0) fail0(e);
   };
-  var cb='cb_'+(++seq)+'_'+Date.now(), s;
-  var timer=setTimeout(function(){ clean(); if(fail) fail('시간이 초과되었습니다'); },35000);
+  var cb='cb_'+(++seq)+'_'+Date.now(), s, t0=Date.now();
+  var timer=setTimeout(function(){ clean(); NETLOG.push({a:params.action,ms:35000,bad:1}); if(fail) fail('시간이 초과되었습니다'); },35000);
   function clean(){ clearTimeout(timer); try{delete window[cb];}catch(e){window[cb]=undefined;}
     if(s&&s.parentNode) s.parentNode.removeChild(s); }
-  window[cb]=function(res){ clean(); if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류'); };
+  window[cb]=function(res){ clean(); NETLOG.push({a:params.action,ms:Date.now()-t0}); if(NETLOG.length>40) NETLOG.shift();
+    if(res&&res.ok) done(res); else if(fail) fail((res&&res.error)||'오류'); };
   var q=['callback='+cb];
   for(var k in params){ if(params[k]==null) continue;
     q.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k])); }
@@ -2147,7 +2149,7 @@ function rpReset(){
   var b=$('repBody'); if(b) b.innerHTML='<div class="empty">불러오는 중...</div>';
   document.body.classList.remove('bigboard');
 }
-function rpImg(id){ return 'https://drive.google.com/thumbnail?id='+id+'&sz=w1400'; }
+function rpImg(id,big){ return 'https://drive.google.com/thumbnail?id='+id+'&sz='+(big?'w1400':'w640'); }
 function rpJ(k){ return RP.pages[k]||{}; }
 function rpPage(k){ var P=null; RPAGES.forEach(function(x){ if(x.k===k) P=x; }); return P; }
 function rpAvg(r){
@@ -2396,7 +2398,13 @@ function repOpen(){
   $('repBody').innerHTML='<div class="empty">불러오는 중...</div>';
   var tk='fd_team_'+me.cls+'_'+me.num, ct=pick(tk);
   if(ct){
-    RP.team=ct; rpLoad();
+    RP.team=ct;
+    var cc=null; try{ cc=JSON.parse(localStorage.getItem(rpCacheKey())||'null'); }catch(e){}
+    if(cc&&cc.res){
+      /* 저장해 둔 보고서를 바로 보여 주고, 최신 내용은 뒤에서 받아 바꿔 끼움 */
+      rpApply(cc.res); RP.loadedAt=0; rpHome(); rpFetchBg();
+      if(!CFD) cfLoad();
+    } else rpLoad();
     call({action:'teamInfo',cls:me.cls,num:me.num},function(res){
       if(res.team&&String(res.team)!==String(ct)){ store(tk,String(res.team)); RP.team=res.team; rpLoad(); }
     },function(){});
@@ -2444,6 +2452,15 @@ function rpLoad(cb){
     if(c&&c.res){ rpApply(c.res); RP.offline=c.at||1; RP.loadedAt=Date.now(); if(cb) cb(); else rpHome(); return; }
     rpFailBox(err);
   });
+}
+function rpFetchBg(){
+  RP.loadedAt=Date.now();
+  call({action:'report',cls:me.cls,team:RP.team},function(res){
+    try{ localStorage.setItem(rpCacheKey(),JSON.stringify({at:Date.now(),res:res})); }catch(e){}
+    var keepEd=RP._ed, view=RP.view, cur=RP.cur;
+    rpApply(res); RP.offline=false; RP._ed=keepEd; RP.view=view; RP.cur=cur;
+    if(RP.view==='home') rpHome();
+  },function(){ RP.offline=RP.offline||1; if(RP.view==='home') rpHome(); });
 }
 /* 조용히 새로 받아 오기: 홈에 있을 때만 다시 그림 */
 function rpRefreshQuiet(){
@@ -3067,7 +3084,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
-  SL.pre=S.filter(function(x){ return x.tp==='ph'; }).map(function(x){ var im=new Image(); im.src=rpImg(x.id); return im; });
+  SL.pre=S.filter(function(x){ return x.tp==='ph'; }).map(function(x){ var im=new Image(); im.src=rpImg(x.id,1); return im; });
   SL.left=180;
   var v=$('slv');
   if(!v){
@@ -3107,7 +3124,7 @@ function rpSlDraw(){
     h='<div class="two"><div><div class="k">'+esc(s.k)+'</div><div class="big">'+esc(s.b)+'</div></div>'+
       '<div><div class="k">'+esc(s.k2)+'</div><div class="big">'+esc(s.b2)+'</div></div></div>';
   } else if(s.tp==='ph'){
-    h='<div class="k">'+esc(s.k)+'</div><img class="ph" src="'+rpImg(s.id)+'" alt="사진">'+
+    h='<div class="k">'+esc(s.k)+'</div><img class="ph" src="'+rpImg(s.id,1)+'" alt="사진">'+
       (s.cap?'<div class="phcap2">'+esc(s.cap)+'</div>':'');
   } else if(s.tp==='graph'){
     var mx=0; s.rows.forEach(function(r){ if(r.a>mx) mx=r.a; });
@@ -3147,6 +3164,43 @@ function rpSlTimer(){
 }
 function rpSlStop(){ SL.run=false; if(SL.tick){ clearInterval(SL.tick); SL.tick=null; } }
 
+/* 교사: 연결 점검 — 서버가 느린지, 와이파이가 느린지 가르기 */
+function netCheckEl(){
+  var d=document.createElement('div'); d.className='matbox noprint';
+  d.innerHTML='<h3>📶 연결 점검 <button type="button" class="ghost" style="width:auto;margin-left:8px">점검하기</button></h3>'+
+    '<div class="sub nc-out" style="margin:4px 0 0">수업 중 느릴 때 눌러 보세요. 서버 응답과 사진 내려받기 시간을 따로 잽니다.</div>';
+  d.querySelector('button').addEventListener('click',function(){
+    var out=d.querySelector('.nc-out'), btn=this; btn.disabled=true; out.textContent='재는 중...';
+    var times=[], n=0;
+    (function one(){
+      var t0=Date.now();
+      call({action:'report',cls:'0',team:'0'},function(){ times.push(Date.now()-t0); next(); },function(){ times.push(35000); next(); },1);
+      function next(){ if(++n<3) one(); else img(); }
+    })();
+    function img(){
+      var t1=Date.now(), im=new Image(), done=false;
+      var fin=function(ok){ if(done) return; done=true; show2(ok?Date.now()-t1:-1); };
+      im.onload=function(){ fin(true); }; im.onerror=function(){ fin(false); };
+      setTimeout(function(){ fin(false); },15000);
+      im.src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png?nc='+Date.now();
+    }
+    function show2(imgMs){
+      btn.disabled=false;
+      var avg=Math.round(times.reduce(function(a,b){return a+b;},0)/times.length);
+      var recent=NETLOG.filter(function(x){ return x.a!=='editPing'; }).slice(-15);
+      var bad=recent.filter(function(x){ return x.bad; }).length;
+      var srv=(avg/1000).toFixed(1), im=(imgMs<0?'실패':(imgMs/1000).toFixed(1)+'초');
+      var why;
+      if(imgMs<0||imgMs>3000) why='와이파이(인터넷) 자체가 느립니다. 서버 문제가 아니라 교실 네트워크 문제예요.';
+      else if(avg>4000) why='인터넷은 괜찮은데 서버가 밀려 있습니다. 동시에 누르는 학생 수를 줄이면 나아져요.';
+      else if(avg>2000) why='조금 느린 편입니다. 수업에는 쓸 수 있어요.';
+      else why='정상입니다.';
+      out.innerHTML='서버 응답 평균 <b>'+srv+'초</b> (3번) · 인터넷 사진 받기 <b>'+im+'</b>'+
+        (recent.length?' · 최근 요청 '+recent.length+'개 중 시간 초과 '+bad+'개':'')+'<br>'+why;
+    }
+  });
+  return d;
+}
 /* 교사: 사건 파일 편집 */
 function cfEditor(back){
   var box=$('tBody'); box.innerHTML='<div class="empty">불러오는 중...</div>';
@@ -3235,6 +3289,7 @@ function drawRepTeacher(r,cls){
   eb.textContent='📂 사건 파일 편집 — 현장 사진 · 단서를 모은 탐정 (네 반 공통)';
   eb.addEventListener('click',function(){ cfEditor(function(){ drawRepTeacher(r,cls); }); });
   box.appendChild(eb);
+  box.appendChild(netCheckEl());
   var items=r.items||[];
   if(!items.length){ var em0=document.createElement('div'); em0.className='empty'; em0.textContent='아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.'; box.appendChild(em0); return; }
   var mb=document.createElement('div'); mb.className='matbox';
