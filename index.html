@@ -1379,7 +1379,13 @@ function enter(o){
   show($('who'),true); show($('login'),false); show($('main'),true);
   drawWho();
   window.scrollTo(0,0);
-  prefetch();
+  /* 보고서 우선: 마지막에 보고서 탭을 쓰던 학생(또는 주소 끝에 ?rep)은 보고서로 바로 들어가고,
+     사건함·자료는 미리 받지 않음 → 수업 시작에 서버로 몰리는 요청이 줄어듦 */
+  var wantRep=/[?&#]rep\b/.test(location.search+location.hash)||pick('fd_lasttab')==='Rep';
+  if(!TEACHER&&!GUEST&&wantRep){
+    setTimeout(function(){ tab('Rep'); },0);
+    setTimeout(function(){ if(me&&!ME) load(true); }, 8000+Math.floor(Math.random()*22000));
+  } else prefetch();
 }
 
 function rankOf(m){
@@ -3521,8 +3527,9 @@ function tab(which){
     $('tab'+k).classList.toggle('on', k===which);
     show($('pane'+k), k===which);
   });
+  if(me&&!TEACHER&&!GUEST&&which!=='Teach') store('fd_lasttab',which);
   if(which==='Mat') loadMat();
-  if(which==='List') render();
+  if(which==='List'){ if(me&&!ME) load(); else render(); }
   if(which==='Ref'){ loadMyRefs(); }
   if(which==='Note'){ loadMyNotes(); }
   if(which==='Rep') repOpen();
