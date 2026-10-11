@@ -679,6 +679,9 @@
   .cf-ph figure:nth-child(even){transform:rotate(.8deg);}
   .cf-ph img{width:100%;height:120px;object-fit:cover;border-radius:3px;display:block;background:#eee;}
   .cf-ph figcaption{font-size:11.5px;line-height:1.4;margin-top:4px;color:#3b2a0c;}
+  .cf-ph figure.off{opacity:.38;}
+  .cf-ph .cfsel{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#5a3d06;margin-top:5px;cursor:pointer;}
+  .cf-ph .cfsel input{width:17px;height:17px;margin:0;}
   .cfedit-b{width:100%;margin-bottom:10px;background:linear-gradient(#f6e7c1,#ecd9a6);border:1px solid #c9a75a;color:#3b2a0c;
     font-weight:800;border-radius:10px;padding:10px;cursor:pointer;}
   .cfe .phitem input{margin-top:6px;}
@@ -2265,17 +2268,26 @@ function cfLoad(cb,force){
   });
 }
 function cfOf(no){ var x=(CFD||{})[no]||{}; return {names:String(x.names||'').trim(),ph:rpPh(x.ph)}; }
-function rpCaseHTML(cs,cls,team,compact){
-  var D=cs.D, X=cfOf(cs.no);
+/* 모둠이 뺀 현장 사진(표지 페이지 cfOff에 사진 번호로 저장) — 새로 올라온 사진은 처음엔 들어가 있다 */
+function cfOffOf(pages){ var o=((pages||{}).cover||{}).cfOff; return Array.isArray(o)?o:[]; }
+function cfPhFor(no,pages){ var off=cfOffOf(pages); return cfOf(no).ph.filter(function(p){ return off.indexOf(p.id)<0; }); }
+/* pages를 주면 모둠이 고른 사진만, pick이면 모든 사진에 '넣기' 체크 칸 */
+function rpCaseHTML(cs,cls,team,compact,pages,pick){
+  var D=cs.D, X=cfOf(cs.no), off=cfOffOf(pages);
+  if(pages&&!pick) X.ph=X.ph.filter(function(p){ return off.indexOf(p.id)<0; });
   var h='<div class="cfile'+(compact?' compact':'')+'"><div class="cf-tab">사건 파일 '+CASE_NUM[cs.no]+'</div>'+
     '<div class="cf-stamp">접수</div>'+
     '<div class="cf-meta">의뢰 고천중학교 → 힘 탐정 사무소 · '+(team==null?'담당 수사팀 모집 중':'담당 '+esc(cls)+'반 '+esc(team)+'모둠 수사팀')+'</div>'+
     '<h3>'+esc(D.t)+'</h3><div class="cf-sub">'+esc(D.sub)+'</div>'+
     '<div class="cf-forces">'+D.f.map(function(x){ return '<span>'+esc(x)+'</span>'; }).join('')+'</div>';
   h+='<div class="cf-k">의뢰 내용</div><div class="cf-ask">'+esc(D.ask)+'</div>';
-  if(X.ph.length) h+='<div class="cf-ph'+(compact?' sm':'')+'">'+X.ph.map(function(p){
-      return '<figure><img src="'+rpImg(p.id)+'" alt="현장 사진" loading="lazy">'+(p.cap?'<figcaption>'+esc(p.cap)+'</figcaption>':'')+'</figure>';
-    }).join('')+'</div>';
+  if(X.ph.length) h+=(pick?'<div class="cf-k">현장 사진 — 우리 보고서와 발표에 넣을 사진만 체크하세요</div>':'')+
+    '<div class="cf-ph'+(compact?' sm':'')+'">'+X.ph.map(function(p){
+      var on=off.indexOf(p.id)<0;
+      return '<figure'+(pick&&!on?' class="off"':'')+'><img src="'+rpImg(p.id)+'" alt="현장 사진" loading="lazy">'+(p.cap?'<figcaption>'+esc(p.cap)+'</figcaption>':'')+
+        (pick?'<label class="cfsel"><input type="checkbox" data-cfid="'+esc(p.id)+'"'+(on?' checked':'')+'> 우리 보고서에 넣기</label>':'')+'</figure>';
+    }).join('')+'</div>'+
+    (pick?'<div class="rpsave" style="margin-top:8px"><button type="button" id="cfSelSv">현장 사진 선택 저장</button></div>':'');
   if(compact) return h+'</div>';
   h+='<div class="cf-k">현장</div><div class="cf-t">'+esc(D.place)+'</div>'+
     '<div class="cf-k">현장 단서</div><ul class="cf-ul">'+D.clues.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>'+
@@ -2633,11 +2645,20 @@ function rpCaseView(){
   var cs=rpCaseOf(RP.pages,me.cls,RP.team), box=$('repBody');
   if(!CFD) cfLoad(function(){ if(RP.view==='case') rpCaseView(); });
   box.innerHTML='<div class="rpbar"><button class="back" id="rpBkC">← 보고서</button><b>📂 사건 파일</b></div>'+
-    (cs?rpCaseHTML(cs,me.cls,RP.team):'<div class="empty">아직 배정된 사건이 없습니다.</div>')+
+    (cs?rpCaseHTML(cs,me.cls,RP.team,false,RP.pages,true):'<div class="empty">아직 배정된 사건이 없습니다.</div>')+
     (cs&&cs.by==='학생'?'<div class="tnote2">모둠이 고른 사건입니다. 소장님이 확정하기 전에는 <u id="rpChg" style="cursor:pointer">다른 사건으로 바꿀 수 있어요</u>.</div>':'')+
     (cs?'<div class="rpsave"><button id="rpGoP1">이 사건으로 계획서 쓰기 →</button></div>':'');
   $('rpBkC').addEventListener('click',rpHome);
   if($('rpChg')) $('rpChg').addEventListener('click',rpCasePick);
+  var cks=box.querySelectorAll('input[data-cfid]');
+  Array.prototype.forEach.call(cks,function(ck){
+    ck.addEventListener('change',function(){ ck.closest('figure').classList.toggle('off',!ck.checked); });
+  });
+  if($('cfSelSv')) $('cfSelSv').addEventListener('click',function(){
+    var off=[]; Array.prototype.forEach.call(cks,function(ck){ if(!ck.checked) off.push(ck.getAttribute('data-cfid')); });
+    rpMergeSave('cover',{cfOff:off},this,true);
+    rpToast(off.length?('현장 사진 '+(cks.length-off.length)+'장을 보고서에 넣었어요'):'현장 사진을 모두 넣었어요');
+  });
   if($('rpGoP1')) $('rpGoP1').addEventListener('click',function(){ rpEdit('p1'); });
 }
 /* 계획서 / 결과 전체 읽기 */
@@ -2685,7 +2706,7 @@ function rpEdit(k){
     h+='<div class="tnote2"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?' · '+esc(RP.approve.note):'')+'</div>';
   var csE=rpCaseOf(RP.pages,me.cls,RP.team);
   if(csE&&(P.pg==='plan'||k==='cover'))
-    h+='<details class="rpref"'+(k==='p1'?' open':'')+'><summary>📂 사건 파일 다시 보기</summary>'+rpCaseHTML(csE,me.cls,RP.team,true)+'</details>';
+    h+='<details class="rpref"'+(k==='p1'?' open':'')+'><summary>📂 사건 파일 다시 보기</summary>'+rpCaseHTML(csE,me.cls,RP.team,true,RP.pages)+'</details>';
   if(G) h+='<details class="rpref"><summary>📖 친구들이 쓴 다른 부분 보기</summary><div class="rdwrap" id="rpRef"></div></details>';
   h+='<div class="rpcard rpform" id="rpF"></div><div class="rpsave"><button id="rpSv">저장하기</button></div>';
   box.innerHTML=h;
@@ -3063,7 +3084,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
     S.push({tp:'kb',k:'사건 의뢰 · 살펴볼 힘: '+cs.D.f.join(', '),b:cs.D.ask});
     var CX=cfOf(cs.no);
     S.push({tp:'kb',k:'현장 단서'+(CX.names?' · '+CX.names:'')+(cs.finder?' · 최초 발견 '+cs.finder:''),b:cs.D.clues.map(function(x){ return '· '+x; }).join('\n'),sm:true});
-    CX.ph.forEach(function(p,i,a){ S.push({tp:'ph',k:'현장 사진'+(a.length>1?' '+(i+1)+'/'+a.length:''),id:p.id,cap:p.cap||''}); });
+    cfPhFor(cs.no,pages).forEach(function(p,i,a){ S.push({tp:'ph',k:'현장 사진'+(a.length>1?' '+(i+1)+'/'+a.length:''),id:p.id,cap:p.cap||''}); });
   }
   var tx=function(v){ return String(v||'').trim(); };
   var kb=function(k,v,gold){ if(tx(v)) S.push({tp:'kb',k:k,b:tx(v),gold:!!gold}); };
