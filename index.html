@@ -618,6 +618,7 @@
   .mtab td{border:1px solid var(--hair);padding:0;}
   .mtab td input{border:0;border-radius:0;text-align:center;font-size:14px;padding:9px 2px;background:#fff;}
   .mtab td.avg{text-align:center;font-weight:800;font-size:13.5px;color:var(--blue);background:#f3f7fb;}
+  .mtab td.avg small,.rdtab td small{display:block;font-weight:600;font-size:10.5px;color:var(--soft);}
   .gwrap{margin-top:10px;background:#fff;border:1px solid var(--hair);border-radius:9px;padding:12px;}
   .gwrap .grow{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
   .gwrap .gl{flex:0 0 92px;font-size:11.5px;font-weight:700;color:var(--ink2);text-align:right;
@@ -1781,25 +1782,25 @@ var RGROUPS=[
       {f:'hB',t:'ta',n:'5. 가설 — 실험 B',opt:1}]},
     {k:'p3',no:'6~7',n:'변인 · 준비물',ic:'⚖️',fs:[
       {f:'indA',t:'text',n:'6. 조작 변인 (다르게 할 것) — 실험 A',ph:'예) 바닥 상태: 마름 / 물 / 물+미끄럼방지 매트'},
-      {f:'depA',t:'text',n:'종속 변인 (잴 것과 단위) — 실험 A',ph:'예) 마찰력(N), 3회 평균'},
+      {f:'depA',t:'text',n:'종속 변인 (잴 것과 단위) — 실험 A',ph:'예) 마찰력(N), 5회 평균'},
       {f:'ctlA',t:'ta',n:'통제 변인 (같게 할 것) — 실험 A',ph:'예) 같은 블록, 같은 추, 같은 바닥재, 같은 속도로 끌기'},
       {f:'indB',t:'text',n:'조작 변인 — 실험 B',opt:1},
       {f:'depB',t:'text',n:'종속 변인 — 실험 B',opt:1},
       {f:'ctlB',t:'ta',n:'통제 변인 — 실험 B',opt:1},
       {f:'mat',t:'ta',n:'7. 준비물과 개수',em:'소장님이 이 칸을 보고 재료를 준비해요',ph:'예) 힘센서 1, 나무블록 1, 분무기 1, 장판 조각 2'}]},
     {k:'p4',no:'8~10',n:'실험 과정 · 예상 결과 · 예상 결론',ic:'🧪',fs:[
-      {f:'procA',t:'ta',n:'8. 실험 과정 — 실험 A',ph:'① ...\n② ...\n③ 같은 조건에서 3번 재고 평균을 낸다'},
+      {f:'procA',t:'ta',n:'8. 실험 과정 — 실험 A',ph:'① ...\n② ...\n③ 같은 조건에서 5번 재고 평균을 낸다'},
       {f:'procB',t:'ta',n:'8. 실험 과정 — 실험 B',em:'실험 B를 하지 않으면 비워 두세요',opt:1},
       {f:'expect',t:'ta',n:'9. 예상 결과',ph:'가설이 맞다면 측정값이 어떻게 나올까요?'},
       {f:'expConc',t:'ta',n:'10. 예상 결론과 안전 제안',ph:'예상대로 나온다면 무엇을 알 수 있고, 어떤 안전 제안을 할 수 있을까요?'}]}
   ]},
   {pg:'evid',n:'🔬 실험 측정 · 결과 · 결론',sub:'실험은 함께 하고, 기록은 네 명이 한 부분씩 나눠 입력합니다.',parts:[
     {k:'m1',no:'A',n:'실험 A 측정',ic:'📏',fs:[
-      {f:'rowsA',t:'table',u:'unitA',n:'실험 A 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
+      {f:'rowsA',t:'table',u:'unitA',n:'실험 A 측정표',em:'조건마다 5번 재고, 평균과 범위(가장 작은 값~가장 큰 값)는 저절로 계산돼요'},
       {f:'phA',t:'photos',n:'실험 A 사진',em:'준비 · 조건마다 · 측정값 읽는 장면 (최대 6장) · 사진마다 설명을 붙이세요'},
       {f:'obsA',t:'ta',n:'측정하면서 본 것',ph:'예) 젖은 바닥에서는 블록이 처음에 툭 하고 미끄러졌다',opt:1}]},
     {k:'m2',no:'B',n:'실험 B 측정',ic:'📐',fs:[
-      {f:'rowsB',t:'table',u:'unitB',n:'실험 B 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
+      {f:'rowsB',t:'table',u:'unitB',n:'실험 B 측정표',em:'조건마다 5번 재고, 평균과 범위(가장 작은 값~가장 큰 값)는 저절로 계산돼요'},
       {f:'phB',t:'photos',n:'실험 B 사진',em:'준비 · 조건마다 · 측정값 읽는 장면 (최대 6장) · 사진마다 설명을 붙이세요'},
       {f:'obsB',t:'ta',n:'측정하면서 본 것',opt:1}]},
     {k:'m3',no:'결과',n:'실제 결과 · 가설과 비교',ic:'📊',fs:[
@@ -2163,12 +2164,23 @@ function rpReset(){
 function rpImg(id,big){ return 'https://drive.google.com/thumbnail?id='+id+'&sz='+(big?'w1400':'w640'); }
 function rpJ(k){ return RP.pages[k]||{}; }
 function rpPage(k){ var P=null; RPAGES.forEach(function(x){ if(x.k===k) P=x; }); return P; }
+/* 측정은 조건마다 최대 5회 (예전 3회 기록도 그대로 읽힘) — 평균·범위는 적은 칸만으로 계산 */
+var RP_NV=5;
+function rpVals(r){
+  var vs=[]; for(var k=1;k<=RP_NV;k++){ var x=parseFloat(r['v'+k]); if(isFinite(x)) vs.push(x); }
+  return vs;
+}
 function rpAvg(r){
-  var vs=[r.v1,r.v2,r.v3].map(parseFloat).filter(function(x){ return isFinite(x); });
+  var vs=rpVals(r);
   if(!vs.length) return null;
   var m=vs.reduce(function(a,b){return a+b;},0)/vs.length;
   return Math.round(m*100)/100;
 }
+function rpRange(r){
+  var vs=rpVals(r); if(vs.length<2) return '';
+  return Math.min.apply(null,vs)+'~'+Math.max.apply(null,vs);
+}
+function rpAnyV(r){ for(var k=1;k<=RP_NV;k++) if(r['v'+k]) return true; return false; }
 /* ───────── 사건 파일 ─────────
    학생 실명은 넣지 않는다(이 파일은 공개 저장소에 올라감). 최초 발견 탐정 이름은 소장이 앱에서 입력해 서버에만 저장. */
 var CASES={
@@ -2390,10 +2402,12 @@ function rpReadPart(P,j,roleName){
       }).join('')+'</div>';
     } else if(F.t==='table'){
       var u=j[F.u]||'';
-      h+='<table class="rdtab"><tr><th>조건</th><th>1회</th><th>2회</th><th>3회</th><th>평균</th></tr>'+
-        (j[F.f]||[]).filter(function(r){ return r.c||r.v1||r.v2||r.v3; }).map(function(r){
-          var a=rpAvg(r);
-          return '<tr><td>'+esc(r.c||'')+'</td><td>'+esc(r.v1||'')+'</td><td>'+esc(r.v2||'')+'</td><td>'+esc(r.v3||'')+'</td><td><b>'+(a==null?'-':a)+'</b></td></tr>';
+      var th=''; for(var k=1;k<=RP_NV;k++) th+='<th>'+k+'회</th>';
+      h+='<table class="rdtab"><tr><th>조건</th>'+th+'<th>평균</th><th>범위</th></tr>'+
+        (j[F.f]||[]).filter(function(r){ return r.c||rpAnyV(r); }).map(function(r){
+          var a=rpAvg(r), td='';
+          for(var k=1;k<=RP_NV;k++) td+='<td>'+esc(r['v'+k]||'')+'</td>';
+          return '<tr><td>'+esc(r.c||'')+'</td>'+td+'<td><b>'+(a==null?'-':a)+'</b></td><td>'+(rpRange(r)||'-')+'</td></tr>';
         }).join('')+'</table>'+(u?'<div class="rdu">단위 · '+esc(u)+'</div>':'');
     } else h+='<div class="rdt">'+esc(j[F.f])+'</div>';
     h+='</div>';
@@ -2764,7 +2778,8 @@ function rpPartCollect(P){
       var rows=[];
       for(var i=0;i<4;i++){
         var g=function(s){ var e=$(f.f+s+i); return e?e.value.trim():''; };
-        rows.push({c:g('_c'),v1:g('_1_'),v2:g('_2_'),v3:g('_3_')});
+        var row={c:g('_c')}; for(var k=1;k<=RP_NV;k++) row['v'+k]=g('_'+k+'_');
+        rows.push(row);
       }
       v[f.f]=rows;
       v[f.u]=$('rp_in_'+f.u)?$('rp_in_'+f.u).value.trim():'';
@@ -2834,14 +2849,14 @@ function rpTableForm(F,fd){
   var un=document.createElement('input'); un.type='text'; un.id='rp_in_'+fd.u;
   un.placeholder='예) 마찰력(N)'; un.value=RP._ed[fd.u]||''; lab2.appendChild(un); F.appendChild(lab2);
   var t=document.createElement('table'); t.className='mtab';
-  var h='<tr><th style="width:34%">바꾼 조건</th><th>1회</th><th>2회</th><th>3회</th><th style="width:16%">평균</th></tr>';
+  var h='<tr><th style="width:26%">바꾼 조건</th>';
+  for(var k=1;k<=RP_NV;k++) h+='<th>'+k+'회</th>';
+  h+='<th style="width:17%">평균<br><span style="font-weight:400;font-size:10px">범위</span></th></tr>';
   for(var i=0;i<4;i++){
     var r=rows[i]||{};
-    h+='<tr><td><input id="'+p+'_c'+i+'" placeholder="'+(i===0?'예) 마른 바닥':'')+'" value="'+esc(r.c||'')+'"></td>'+
-      '<td><input id="'+p+'_1_'+i+'" inputmode="decimal" value="'+esc(r.v1||'')+'"></td>'+
-      '<td><input id="'+p+'_2_'+i+'" inputmode="decimal" value="'+esc(r.v2||'')+'"></td>'+
-      '<td><input id="'+p+'_3_'+i+'" inputmode="decimal" value="'+esc(r.v3||'')+'"></td>'+
-      '<td class="avg" id="'+p+'_a'+i+'">-</td></tr>';
+    h+='<tr><td><input id="'+p+'_c'+i+'" placeholder="'+(i===0?'예) 마른 바닥':'')+'" value="'+esc(r.c||'')+'"></td>';
+    for(var k=1;k<=RP_NV;k++) h+='<td><input id="'+p+'_'+k+'_'+i+'" inputmode="decimal" value="'+esc(r['v'+k]||'')+'"></td>';
+    h+='<td class="avg" id="'+p+'_a'+i+'">-</td></tr>';
   }
   t.innerHTML=h; F.appendChild(t);
   var lab3=document.createElement('label'); lab3.innerHTML='그래프 <em>평균값으로 저절로 그려져요</em>'; F.appendChild(lab3);
@@ -2849,9 +2864,10 @@ function rpTableForm(F,fd){
   function redraw(){
     var rs=[], mx=0;
     for(var i=0;i<4;i++){
-      var r={c:$(p+'_c'+i).value.trim(),v1:$(p+'_1_'+i).value,v2:$(p+'_2_'+i).value,v3:$(p+'_3_'+i).value};
-      var a=rpAvg(r);
-      $(p+'_a'+i).textContent=a==null?'-':a;
+      var r={c:$(p+'_c'+i).value.trim()};
+      for(var k=1;k<=RP_NV;k++) r['v'+k]=$(p+'_'+k+'_'+i).value;
+      var a=rpAvg(r), rg=rpRange(r);
+      $(p+'_a'+i).innerHTML=(a==null?'-':a)+(rg?'<small>'+rg+'</small>':'');
       if(r.c&&a!=null){ rs.push({c:r.c,a:a}); if(a>mx) mx=a; }
     }
     if(!rs.length){ gw.innerHTML='<div class="empty" style="padding:8px 0">조건과 측정값을 넣으면 그래프가 그려져요</div>'; return; }
