@@ -1635,6 +1635,8 @@ function loadRoster(){
   });
 }
 function lookName(c,n){ return ROSTER ? (ROSTER[c+'-'+n]||'') : ''; }
+/* 화면에 보일 이름: 명렬표(roster)를 우선, 없을 때만 기록에 남은 이름 */
+function realName(x){ return lookName(String(x.cls),String(x.num)) || (x.name||''); }
 
 function askWho(){
   var c=$('inCls').value.trim(), n=$('inNum').value.trim();
@@ -4495,7 +4497,7 @@ function drawBadgeTools(items){
       for(var r=u.from.i+1;r<=u.to.i;r++) if(r>=1) need+='<span class="bstk" style="background:'+RK_COLOR[r]+(r===6?';color:#4a3408':'')+'">'+RK_SHORT[r]+'</span>';
       var addS = u.to.i===6 ? (u.to.s - (u.from.i===6?u.from.s:0)) : 0;
       if(addS>0) need+=' <b style="color:#a8791a">★ ×'+addS+'</b>';
-      h+='<tr><td>'+esc(u.x.cls)+'</td><td>'+esc(u.x.num)+'</td><td>'+esc(u.x.name)+'</td><td>'+esc(u.x.det||'')+'</td>'+
+      h+='<tr><td>'+esc(u.x.cls)+'</td><td>'+esc(u.x.num)+'</td><td>'+esc(realName(u.x))+'</td><td>'+esc(u.x.det||'')+'</td>'+
         '<td class="up">'+RK_SHORT[u.from.i]+(u.from.i===6&&u.from.s?' ★'+u.from.s:'')+' → '+RK_SHORT[u.to.i]+(u.to.i===6?' ★'+u.to.s:'')+'</td><td>'+need+'</td></tr>';
     });
     h+='</table>';
@@ -4765,7 +4767,7 @@ function drawStats(items){
     var r=rankOf(mm);
     var need=lack(mm,RANKS[RANKS.length-1]);
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+(s.name||'')+'</td>'+
+    tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+esc(realName(s))+'</td>'+
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
