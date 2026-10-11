@@ -1793,11 +1793,11 @@ var RGROUPS=[
   {pg:'evid',n:'🔬 실험 측정 · 결과 · 결론',sub:'실험은 함께 하고, 기록은 네 명이 한 부분씩 나눠 입력합니다.',parts:[
     {k:'m1',no:'A',n:'실험 A 측정',ic:'📏',fs:[
       {f:'rowsA',t:'table',u:'unitA',n:'실험 A 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
-      {f:'phA',t:'photos',n:'실험 A 사진',em:'사진마다 설명을 붙이세요'},
+      {f:'phA',t:'photos',n:'실험 A 사진',em:'준비 · 조건마다 · 측정값 읽는 장면 (최대 6장) · 사진마다 설명을 붙이세요'},
       {f:'obsA',t:'ta',n:'측정하면서 본 것',ph:'예) 젖은 바닥에서는 블록이 처음에 툭 하고 미끄러졌다',opt:1}]},
     {k:'m2',no:'B',n:'실험 B 측정',ic:'📐',fs:[
       {f:'rowsB',t:'table',u:'unitB',n:'실험 B 측정표',em:'조건마다 3번 재고, 평균은 저절로 계산돼요'},
-      {f:'phB',t:'photos',n:'실험 B 사진',em:'사진마다 설명을 붙이세요'},
+      {f:'phB',t:'photos',n:'실험 B 사진',em:'준비 · 조건마다 · 측정값 읽는 장면 (최대 6장) · 사진마다 설명을 붙이세요'},
       {f:'obsB',t:'ta',n:'측정하면서 본 것',opt:1}]},
     {k:'m3',no:'결과',n:'실제 결과 · 가설과 비교',ic:'📊',fs:[
       {f:'resA',t:'ta',n:'실험 A의 실제 결과',ph:'측정값으로 말하기: (     ) 조건에서 가장 크게, (     ) 조건에서 가장 작게 나왔다'},
@@ -2374,7 +2374,7 @@ function rpReadPart(P,j,roleName){
     h+='<div class="rdf"><b>'+esc(F.n)+'</b>';
     if(F.t==='photos'){
       h+='<div class="rdph">'+rpPh(j[F.f]).map(function(p){
-        return '<figure><img src="'+rpImg(p.id)+'" alt="사진"><figcaption>'+esc(p.cap||'(설명 없음)')+'</figcaption></figure>';
+        return '<figure><img src="'+rpImg(p.id)+'" alt="사진" loading="lazy"><figcaption>'+esc(p.cap||'(설명 없음)')+'</figcaption></figure>';
       }).join('')+'</div>';
     } else if(F.t==='table'){
       var u=j[F.u]||'';
@@ -2752,7 +2752,9 @@ function rpPartCollect(P){
   return v;
 }
 /* 사진 여러 장 + 사진마다 설명 */
+var RP_MAXPH={phA:6,phB:6};   /* 실험 장면은 6장, 발견 장면·힘 화살표는 4장 */
 function rpPhotos(field,pg){
+  var MAX=RP_MAXPH[field]||4;
   var w=document.createElement('div'); w.className='phslot';
   function list(){ if(!Array.isArray(RP._ed[field])) RP._ed[field]=rpPh(RP._ed[field]); return RP._ed[field]; }
   function draw(){
@@ -2760,7 +2762,7 @@ function rpPhotos(field,pg){
     if(!L.length){ var em=document.createElement('div'); em.className='empty2'; em.textContent='아직 사진이 없어요'; w.appendChild(em); }
     L.forEach(function(p,i){
       var it=document.createElement('div'); it.className='phitem';
-      it.innerHTML='<img src="'+rpImg(p.id)+'" alt="사진">';
+      it.innerHTML='<img src="'+rpImg(p.id)+'" alt="사진" loading="lazy">';
       var cap=document.createElement('textarea'); cap.className='phcap'; cap.rows=2;
       cap.placeholder='사진 설명 — 무엇을 찍었나요? 어디를 보면 되나요? (예: 젖은 장판 위에서 블록을 끄는 모습)';
       cap.value=p.cap||'';
@@ -2774,23 +2776,29 @@ function rpPhotos(field,pg){
       bb.appendChild(del); it.appendChild(bb);
       w.appendChild(it);
     });
-    if(L.length<4){
+    if(L.length<MAX){
       var bb2=document.createElement('div'); bb2.className='phbtns';
       var up=document.createElement('button'); up.type='button'; up.textContent=L.length?'📷 사진 더 올리기':'📷 사진 올리기';
-      var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+      var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.multiple=true; fi.style.display='none';
       up.addEventListener('click',function(){ fi.click(); });
       fi.addEventListener('change',function(){
-        var f=fi.files[0]; if(!f) return;
-        up.disabled=true; up.textContent='올리는 중...';
-        rpShrink(f,function(b64){
-          post({action:'photo',cls:me.cls,team:RP.team,page:pg,field:field,data:b64},
-            function(res){ list().push({id:res.id,cap:''}); draw();
-              rpToast('사진을 올렸어요. 설명을 쓰고 저장하기를 눌러 주세요.'); },
-            function(err){ up.disabled=false; up.textContent='다시 시도'; alert(err); });
-        });
+        /* 여러 장을 골라도 남은 칸만큼만, 한 장씩 차례로 올린다(서버에 한꺼번에 몰리지 않게) */
+        var fs=Array.prototype.slice.call(fi.files||[],0,MAX-list().length); if(!fs.length) return;
+        var cut=(fi.files.length>fs.length); fi.value='';
+        up.disabled=true; var done=0;
+        (function next(){
+          if(!fs.length){ draw();
+            rpToast(done+'장을 올렸어요.'+(cut?' (최대 '+MAX+'장까지라 나머지는 빠졌어요)':'')+' 설명을 쓰고 저장하기를 눌러 주세요.'); return; }
+          up.textContent='올리는 중... ('+(done+1)+')';
+          rpShrink(fs.shift(),function(b64){
+            post({action:'photo',cls:me.cls,team:RP.team,page:pg,field:field,data:b64},
+              function(res){ list().push({id:res.id,cap:''}); done++; next(); },
+              function(err){ draw(); alert(err); });
+          });
+        })();
       });
       bb2.appendChild(up); bb2.appendChild(fi);
-      var nt=document.createElement('span'); nt.className='phn'; nt.textContent='최대 4장';
+      var nt=document.createElement('span'); nt.className='phn'; nt.textContent='최대 '+MAX+'장 · 여러 장 한꺼번에 골라도 돼요';
       bb2.appendChild(nt);
       w.appendChild(bb2);
     }
@@ -3074,16 +3082,19 @@ function rpSlides(pages,teamNo,props,memText,cls){
   kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
   kb('2. 궁금증',pl.wonder);
   kb('3. 힘 분석',pl.forces); phs('힘 화살표',pl.forcePh);
-  two('실험 질문 A',pl.qA,'가설 A',pl.hA);
-  two('실험 질문 B',pl.qB,'가설 B',pl.hB);
-  kb('변인 · 실험 A',vars(pl.indA,pl.depA,pl.ctlA));
-  kb('변인 · 실험 B',vars(pl.indB,pl.depB,pl.ctlB));
-  var hasB=String(pl.procB||'').trim();
-  kb(hasB?'실험 과정 · 실험 A':'실험 과정',pl.procA);
-  kb('실험 과정 · 실험 B',pl.procB);
-  graph('실험 A · 재 보니',ev.rowsA,ev.unitA); phs('실험 A',ev.phA); kb('실험 A · 측정하며 본 것',ev.obsA);
-  graph('실험 B · 재 보니',ev.rowsB,ev.unitB); phs('실험 B',ev.phB); kb('실험 B · 측정하며 본 것',ev.obsB);
-  kb('실험 A · 실제 결과',ev.resA); kb('실험 B · 실제 결과',ev.resB);
+  /* 실험 A를 질문부터 결과까지 다 보여 준 뒤 실험 B로 넘어간다 (A·B를 번갈아 보이면 헷갈림) */
+  var hasB=[pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.obsB,ev.resB].some(tx) ||
+           rpPh(ev.phB).length>0 || (ev.rowsB||[]).some(function(r){ return r&&r.c&&rpAvg(r)!=null; });
+  var exp=function(X,q,h,ind,dep,ctl,proc,rows,unit,ph,obs,res){
+    var p=hasB?'실험 '+X+' · ':'';
+    two(p+'실험 질문',q,p+'가설',h);
+    kb(p+'변인',vars(ind,dep,ctl));
+    kb(p+'실험 과정',proc);
+    graph(p+'재 보니',rows,unit); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
+    kb(p+'실제 결과',res);
+  };
+  exp('A',pl.qA,pl.hA,pl.indA,pl.depA,pl.ctlA,pl.procA,ev.rowsA,ev.unitA,ev.phA,ev.obsA,ev.resA);
+  if(hasB) exp('B',pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.rowsB,ev.unitB,ev.phB,ev.obsB,ev.resB);
   kb('가설과 비교',ev.cmp);
   kb('결론',ev.concl,true);
   kb('안전 제안',ev.prop);
@@ -3092,7 +3103,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
-  SL.pre=S.filter(function(x){ return x.tp==='ph'; }).map(function(x){ var im=new Image(); im.src=rpImg(x.id,1); return im; });
+  SL.pre={}; rpSlPre();
   SL.left=180;
   var v=$('slv');
   if(!v){
@@ -3118,7 +3129,14 @@ function rpSlides(pages,teamNo,props,memText,cls){
 function rpSlGo(d){
   var n=SL.i+d;
   if(n<0||n>=SL.list.length) return;
-  SL.i=n; rpSlDraw();
+  SL.i=n; rpSlDraw(); rpSlPre();
+}
+/* 다음 사진 두 장만 미리 받아 두기 — 사진이 많아도 발표를 열 때 느려지지 않게 */
+function rpSlPre(){
+  for(var k=SL.i, got=0; k<SL.list.length && got<2; k++){
+    var x=SL.list[k]; if(x.tp!=='ph') continue; got++;
+    if(!SL.pre[x.id]){ var im=new Image(); im.src=rpImg(x.id,1); SL.pre[x.id]=im; }
+  }
 }
 function rpSlDraw(){
   var s=SL.list[SL.i], b=$('slBody'), h='';
