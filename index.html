@@ -994,7 +994,7 @@
     </div>
 
     <div class="rankstrip" id="rankStrip">
-      <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정 <i>→</i> ★</div>
+      <div class="path">훈련생 <i>→</i> 5급 <i>→</i> 4급 <i>→</i> 3급 <i>→</i> 2급 <i>→</i> 1급 <i>→</i> 명탐정 <i>→</i> ★ <i>→</i> 대탐정</div>
       <p>질문하고 답하면 도장, 도장과 동료의 인정이 쌓이면 급이 오릅니다.</p>
       <button class="tlink" id="tLoginOpen">소장님이신가요?</button>
       <button class="tlink" id="gLoginOpen">참관 오셨나요? 둘러보기</button>
@@ -1240,8 +1240,10 @@ var RANKS = [
   {n:'3급 탐정',  st:3, a:5,  sc:12},
   {n:'2급 탐정',  st:5, a:8,  sc:18},
   {n:'1급 탐정',  st:7, a:12, sc:25},
-  {n:'명탐정',    st:8, a:12, sc:25, solved:2, adopted:1}
+  {n:'명탐정',    st:8, a:12, sc:25, solved:2, adopted:1},
+  {n:'대탐정',    st:8, a:12, sc:25, solved:2, adopted:1, ref:8}   /* 명탐정 + 성찰 8차시 */
 ];
+var MASTER_I=6, GRAND_I=7;   /* 명탐정 · 대탐정의 계급 번호 */
 
 function lack(m, r){
   var out=[];
@@ -1251,6 +1253,7 @@ function lack(m, r){
   if(r.sc && (m.score||0)      < r.sc) out.push('인정 '+(r.sc-(m.score||0))+'점');
   if(r.solved  && (m.solved||0)  < r.solved)  out.push('해결 도장 '+(r.solved-(m.solved||0))+'개');
   if(r.adopted && (m.adopted||0) < r.adopted) out.push('채택된 답변');
+  if(r.ref && (m.ref||0) < r.ref) out.push('성찰 '+(r.ref-(m.ref||0))+'차시');
   return out;
 }
 
@@ -1263,6 +1266,7 @@ function rankText(r){
   if(r.sc) out.push('인정 '+r.sc);
   if(r.solved)  out.push('해결 도장 '+r.solved);
   if(r.adopted) out.push('채택된 답변');
+  if(r.ref) out.push('성찰 '+r.ref+'차시');
   return out.join(' · ');
 }
 
@@ -1458,7 +1462,7 @@ function drawWho(){
   }
 
   var r=rankOf(ME);
-  setMaster(r.i===RANKS.length-1 || /master-preview/.test(location.hash));
+  setMaster(r.i>=MASTER_I || /master-preview/.test(location.hash));
 
   /* 승급 연출 — 계급이 올라간 순간 한 번 (기기마다) */
   if(ME){
@@ -1467,12 +1471,12 @@ function drawWho(){
     else if(Number(prevR)!==r.i){
       var wasUp = r.i > Number(prevR);
       store(rkKey, String(r.i));
-      if(wasUp && r.i>0 && r.i<RANKS.length-1) rankCele(RANKS[r.i].n);
+      if(wasUp && r.i>0 && r.i!==MASTER_I) rankCele(RANKS[r.i].n);
     }
   }
 
   /* 명탐정은 해결 도장마다 ★이 늘어납니다 */
-  var rname=r.name+((r.i===RANKS.length-1 && ME)?' ★'+(ME.solved||0):'');
+  var rname=r.name+((r.i>=MASTER_I && ME)?' ★'+(ME.solved||0):'');
   var PP=myPartner();
   $('who').innerHTML=
     '<span class="pchip" id="pChip">'+(PP?PP.e:'🗄')+(((!PP&&PARTNER_ON)||cpnReadyN()>0)?'<em></em>':'')+'</span>'+
@@ -1542,6 +1546,8 @@ function openRule(){
   h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 소장님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
        '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
   h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>명탐정 특별 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
+  h += '<h4>대탐정</h4><div class="rnote">명탐정 조건에 더해 <b>성찰 8차시</b>를 남기면 대탐정이 됩니다. 사건을 잘 푸는 탐정을 넘어, 자기 생각이 어떻게 자랐는지 기록하는 탐정입니다.<br>'+
+       '대탐정이 인정 점수 <b>90점</b>에 이르면 <b>부소장 임명장</b>을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
@@ -1877,7 +1883,7 @@ var GEAR=[
  {e:'🎩',n:'탐정 모자',c:'인정 점수 15점',t:function(m){return (m.score||0)>=15;}},
  {e:'🧥',n:'트렌치코트',c:'인정 점수 30점',t:function(m){return (m.score||0)>=30;}},
  {e:'💰',n:'월급봉투',c:'인정 점수 40점 — 소장이 드디어 월급을!',t:function(m){return (m.score||0)>=40;}},
- {e:'🏆',n:'부소장 임명장',c:'인정 점수 60점',t:function(m){return (m.score||0)>=60;}}
+ {e:'🏆',n:'부소장 임명장',c:'대탐정 + 인정 점수 90점',t:function(m){return rankOf(m).i>=GRAND_I && (m.score||0)>=90;}}
 ];
 var PARTNER_ON=false, MYP=null, PMAP={};
 var CHX={cards:null,fixLed:false,got:false};
@@ -1971,7 +1977,7 @@ var CPNS=[
  {id:'c2',n:'생각 보급 1호',c:'성찰 4차시',t:function(m){return (m.ref||0)>=4;}},
  {id:'c3',n:'생각 보급 2호 · 완주',c:'성찰 8차시',t:function(m){return (m.ref||0)>=8;}},
  {id:'c4',n:'사건 해결 축하 보급',c:'해결 도장 1개',t:function(m){return (m.solved||0)>=1;}},
- {id:'c5',n:'명탐정 취임 선물',c:'명탐정 승급',t:function(m){return rankOf(m).i===RANKS.length-1;}},
+ {id:'c5',n:'명탐정 취임 선물',c:'명탐정 승급',t:function(m){return rankOf(m).i>=MASTER_I;}},
  {id:'team',n:'수사팀 회식',c:'우리 모둠 보고서 승인 — 모둠 전원 1개!',t:null}
 ];
 var COUP_ON=false, COUP={};
@@ -3790,7 +3796,7 @@ function render(){
   var coldN=na.filter(coldCase).length;
 
   // 명탐정 특별 임무
-  if(!TEACHER && ME && rankOf(ME).i===RANKS.length-1){
+  if(!TEACHER && ME && rankOf(ME).i>=MASTER_I){
     var ms=document.createElement('div'); ms.className='mission';
     ms.innerHTML='<span class="ic">🎖</span><span class="tx">'+
       (na.length?('명탐정 특별 임무 — 답을 기다리는 사건 <b>'+na.length+'건</b>'+
@@ -4412,25 +4418,26 @@ function tLoad(){
 }
 
 /* ───────── 명찰 · 승급 도구 ───────── */
-var RK_SHORT=['훈련생','5급','4급','3급','2급','1급','명탐정'];
-var RK_COLOR=['#5b6f86','#3f8f6b','#2b6ea3','#5a4fa3','#b0582a','#7a2e3a','#c9971f'];
+var RK_SHORT=['훈련생','5급','4급','3급','2급','1급','명탐정','대탐정'];
+var RK_COLOR=['#5b6f86','#3f8f6b','#2b6ea3','#5a4fa3','#b0582a','#7a2e3a','#c9971f','#1b2a3f'];
 function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function rkOfStat(x){
-  return rankOf({q:x.q,a:x.a,score:x.score,solved:x.solved,adopted:x.adopted,stampCount:x.stamp}).i;
+  return rankOf({q:x.q,a:x.a,score:x.score,solved:x.solved,adopted:x.adopted,stampCount:x.stamp,ref:x.ref}).i;
 }
 function rkLog(){ try{ return JSON.parse(pick('fd_ranklog')||'{}')||{}; }catch(e){ return {}; } }
 function rkSave(items){
   var L=rkLog();
   items.forEach(function(x){
     var i=rkOfStat(x);
-    L[x.cls+'-'+x.num]={i:i, s:(i===6?(x.solved||0):0)};
+    L[x.cls+'-'+x.num]={i:i, s:(i>=MASTER_I?(x.solved||0):0)};
   });
   store('fd_ranklog', JSON.stringify(L));
 }
 
 /* 스티커 한 개 (지름 d mm) */
 function stkHTML(i, d){
+  if(i===GRAND_I) return grandHTML(d);
   var gold = i===6;
   var bg = gold ? 'radial-gradient(circle at 35% 30%,#ffe9a8,#d6a531 55%,#a87a15)' : RK_COLOR[i];
   var fs = RK_SHORT[i].length>2 ? d*0.27 : d*0.4;
@@ -4440,6 +4447,15 @@ function stkHTML(i, d){
     '<div style="position:absolute;inset:'+(d*0.07)+'mm;border-radius:50%;border:'+(d*0.025)+'mm solid rgba(255,255,255,.75)"></div>'+
     '<b style="font-size:'+fs+'mm;line-height:1;color:'+(gold?'#4a3408':'#fff')+';font-weight:900;letter-spacing:-.02em">'+RK_SHORT[i]+'</b>'+
     '<span style="font-size:'+(d*0.1)+'mm;color:'+(gold?'#5c430f':'rgba(255,255,255,.85)')+';font-weight:800;letter-spacing:.12em;margin-top:'+(d*0.04)+'mm">'+(gold?'MASTER':'힘 탐정')+'</span></div>';
+}
+/* 대탐정 스티커 — 남색 바탕 · 금 테두리 · 금 글씨 (명탐정 스티커 위에 덮어 붙임) */
+function grandHTML(d){
+  return '<div style="width:'+d+'mm;height:'+d+'mm;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3b5578,#1b2a3f 60%,#0e1726);'+
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;'+
+    '-webkit-print-color-adjust:exact;print-color-adjust:exact;">'+
+    '<div style="position:absolute;inset:'+(d*0.06)+'mm;border-radius:50%;border:'+(d*0.035)+'mm solid #d9a441"></div>'+
+    '<b style="font-size:'+(d*0.27)+'mm;line-height:1;color:#f3cf72;font-weight:900;letter-spacing:-.02em">대탐정</b>'+
+    '<span style="font-size:'+(d*0.1)+'mm;color:#d9a441;font-weight:800;letter-spacing:.12em;margin-top:'+(d*0.04)+'mm">GRAND</span></div>';
 }
 function starHTML(d){
   return '<div style="width:'+d+'mm;height:'+d+'mm;border-radius:50%;'+
@@ -4468,11 +4484,11 @@ function badgeHTML(x, prefill){
   /* 이름은 명렬표(roster)를 우선: 글에 남은 이름이 잘못 들어가 있어도 명찰은 명렬표대로 */
   var rn=lookName(String(x.cls),String(x.num)); if(rn){ x=Object.assign({},x,{name:rn}); }
   var ri = prefill ? rkOfStat(x) : 0;
-  var stars = (prefill && ri===6) ? Math.min(12, x.solved||0) : 0;
+  var stars = (prefill && ri>=MASTER_I) ? Math.min(12, x.solved||0) : 0;
   var big = x.det ? x.det : x.name;
   var lad='';
   for(var r=1;r<=6;r++){
-    lad += '<div class="slot">'+(r<=ri ? stkHTML(r,20) :
+    lad += '<div class="slot">'+(r<=ri ? stkHTML((r===MASTER_I&&ri>=GRAND_I)?GRAND_I:r,20) :
       '<div class="ghost"><b>'+RK_SHORT[r]+'</b></div>')+'</div>';
   }
   var st='';
@@ -4489,7 +4505,7 @@ function badgeHTML(x, prefill){
       '<div class="det" style="font-size:'+(big.length>6?'17pt':'22pt')+'">'+esc(big)+'</div>'+
       '<div class="real">'+(x.det?esc(x.name)+' · ':'')+'1학년 '+esc(x.cls)+'반 '+esc(x.num)+'번</div>'+
     '</div>'+
-    '<div class="sec"><span>계급</span><em>훈련생에서 시작 · 승급하면 스티커를 붙입니다</em></div>'+
+    '<div class="sec"><span>계급</span><em>훈련생에서 시작 · 승급하면 스티커를 붙입니다 · 대탐정은 명탐정 위에</em></div>'+
     '<div class="ladder">'+lad+'</div>'+
     '<div class="sec gold"><span>명탐정의 별</span><em>명탐정이 된 뒤 해결 도장마다 ★ 하나</em></div>'+
     '<div class="stars">'+st+'</div>'+
@@ -4561,9 +4577,9 @@ function drawBadgeTools(items){
   items = items.filter(function(x){ return String(x.num)!=='0'; });
   var L=rkLog(), ups=[], fresh=0;
   items.forEach(function(x){
-    var i=rkOfStat(x), s=(i===6?(x.solved||0):0), k=x.cls+'-'+x.num, p=L[k];
+    var i=rkOfStat(x), s=(i>=MASTER_I?(x.solved||0):0), k=x.cls+'-'+x.num, p=L[k];
     if(!p){ fresh++; return; }
-    if(i>p.i || (i===6 && s>p.s)) ups.push({x:x, from:p, to:{i:i,s:s}});
+    if(i>p.i || (i>=MASTER_I && s>p.s)) ups.push({x:x, from:p, to:{i:i,s:s}});
   });
 
   /* 1. 승급자 명단 */
@@ -4574,11 +4590,11 @@ function drawBadgeTools(items){
     h+='<table><tr><th>반</th><th>번호</th><th>이름</th><th>탐정 이름</th><th>변화</th><th>붙일 스티커</th></tr>';
     ups.forEach(function(u){
       var need='';
-      for(var r=u.from.i+1;r<=u.to.i;r++) if(r>=1) need+='<span class="bstk" style="background:'+RK_COLOR[r]+(r===6?';color:#4a3408':'')+'">'+RK_SHORT[r]+'</span>';
-      var addS = u.to.i===6 ? (u.to.s - (u.from.i===6?u.from.s:0)) : 0;
+      for(var r=u.from.i+1;r<=u.to.i;r++) if(r>=1) need+='<span class="bstk" style="background:'+RK_COLOR[r]+(r===6?';color:#4a3408':'')+(r===GRAND_I?';color:#f3cf72;border:1px solid #d9a441':'')+'">'+RK_SHORT[r]+'</span>';
+      var addS = u.to.i>=MASTER_I ? (u.to.s - (u.from.i>=MASTER_I?u.from.s:0)) : 0;
       if(addS>0) need+=' <b style="color:#a8791a">★ ×'+addS+'</b>';
       h+='<tr><td>'+esc(u.x.cls)+'</td><td>'+esc(u.x.num)+'</td><td>'+esc(realName(u.x))+'</td><td>'+esc(u.x.det||'')+'</td>'+
-        '<td class="up">'+RK_SHORT[u.from.i]+(u.from.i===6&&u.from.s?' ★'+u.from.s:'')+' → '+RK_SHORT[u.to.i]+(u.to.i===6?' ★'+u.to.s:'')+'</td><td>'+need+'</td></tr>';
+        '<td class="up">'+RK_SHORT[u.from.i]+(u.from.i>=MASTER_I&&u.from.s?' ★'+u.from.s:'')+' → '+RK_SHORT[u.to.i]+(u.to.i>=MASTER_I?' ★'+u.to.s:'')+'</td><td>'+need+'</td></tr>';
     });
     h+='</table>';
   } else {
@@ -4606,7 +4622,7 @@ function drawBadgeTools(items){
 
   /* 3. 스티커 인쇄 */
   var c=document.createElement('div'); c.className='btool';
-  var plan='', rows=['5급','4급','3급','2급','1급','명탐정'];
+  var plan='', rows=['5급','4급','3급','2급','1급','명탐정','대탐정'];
   rows.forEach(function(nm,ix){ plan+='<label>'+nm+' '+numIn('bp'+(ix+1),2,1)+'줄</label>'; });
   c.innerHTML='<h3>🏷 계급 스티커 인쇄</h3><div class="sub">글로리텍 <b>GL7108</b>(지름 20mm · 108칸 · 가로 9 × 세로 12) 기준입니다. '+
     '줄마다 한 계급씩 들어가고, 기본은 계급마다 2줄(18개)입니다.<br>'+
@@ -4625,7 +4641,7 @@ function drawBadgeTools(items){
   box.appendChild(c);
   function rankPlan(){
     var p=[];
-    for(var r=1;r<=6;r++){ var k=Math.max(0,Math.round(nv('bp'+r))); for(var j=0;j<k;j++) p.push(r); }
+    for(var r=1;r<=GRAND_I;r++){ var k=Math.max(0,Math.round(nv('bp'+r))); for(var j=0;j<k;j++) p.push(r); }
     if(p.length>12){ alert('줄 수 합이 12줄을 넘습니다. 지금 '+p.length+'줄'); return null; }
     return p;
   }
@@ -4833,7 +4849,7 @@ function drawStats(items){
   var t=document.createElement('table'); t.className='st2';
   t.innerHTML='<tr><th>반</th><th>번호</th><th>이름</th><th>탐정명</th><th>도장</th>'+
     '<th>질문</th><th>답변</th><th>받은제보</th><th>채택</th><th>채택해줌</th><th>추가답변</th><th>성찰</th><th>⭐</th>'+
-    '<th>인정점수</th><th>해결</th><th>계급</th><th>명탐정까지</th></tr>';
+    '<th>인정점수</th><th>해결</th><th>계급</th><th>다음 목표</th></tr>';
   items.forEach(function(s){
     var sv=s.solved;
     if(sv==null || isNaN(sv)){
@@ -4843,18 +4859,19 @@ function drawStats(items){
         });
       }).length;
     }
-    var mm={q:s.q,a:s.a,score:s.score,solved:sv,adopted:s.adopted,stampCount:s.stamp};
+    var mm={q:s.q,a:s.a,score:s.score,solved:sv,adopted:s.adopted,stampCount:s.stamp,ref:s.ref};
     var r=rankOf(mm);
-    var need=lack(mm,RANKS[RANKS.length-1]);
+    var goal=RANKS[r.i<MASTER_I?MASTER_I:GRAND_I];   /* 명탐정 전에는 명탐정까지, 명탐정이면 대탐정까지 */
+    var need=lack(mm,goal);
     var tr=document.createElement('tr');
     tr.innerHTML='<td>'+s.cls+'</td><td>'+s.num+'</td><td class="l">'+esc(realName(s))+'</td>'+
       '<td class="l">'+(s.det||'')+'</td><td>'+s.stamp+'/8</td>'+
       '<td>'+s.q+'</td><td>'+s.a+'</td><td>'+s.got+'</td><td>'+s.adopted+'</td>'+
       '<td>'+(s.picked||0)+'</td>'+
       '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td>'+(s.help==null?'-':s.help)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
-      '<td class="l" style="font-size:11px">'+(need.length?need.join(', '):
-        '<b style="color:var(--gold)">★ 달성</b>')+
-        '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1</div></td>';
+      '<td class="l" style="font-size:11px">'+(need.length?'<b>'+goal.n+'</b>까지 '+need.join(', '):
+        '<b style="color:var(--gold)">★ 대탐정 달성</b>'+((s.score||0)>=90?' · 🏆 부소장':''))+
+        '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1 · 성찰 '+(mm.ref||0)+'/8</div></td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
   });
