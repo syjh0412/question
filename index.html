@@ -47,6 +47,17 @@
   }
   header .wrap{position:relative;z-index:2;}
   header .top{display:flex;align-items:center;gap:10px;}
+  .refshare{display:block;margin-top:12px;font-size:13.5px;font-weight:700;cursor:pointer;}
+  .refshare input{width:17px;height:17px;vertical-align:-3px;margin-right:4px;}
+  .refshare em{display:block;font-style:normal;font-weight:500;font-size:12px;color:var(--soft);margin:3px 0 0 24px;line-height:1.45;}
+  .prf{border:1px solid var(--hair);border-radius:12px;padding:10px 12px;margin-top:8px;background:#fff;}
+  .prf.star{border-color:#d9a441;background:#fffaf0;}
+  .prf .m{font-size:12px;color:var(--soft);font-weight:700;margin-bottom:4px;}
+  .prf .m b{color:var(--ink);}
+  .prf .g{font-size:14px;line-height:1.55;white-space:pre-line;}
+  .rf .rfx{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:11.5px;color:var(--soft);}
+  .rf .rfx button{font-size:12px;padding:3px 9px;border-radius:999px;}
+  .rf .rfx button.on{background:#fff3d6;border-color:#d9a441;color:#8a5d0b;font-weight:800;}
   .greet{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);z-index:9999;width:max-content;max-width:min(92vw,520px);box-sizing:border-box;
     display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;cursor:pointer;
     background:linear-gradient(135deg,#1b2a3f,#2b3f5c);color:#f3f6fa;border:1px solid #d9a441;
@@ -1120,8 +1131,16 @@
         </div>
         <label>아직 헷갈리는 것</label>
         <textarea id="refStuck" placeholder="없으면 비워도 됩니다" style="min-height:66px"></textarea>
-        <div style="height:14px"></div>
+        <label class="refshare"><input type="checkbox" id="refShare" checked> 친구들에게 보여 주기
+          <em>「오늘 알게 된 것」만 탐정 이름으로 같은 반 친구에게 보여요. 「아직 헷갈리는 것」은 나와 소장님만 봅니다.</em></label>
+        <div style="height:10px"></div>
         <button class="primary" id="btnRef">성찰 남기기</button>
+      </div>
+
+      <div class="card hide" id="peerRefCard">
+        <h2>👥 같은 반 탐정들의 성찰 <span id="peerRefL" style="font-size:13px;color:var(--soft);font-weight:700"></span></h2>
+        <div class="sub">이 차시 성찰을 먼저 남긴 탐정만 볼 수 있습니다. 친구의 생각과 내 생각을 견주어 보세요.</div>
+        <div id="peerRefBox"><div class="empty">불러오는 중...</div></div>
       </div>
 
       <div class="card" id="myRefCard">
@@ -3748,7 +3767,7 @@ function tab(which){
   if(me&&!TEACHER&&!GUEST&&which!=='Teach') store('fd_lasttab',which);
   if(which==='Mat') loadMat();
   if(which==='List'){ if(me&&!ME) load(); else render(); }
-  if(which==='Ref'){ loadMyRefs(); }
+  if(which==='Ref'){ loadMyRefs(); loadPeerRefs(); }
   if(which==='Note'){ loadMyNotes(); }
   if(which==='Rep') repOpen();
   if(which==='Teach' && PIN){
@@ -4273,14 +4292,14 @@ $('btnRef').addEventListener('click', function(){
   if(gl<REF_MIN){ msg($('refMsg'),'오늘 알게 된 것을 '+REF_MIN+'자 이상 써 주세요(시작 문장 버튼 글자는 빼고 셉니다). 지금 '+gl+'자예요. 왜 그런지, 예를 들면 무엇인지 한 문장 더 붙여 보세요.','err'); $('refGot').focus(); return; }
   var b=this; b.disabled=true; b.textContent='남기는 중...';
   call({action:'reflect',lesson:$('refLesson').value,cls:me.cls,num:me.num,
-        name:me.name,det:me.det||'',got:g,stuck:$('refStuck').value.trim()},
+        name:me.name,det:me.det||'',got:g,stuck:$('refStuck').value.trim(),share:($('refShare').checked?'Y':'')},
     function(){ b.disabled=false; b.textContent='성찰 남기기';
       $('refGot').value=''; $('refStuck').value=''; refCount();
       var again=(MYREFS||[]).some(function(r){ return String(r.lesson)===String($('refLesson').value); });
       msg($('refMsg'),
         again ? '남겼습니다. 같은 차시에 한 번 더 썼네요 — 내 말로 다시 설명할수록 진짜 내 것이 됩니다.' :
                 '남겼습니다. 이 차시 성찰 점수가 반영됩니다. 생각이 더 자라면 언제든 덧붙여 써 보세요.','ok');
-      load(true); loadMyRefs(); },
+      load(true); loadMyRefs(); loadPeerRefs(); },
     function(err){ b.disabled=false; b.textContent='성찰 남기기';
       msg($('refMsg'),'보내지 못했습니다. '+err,'err'); });
 });
@@ -4369,6 +4388,32 @@ function drawNudge(){
   }
 }
 $('refLesson').addEventListener('change', drawNudge);
+$('refLesson').addEventListener('change', function(){ loadPeerRefs(); });
+/* 친구 성찰 — 이 차시 성찰을 남긴 뒤에만 열림 (서버가 확인). 예전 서버면 칸을 숨김 */
+var PEER_SEQ=0;
+function loadPeerRefs(){
+  var card=$('peerRefCard'); if(!card||!me||TEACHER||GUEST) return;
+  var L=$('refLesson').value, seq=++PEER_SEQ, box=$('peerRefBox');
+  $('peerRefL').textContent='· '+L+'차시';
+  show(card,true); box.innerHTML='<div class="empty">불러오는 중...</div>';
+  call({action:'refShared',cls:me.cls,num:me.num,lesson:L},function(res){
+    if(seq!==PEER_SEQ) return;
+    if(res.locked){ box.innerHTML='<div class="empty">🔒 이 차시 성찰을 먼저 남기면 친구들의 성찰이 열립니다.</div>'; return; }
+    var it=res.items||[];
+    if(!it.length){ box.innerHTML='<div class="empty">아직 이 차시에 공개된 친구 성찰이 없어요. 첫 번째 공개 성찰을 남겨 보세요!</div>'; return; }
+    box.innerHTML='';
+    it.forEach(function(x){
+      var d=document.createElement('div'); d.className='prf'+(x.star?' star':'');
+      d.innerHTML='<div class="m">'+(x.star?'⭐ 소장 추천 · ':'')+'<b>'+esc(x.det)+'</b>'+(x.mine?' (나)':'')+' · '+esc(x.time||'')+'</div>'+
+        '<div class="g">'+esc(x.got)+'</div>';
+      box.appendChild(d);
+    });
+  },function(err){
+    if(seq!==PEER_SEQ) return;
+    if(/알 수 없는 요청/.test(String(err))) show(card,false);
+    else box.innerHTML='<div class="empty">불러오지 못했습니다. '+esc(err)+'</div>';
+  });
+}
 Array.prototype.forEach.call($('refStarters').children, function(b){
   b.addEventListener('click', function(){
     var ta=$('refGot'), t=b.dataset.t;
@@ -4930,6 +4975,19 @@ function refCard(r){
   d.appendChild(m); d.appendChild(g);
   if(r.stuck){ var s=document.createElement('div'); s.className='s';
     s.textContent='아직 헷갈림 · '+r.stuck; d.appendChild(s); }
+  if(r.id){
+    var x=document.createElement('div'); x.className='rfx';
+    var b=document.createElement('button'); b.type='button';
+    var paint=function(){ b.className=r.star?'on':''; b.textContent=r.star?'⭐ 추천함':'☆ 추천'; };
+    paint();
+    b.addEventListener('click',function(){
+      b.disabled=true;
+      call({action:'refStar',pin:PIN,id:r.id},function(res){ b.disabled=false; r.star=!!res.on; paint(); },
+        function(err){ b.disabled=false; alert(err); });
+    });
+    var sp=document.createElement('span'); sp.textContent=r.share?'👥 친구에게 공개':'🔒 비공개';
+    x.appendChild(b); x.appendChild(sp); d.appendChild(x);
+  }
   return d;
 }
 
