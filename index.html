@@ -47,6 +47,14 @@
   }
   header .wrap{position:relative;z-index:2;}
   header .top{display:flex;align-items:center;gap:10px;}
+  .greet{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);z-index:9999;width:max-content;max-width:min(92vw,520px);box-sizing:border-box;
+    display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;cursor:pointer;
+    background:linear-gradient(135deg,#1b2a3f,#2b3f5c);color:#f3f6fa;border:1px solid #d9a441;
+    box-shadow:0 10px 30px rgba(0,0,0,.28);font-size:14.5px;line-height:1.45;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .4s;}
+  .greet.on{transform:translate(-50%,0);}
+  .greet.out{opacity:0;transform:translate(-50%,-30%);}
+  .greet .gi{font-size:26px;flex:0 0 auto;}
+  .greet b{color:#f3cf72;}
   header h1{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;}
   header h1 small{display:block;font-size:11px;color:#7f93aa;letter-spacing:.1em;
     font-weight:600;margin-top:3px;}
@@ -1422,6 +1430,50 @@ function enter(o){
     setTimeout(function(){ tab('Rep'); },0);
     setTimeout(function(){ if(me&&!ME) load(true); }, 8000+Math.floor(Math.random()*22000));
   } else prefetch();
+  greetDet();
+}
+
+/* 출근 인사 — 탐정이 들어올 때 시간·요일에 맞춰 한마디 (같은 날 다시 오면 '다시 오셨군요') */
+var GREET_ANY=[
+  '출근하셨군요, {n} 탐정! 오늘도 사건이 기다리고 있습니다.',
+  '어서 오세요, {n} 탐정. 돋보기는 챙기셨죠?',
+  '출근 도장 쾅! {n} 탐정, 오늘은 어떤 힘을 찾아낼까요?',
+  '반갑습니다, {n} 탐정. 단서는 아직 따끈따끈합니다.',
+  '{n} 탐정, 오늘도 힘내 봅시다. 말 그대로 \'힘\'을요!',
+  '오셨군요, {n} 탐정. 증거는 숫자로, 결론은 힘으로!',
+  '{n} 탐정 출근 확인. 사무소 문이 활짝 열렸습니다.',
+  '기다리고 있었습니다, {n} 탐정. 미해결 사건이 탐정님을 부르고 있어요.',
+  '{n} 탐정, 오늘의 수사 수칙: 추측 말고 측정!',
+  '안녕하세요, {n} 탐정. 오늘도 학교 곳곳에 힘이 숨어 있습니다.'
+];
+var GREET_AGAIN=[
+  '다시 오셨군요, {n} 탐정. 사건 파일은 그대로 두었습니다.',
+  '돌아오셨군요, {n} 탐정! 놓친 단서가 있었나요?',
+  '{n} 탐정, 재출근 확인. 수사를 이어 가 볼까요?'
+];
+function greetDet(){
+  if(TEACHER||GUEST||!me) return;
+  var n=me.det||me.name||'', d=new Date(), h=d.getHours(), wd=d.getDay();
+  var key='fd_greet_'+me.cls+'_'+me.num, today=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var again=(pick(key)===today); store(key,today);
+  var pickOne=function(a){ return a[Math.floor(Math.random()*a.length)]; };
+  var t;
+  if(again) t=pickOne(GREET_AGAIN);
+  else if(h>=22||h<5) t='{n} 탐정, 늦은 밤까지 수사 중이군요. 너무 늦지 않게 퇴근하세요!';
+  else if(wd===0||wd===6) t='주말에도 출근이라니, {n} 탐정은 진정한 탐정이군요!';
+  else if(h<8) t='일찍 출근하셨네요, {n} 탐정! 부지런한 탐정이 단서를 먼저 찾습니다.';
+  else if(h>=12&&h<13) t='점심은 드셨나요, {n} 탐정? 든든해야 수사도 힘이 납니다.';
+  else if(h>=18) t='퇴근 시간이 지났는데도 출근하셨군요, {n} 탐정. 열정에 경의를!';
+  else t=pickOne(GREET_ANY);
+  var old=$('greetBox'); if(old) old.remove();
+  var g=document.createElement('div'); g.id='greetBox'; g.className='greet';
+  /* 탐정 이름이 이미 '…탐정'으로 끝나면 '탐정'을 한 번만 */
+  var nm=/탐정$/.test(n)?n:n+' 탐정';
+  g.innerHTML='<span class="gi">🕵️</span><span class="gt">'+esc(t).replace('{n} 탐정','{n}').replace('{n}','<b>'+esc(nm)+'</b>')+'</span>';
+  g.addEventListener('click',function(){ g.classList.add('out'); setTimeout(function(){ g.remove(); },400); });
+  document.body.appendChild(g);
+  setTimeout(function(){ g.classList.add('on'); },60);
+  setTimeout(function(){ if(g.parentNode){ g.classList.add('out'); setTimeout(function(){ g.remove(); },400); } },5200);
 }
 
 function rankOf(m){
