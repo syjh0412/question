@@ -4703,6 +4703,8 @@ function badgeHTML(x, prefill){
   var ri = prefill ? rkOfStat(x) : 0;
   var stars = (prefill && ri>=MASTER_I) ? Math.min(14, x.solved||0) : 0;
   var big = x.det ? x.det : x.name;
+  /* 학생이 고른 수사 파트너 — 이름 옆에 그림, 아래 줄에 이름 */
+  var PT=(x.partner!=null && PARTNERS[x.partner]) ? PARTNERS[x.partner] : null;
   var lad='';
   for(var r=1;r<=6;r++){
     lad += '<div class="slot">'+(r<=ri ? stkHTML(r,20) :
@@ -4721,8 +4723,10 @@ function badgeHTML(x, prefill){
       '<div class="motto">이 탐정은 힘의 렌즈로 학교를 본다.</div></div>'+
     '<div class="who">'+
       '<div class="lab">'+(x.det?'탐정 이름':'이름')+'</div>'+
-      '<div class="det" style="font-size:'+(big.length>6?'16pt':'20pt')+'">'+esc(big)+'</div>'+
-      '<div class="real">'+(x.det?esc(x.name)+' · ':'')+'1학년 '+esc(x.cls)+'반 '+esc(x.num)+'번</div>'+
+      '<div class="det" style="font-size:'+(big.length>6?'16pt':'20pt')+'">'+esc(big)+
+        (PT?'<span class="pt" title="수사 파트너">'+PT.e+'</span>':'')+'</div>'+
+      '<div class="real">'+(x.det?esc(x.name)+' · ':'')+'1학년 '+esc(x.cls)+'반 '+esc(x.num)+'번'+
+        (PT?' · 파트너 '+esc(PT.n):'')+'</div>'+
     '</div>'+
     '<div class="sec"><span>계급</span><em>훈련생에서 시작 · 승급하면 스티커를 붙입니다</em></div>'+
     '<div class="ladder">'+lad+'</div>'+
@@ -4742,6 +4746,7 @@ var BADGE_CSS=
   '.who{text-align:center;padding:2mm 6mm 0}'+
   '.who .lab{font-size:6.5pt;color:#8a96a4;font-weight:700;letter-spacing:.25em}'+
   '.who .det{font-weight:900;color:#16243a;letter-spacing:-.03em;line-height:1.12;margin-top:.4mm}'+
+  '.who .det .pt{display:inline-block;margin-left:1.6mm;font-size:.95em;vertical-align:-.05em;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}'+
   '.who .real{font-size:9pt;color:#4b5b6e;font-weight:700;margin-top:.6mm}'+
   '.sec{display:flex;align-items:baseline;gap:2mm;margin:2mm 6mm 1.1mm;border-top:.3mm solid #e1e6ec;padding-top:1.3mm}'+
   '.sec span{font-size:8pt;font-weight:900;color:#1b2a3f}'+
