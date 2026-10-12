@@ -47,6 +47,10 @@
   }
   header .wrap{position:relative;z-index:2;}
   header .top{display:flex;align-items:center;gap:10px;}
+  .refpick{border:1px dashed #d9a441;background:#fffaf0;border-radius:12px;padding:10px 12px;margin-top:10px;}
+  .refpick .k{font-size:12px;font-weight:800;color:#8a5d0b;margin-bottom:4px;}
+  .refpick .t{font-size:14px;line-height:1.55;white-space:pre-line;}
+  .refpick .w{font-size:11.5px;color:var(--soft);margin-top:5px;}
   .refshare{display:block;margin-top:12px;font-size:13.5px;font-weight:700;cursor:pointer;}
   .refshare input{width:17px;height:17px;vertical-align:-3px;margin-right:4px;}
   .refshare em{display:block;font-style:normal;font-weight:500;font-size:12px;color:var(--soft);margin:3px 0 0 24px;line-height:1.45;}
@@ -1120,6 +1124,7 @@
         <label>몇 차시인가요?</label>
         <select id="refLesson"></select>
         <div class="nudge" id="refNudge"></div>
+        <div class="refpick hide" id="refPick"></div>
         <label>오늘 알게 된 것</label>
         <textarea id="refGot" placeholder="처음 생각과 달라진 점이 있다면 그것부터 적어보세요 (30자 이상)"></textarea>
         <div id="refCnt" style="text-align:right;font-size:12px;color:var(--soft);margin-top:3px">0 / 30자</div>
@@ -3767,7 +3772,7 @@ function tab(which){
   if(me&&!TEACHER&&!GUEST&&which!=='Teach') store('fd_lasttab',which);
   if(which==='Mat') loadMat();
   if(which==='List'){ if(me&&!ME) load(); else render(); }
-  if(which==='Ref'){ loadMyRefs(); loadPeerRefs(); }
+  if(which==='Ref'){ loadMyRefs(); loadPeerRefs(); if(!REFPICKS) loadRefPicks(); else drawRefPick(); }
   if(which==='Note'){ loadMyNotes(); }
   if(which==='Rep') repOpen();
   if(which==='Teach' && PIN){
@@ -4288,6 +4293,7 @@ function refCount(){
 $('refGot').addEventListener('input', refCount);
 $('btnRef').addEventListener('click', function(){
   var g=$('refGot').value.trim();
+  if(refCopied(g)){ msg($('refMsg'),'추천 예시와 같은 문장이 들어 있어요. 예시는 참고만 하고, 내가 알게 된 것을 내 말로 다시 써 주세요.','err'); $('refGot').focus(); return; }
   var gl=refLen();
   if(gl<REF_MIN){ msg($('refMsg'),'오늘 알게 된 것을 '+REF_MIN+'자 이상 써 주세요(시작 문장 버튼 글자는 빼고 셉니다). 지금 '+gl+'자예요. 왜 그런지, 예를 들면 무엇인지 한 문장 더 붙여 보세요.','err'); $('refGot').focus(); return; }
   var b=this; b.disabled=true; b.textContent='남기는 중...';
@@ -4388,7 +4394,30 @@ function drawNudge(){
   }
 }
 $('refLesson').addEventListener('change', drawNudge);
-$('refLesson').addEventListener('change', function(){ loadPeerRefs(); });
+$('refLesson').addEventListener('change', function(){ loadPeerRefs(); drawRefPick(); });
+/* 차시별 소장 추천 예시 (네 반 통틀어 차시마다 하나, 이름 없이) */
+var REFPICKS=null;
+function loadRefPicks(){
+  if(!me||TEACHER||GUEST) return;
+  call({action:'refPicks'},function(res){
+    REFPICKS={}; (res.items||[]).forEach(function(x){ REFPICKS[String(x.lesson)]=x.got; }); drawRefPick();
+  },function(){ REFPICKS={}; drawRefPick(); });
+}
+function drawRefPick(){
+  var b=$('refPick'); if(!b) return;
+  var t=REFPICKS&&REFPICKS[String($('refLesson').value)];
+  if(!t){ show(b,false); return; }
+  b.innerHTML='<div class="k">📌 소장 추천 예시 · '+esc($('refLesson').value)+'차시</div><div class="t">'+esc(t)+'</div>'+
+    '<div class="w">이렇게 쓴 탐정이 있어요. 그대로 옮기지 말고, 내 생각을 내 말로 써 보세요.</div>';
+  show(b,true);
+}
+/* 추천 예시를 그대로 옮겨 썼는지 — 띄어쓰기를 빼고 15자 이상 똑같이 이어지면 막음 */
+function refCopied(g){
+  var t=REFPICKS&&REFPICKS[String($('refLesson').value)]; if(!t) return false;
+  var a=String(g).replace(/\s+/g,''), b=String(t).replace(/\s+/g,'');
+  for(var i=0;i+15<=b.length;i++){ if(a.indexOf(b.substr(i,15))>=0) return true; }
+  return false;
+}
 /* 친구 성찰 — 이 차시 성찰을 남긴 뒤에만 열림 (서버가 확인). 예전 서버면 칸을 숨김 */
 var PEER_SEQ=0;
 function loadPeerRefs(){
@@ -4978,7 +5007,8 @@ function refCard(r){
   if(r.id){
     var x=document.createElement('div'); x.className='rfx';
     var b=document.createElement('button'); b.type='button';
-    var paint=function(){ b.className=r.star?'on':''; b.textContent=r.star?'⭐ 추천함':'☆ 추천'; };
+    b.title='추천하면 친구 성찰 맨 위에 보이고, 그 차시의 예시로도 보여요(차시마다 가장 최근 추천 하나, 이름 없이)';
+    var paint=function(){ b.className=r.star?'on':''; b.textContent=r.star?'⭐ 추천함 · 예시':'☆ 추천'; };
     paint();
     b.addEventListener('click',function(){
       b.disabled=true;
