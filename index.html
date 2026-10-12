@@ -882,6 +882,9 @@
   .trp .ap .apNote{flex:1 1 100%;min-height:96px;font-size:13px;line-height:1.55;padding:8px 10px;}
   .rpnote-t{white-space:pre-line;}
   .trp .hist2{margin-top:10px;}
+  .trp .rvsec{border-top:1px dashed var(--hair);margin-top:12px;padding-top:10px;}
+  .trp .rvh{font-weight:900;font-size:13.5px;color:var(--ink);margin-bottom:6px;}
+  .trp .h .chip+.chip{margin-left:4px;}
   .trp .hset{border:1px solid var(--hair);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fff;}
   .trp .hh{font-weight:800;font-size:13px;color:#a4271a;margin-bottom:6px;}
   .trp .hn{font-size:12.5px;background:#fdf3e6;color:#7a560e;border-radius:8px;padding:7px 9px;margin-bottom:8px;}
@@ -2617,17 +2620,16 @@ function rpHome(){
   RGROUPS.forEach(function(G,gi){
     var gh=document.createElement('div'); gh.className='rpgh';
     var chips='';
-    if(G.pg==='plan'){
-      var ap=RP.approve;
-      if(ap&&ap.st==='승인') chips+='<span class="chip ok">✔ 소장 승인</span>';
-      else if(ap&&ap.st==='보완') chips+='<span class="chip fix">△ 보완 요청</span>';
-    }
+    var ap=(G.pg==='plan')?RP.approve:(G.pg==='evid'&&RP.approve?RP.approve.ev:null);
+    if(ap&&ap.st==='승인') chips+='<span class="chip ok">✔ 소장 승인</span>';
+    else if(ap&&ap.st==='보완') chips+='<span class="chip fix">△ 보완 요청</span>';
     var cnt={}; G.parts.forEach(function(P){ if(roles[P.k]) cnt[roles[P.k]]=(cnt[roles[P.k]]||0)+1; });
     var dup=Object.keys(cnt).filter(function(x){ return cnt[x]>1; }).map(rpWho);
     gh.innerHTML='<div class="r1"><b>'+G.n+'</b>'+chips+'<button type="button">📖 전체 보기</button></div>'+
       '<div class="s">'+esc(G.sub)+'</div>'+
       (dup.length?'<div class="w">⚠ '+esc(dup.join(', '))+' 탐정이 두 부분 이상 맡았어요. 한 명이 한 부분씩 맡아 보세요.</div>':'')+
-      (G.pg==='plan'&&RP.approve&&RP.approve.note?'<div class="n rpnote-t">소장 의견 · '+esc(RP.approve.note)+'</div>':'');
+      (G.pg==='plan'&&RP.approve&&RP.approve.note?'<div class="n rpnote-t">소장 의견 · '+esc(RP.approve.note)+'</div>':'')+
+      (G.pg==='evid'&&RP.approve&&RP.approve.ev&&RP.approve.ev.note?'<div class="n rpnote-t">소장 의견 · '+esc(RP.approve.ev.note)+'</div>':'');
     gh.querySelector('button').addEventListener('click',function(){ rpReadAll(gi); });
     box.appendChild(gh);
     G.parts.forEach(function(P){ box.appendChild(rpPartCard(P,roles)); });
@@ -2747,6 +2749,9 @@ function rpEdit(k){
   if(ed&&ed!==(me.det||me.name))
     h+='<div class="editbadge">👀 '+esc(ed)+' 탐정이 이 부분을 보고 있어요. 같은 칸을 동시에 고치면 나중에 저장한 것만 남아요.</div>';
   var G=null; RGROUPS.forEach(function(g){ if(g.pg===P.pg) G=g; });
+  var evA=(RP.approve&&RP.approve.ev)||null;
+  if(P.pg==='evid'&&evA&&(evA.st||evA.note))
+    h+='<div class="tnote2 rpnote-t"><b>소장 '+esc(evA.st||'의견')+' · 결과</b>'+(evA.note?'\n'+esc(evA.note):'')+'</div>';
   if(P.pg==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
     h+='<div class="tnote2 rpnote-t"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?'\n'+esc(RP.approve.note):'')+'</div>';
   var csE=rpCaseOf(RP.pages,me.cls,RP.team);
@@ -3407,16 +3412,19 @@ function drawRepTeacher(r,cls){
     var d=document.createElement('div'); d.className='trp';
     var ap=t.approve||{};
     d.innerHTML='<div class="h"><b>'+t.team+'모둠 · '+esc(t.title||'제목 없음')+'</b>'+
-      '<span class="chip '+(ap.st==='승인'?'ok':ap.st==='보완'?'fix':'no')+'">'+esc(ap.st||'검토 전')+'</span>'+
+      '<span class="chip cP '+(ap.st==='승인'?'ok':ap.st==='보완'?'fix':'no')+'">계획 '+esc(ap.st||'검토 전')+'</span>'+
+      '<span class="chip cE '+((ap.ev||{}).st==='승인'?'ok':(ap.ev||{}).st==='보완'?'fix':'no')+'">결과 '+esc((ap.ev||{}).st||'검토 전')+'</span>'+
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
-      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button>'+
-      '<button class="bPl" type="button">📝 계획서·결과 읽기</button>'+
-      '<button class="bHs'+((ap.hist||[]).length?'':' hide')+'" type="button">🕘 보완 전·후</button></div>'+
-      '<div class="plan2 hide"></div><div class="hist2 hide"></div>'+
-      '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
-      '<button class="bSv" type="button">저장</button>'+
-      '<textarea class="apNote" rows="4" placeholder="소장 의견 (학생의 계획 페이지에 보입니다 · 엔터로 줄을 바꿀 수 있어요)"></textarea></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button></div>'+
+      RV_SEC.map(function(S){ var a=rvAp(ap,S);
+        return '<div class="rvsec" data-k="'+S.k+'"><div class="rvh">'+S.ic+' '+S.lb+' 검토</div>'+
+          '<div class="btns"><button class="bRd" type="button">'+S.ic+' '+S.lb+' 읽기</button>'+
+          '<button class="bHs'+((a.hist||[]).length?'':' hide')+'" type="button">🕘 보완 전·후</button></div>'+
+          '<div class="plan2 hide"></div><div class="hist2 hide"></div>'+
+          '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
+          '<button class="bSv" type="button">저장</button>'+
+          '<textarea class="apNote" rows="4" placeholder="'+S.lb+'에 대한 소장 의견 (학생의 '+S.lb+' 화면에 보입니다 · 엔터로 줄바꿈)"></textarea></div></div>'; }).join('')+
       '<div class="ap cs"><select class="cSel"></select>'+
       '<input type="text" class="cFind" placeholder="최초 발견 탐정 이름 (탐정 이름으로)">'+
       '<button class="cSv" type="button">사건 배정</button></div>';
@@ -3451,67 +3459,77 @@ function drawRepTeacher(r,cls){
       });
       mems.appendChild(sp);
     });
-    d.querySelector('.apNote').value=ap.note||'';
-    var stSel=ap.st||'';
-    function paint(){
-      d.querySelector('.bOk').style.cssText=stSel==='승인'?'background:var(--ink);border-color:var(--ink);color:#fff':'';
-      d.querySelector('.bFx').style.cssText=stSel==='보완'?'background:#a4271a;border-color:#a4271a;color:#fff':'';
-    }
-    d.querySelector('.bOk').addEventListener('click',function(){ stSel='승인'; paint(); });
-    d.querySelector('.bFx').addEventListener('click',function(){ stSel='보완'; paint(); });
-    paint();
-    d.querySelector('.bSv').addEventListener('click',function(){
-      var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
-      btn.disabled=true; btn.textContent='저장 중...';
-      var note=d.querySelector('.apNote').value.trim();
-      /* 보완을 보낼 때의 계획서를 '수정 전' 사본으로 남긴다 (최근 5번까지) */
-      var hist=(ap.hist||[]).slice();
-      if(stSel==='보완'){
-        var curPlan=(t.pages||{}).plan||'{}', last=hist[hist.length-1];
-        if(!last || last.plan!==curPlan || last.note!==note) hist.push({at:rpNow(),note:note,plan:curPlan});
-        if(hist.length>5) hist=hist.slice(-5);
-      }
-      var nap={st:stSel,note:note,hist:hist};
-      post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',
-        json:JSON.stringify(nap)},
-        function(){ btn.disabled=false; btn.textContent='저장'; ap=nap; t.approve=nap;
-          d.querySelector('.bHs').classList.toggle('hide',!hist.length); d.querySelector('.hist2').innerHTML='';
-          var ch=d.querySelector('.chip'); ch.textContent=stSel;
-          ch.className='chip '+(stSel==='승인'?'ok':'fix'); rpToast('저장했습니다'); },
-        function(err){ btn.disabled=false; btn.textContent='저장'; alert(err); });
-    });
     d.querySelector('.bSl').addEventListener('click',function(){
       var pg={};
       for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
       rpSlides(pg,t.team,[],(t.members||[]).map(function(m){return m.name;}).join(' · '),cls);
     });
-    d.querySelector('.bHs').addEventListener('click',function(){
-      var hd=d.querySelector('.hist2');
-      if(hd.classList.contains('hide')) hd.innerHTML=rpHistHTML(ap.hist||[],(t.pages||{}).plan||'{}');
-      hd.classList.toggle('hide');
-    });
-    d.querySelector('.bPl').addEventListener('click',function(){
-      var pd=d.querySelector('.plan2');
-      if(pd.classList.contains('hide')&&!pd.innerHTML){
-        var pg={};
-        for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
-        var N=rpNorm(pg), ro=pg.roles||{};
-        var who=function(num){ var n=''; (t.members||[]).forEach(function(m){ if(String(m.num)===String(num)) n=m.name||''; }); return n; };
-        pd.innerHTML='<div class="rdwrap">'+RGROUPS.map(function(G){
-          return '<div class="rdg">'+G.n+'</div>'+G.parts.map(function(P){ return rpReadPart(P,N[G.pg]||{},who(ro[P.k])); }).join('');
-        }).join('')+'</div>';
+    /* 계획서 · 결과를 따로 검토: 승인/보완 + 소장 의견 + 보완 전·후 기록 */
+    RV_SEC.forEach(function(S){
+      var sec=d.querySelector('.rvsec[data-k="'+S.k+'"]'), q=function(c){ return sec.querySelector(c); };
+      var a0=rvAp(ap,S); q('.apNote').value=a0.note||'';
+      var stSel=a0.st||'';
+      function paint(){
+        q('.bOk').style.cssText=stSel==='승인'?'background:var(--ink);border-color:var(--ink);color:#fff':'';
+        q('.bFx').style.cssText=stSel==='보완'?'background:#a4271a;border-color:#a4271a;color:#fff':'';
       }
-      pd.classList.toggle('hide');
+      q('.bOk').addEventListener('click',function(){ stSel='승인'; paint(); });
+      q('.bFx').addEventListener('click',function(){ stSel='보완'; paint(); });
+      paint();
+      q('.bSv').addEventListener('click',function(){
+        var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
+        btn.disabled=true; btn.textContent='저장 중...';
+        var note=q('.apNote').value.trim(), a=rvAp(ap,S);
+        /* 보완을 보낼 때의 내용을 '수정 전' 사본으로 남긴다 (최근 5번까지) */
+        var hist=(a.hist||[]).slice();
+        if(stSel==='보완'){
+          var curS=(t.pages||{})[S.pg]||'{}', last=hist[hist.length-1];
+          if(!last || last.plan!==curS || last.note!==note) hist.push({at:rpNow(),note:note,plan:curS});
+          if(hist.length>5) hist=hist.slice(-5);
+        }
+        var nap=JSON.parse(JSON.stringify(ap||{})), part={st:stSel,note:note,hist:hist};
+        if(S.k==='plan'){ nap.st=part.st; nap.note=part.note; nap.hist=part.hist; } else nap.ev=part;
+        post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',json:JSON.stringify(nap)},
+          function(){ btn.disabled=false; btn.textContent='저장'; ap=nap; t.approve=nap;
+            q('.bHs').classList.toggle('hide',!hist.length); q('.hist2').innerHTML=''; q('.hist2').classList.add('hide');
+            var ch=d.querySelector(S.k==='plan'?'.cP':'.cE'); ch.textContent=(S.k==='plan'?'계획 ':'결과 ')+stSel;
+            ch.className='chip '+(S.k==='plan'?'cP ':'cE ')+(stSel==='승인'?'ok':'fix'); rpToast(S.lb+' 의견을 저장했습니다'); },
+          function(err){ btn.disabled=false; btn.textContent='저장'; alert(err); });
+      });
+      q('.bHs').addEventListener('click',function(){
+        var hd=q('.hist2');
+        if(hd.classList.contains('hide')) hd.innerHTML=rpHistHTML(rvAp(ap,S).hist||[],(t.pages||{})[S.pg]||'{}',S.gi);
+        hd.classList.toggle('hide');
+      });
+      q('.bRd').addEventListener('click',function(){
+        var pd=q('.plan2');
+        if(pd.classList.contains('hide')){
+          var pg={};
+          for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
+          var N=rpNorm(pg), ro=pg.roles||{}, G=RGROUPS[S.gi];
+          var who=function(num){ var n=''; (t.members||[]).forEach(function(m){ if(String(m.num)===String(num)) n=m.name||''; }); return n; };
+          pd.innerHTML='<div class="rdwrap">'+G.parts.map(function(P){ return rpReadPart(P,N[G.pg]||{},who(ro[P.k])); }).join('')+'</div>';
+        }
+        pd.classList.toggle('hide');
+      });
     });
     box.appendChild(d);
   });
 }
-/* 보완 전·후 비교 — 보완을 보낸 때의 계획서 사본과 그다음 사본(마지막은 지금 계획서)을 칸별로 */
-function rpHistHTML(hist,curStr){
+/* 검토 구역: 계획서(소장 의견은 approve의 st·note·hist, 예전과 같음) / 결과(approve.ev) */
+var RV_SEC=[{k:'plan',pg:'plan',gi:0,lb:'계획서',ic:'📝'},{k:'evid',pg:'evid',gi:1,lb:'결과',ic:'🔬'}];
+function rvAp(ap,S){ ap=ap||{}; return S.k==='plan'?{st:ap.st,note:ap.note,hist:ap.hist}:(ap.ev||{}); }
+/* 보완 전·후 비교 — 보완을 보낸 때의 사본과 그다음 사본(마지막은 지금 내용)을 칸별로 */
+function rpHistHTML(hist,curStr,gi){
+  gi=gi||0; var G=RGROUPS[gi];
   if(!hist.length) return '<div class="empty">보완 기록이 없습니다.</div>';
-  var parse=function(sx){ try{ return rpNorm({plan:JSON.parse(sx||'{}')}).plan||{}; }catch(e){ return {}; } };
-  var fs=[]; RGROUPS[0].parts.forEach(function(P){ P.fs.forEach(function(F){ fs.push(F); }); });
-  var val=function(F,j){ return F.t==='photos' ? (rpPh(j[F.f]).length?'사진 '+rpPh(j[F.f]).length+'장':'') : String(j[F.f]==null?'':j[F.f]).trim(); };
+  var parse=function(sx){ try{ var o={}; o[G.pg]=JSON.parse(sx||'{}'); return rpNorm(o)[G.pg]||{}; }catch(e){ return {}; } };
+  var fs=[]; G.parts.forEach(function(P){ P.fs.forEach(function(F){ fs.push(F); }); });
+  var val=function(F,j){
+    if(F.t==='photos') return rpPh(j[F.f]).length?'사진 '+rpPh(j[F.f]).length+'장':'';
+    if(F.t==='table') return (j[F.f]||[]).filter(function(r){ return r&&(r.c||rpAnyV(r)); }).map(function(r){
+      var v=[]; for(var k=1;k<=RP_NV;k++) if(r['v'+k]) v.push(r['v'+k]); return (r.c||'')+': '+v.join(', '); }).join('\n')+(j[F.u]?'\n(단위 '+j[F.u]+')':'');
+    return String(j[F.f]==null?'':j[F.f]).trim(); };
   var h='';
   hist.forEach(function(H,i){
     var before=parse(H.plan), after=parse(i+1<hist.length?hist[i+1].plan:curStr);
@@ -3528,7 +3546,7 @@ function rpHistHTML(hist,curStr){
       (H.note?'<div class="hn rpnote-t">소장 의견 · '+esc(H.note)+'</div>':'')+
       (rows||'<div class="hnone">이 보완 뒤로 고친 칸이 없습니다.</div>')+'</div>';
   });
-  return h+'<div class="hnone" style="margin-top:6px">보완을 보낸 순간의 계획서를 남겨 둔 것입니다. 발표 모드에는 지금 계획서만 나옵니다.</div>';
+  return h+'<div class="hnone" style="margin-top:6px">보완을 보낸 순간의 내용을 남겨 둔 것입니다. 발표 모드에는 지금 내용만 나옵니다.</div>';
 }
 /* 검증 회의 타이머 — 현황판 위에 크게 */
 var BT={dur:360,left:360,run:false,endAt:null,warn:false,done:false,tick:null,ac:null};
