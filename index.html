@@ -879,6 +879,8 @@
   .trp .plan2 .f b{color:var(--blue);font-size:11.5px;display:block;}
   .trp .ap{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap;}
   .trp .ap input{flex:1;min-width:170px;font-size:13px;padding:8px 10px;}
+  .trp .ap .apNote{flex:1 1 100%;min-height:96px;font-size:13px;line-height:1.55;padding:8px 10px;}
+  .rpnote-t{white-space:pre-line;}
   .bstats{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;}
   .bstats th{background:var(--ink);color:#fff;font-size:12px;padding:9px 6px;}
   .bstats td{border-bottom:1px solid #eef1f4;text-align:center;font-size:13.5px;padding:9px 6px;color:var(--ink);}
@@ -2614,7 +2616,7 @@ function rpHome(){
     gh.innerHTML='<div class="r1"><b>'+G.n+'</b>'+chips+'<button type="button">📖 전체 보기</button></div>'+
       '<div class="s">'+esc(G.sub)+'</div>'+
       (dup.length?'<div class="w">⚠ '+esc(dup.join(', '))+' 탐정이 두 부분 이상 맡았어요. 한 명이 한 부분씩 맡아 보세요.</div>':'')+
-      (G.pg==='plan'&&RP.approve&&RP.approve.note?'<div class="n">소장 의견 · '+esc(RP.approve.note)+'</div>':'');
+      (G.pg==='plan'&&RP.approve&&RP.approve.note?'<div class="n rpnote-t">소장 의견 · '+esc(RP.approve.note)+'</div>':'');
     gh.querySelector('button').addEventListener('click',function(){ rpReadAll(gi); });
     box.appendChild(gh);
     G.parts.forEach(function(P){ box.appendChild(rpPartCard(P,roles)); });
@@ -2735,7 +2737,7 @@ function rpEdit(k){
     h+='<div class="editbadge">👀 '+esc(ed)+' 탐정이 이 부분을 보고 있어요. 같은 칸을 동시에 고치면 나중에 저장한 것만 남아요.</div>';
   var G=null; RGROUPS.forEach(function(g){ if(g.pg===P.pg) G=g; });
   if(P.pg==='plan'&&RP.approve&&(RP.approve.st||RP.approve.note))
-    h+='<div class="tnote2"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?' · '+esc(RP.approve.note):'')+'</div>';
+    h+='<div class="tnote2 rpnote-t"><b>소장 '+esc(RP.approve.st||'의견')+'</b>'+(RP.approve.note?'\n'+esc(RP.approve.note):'')+'</div>';
   var csE=rpCaseOf(RP.pages,me.cls,RP.team);
   if(csE&&(P.pg==='plan'||k==='cover'))
     h+='<details class="rpref"'+(k==='p1'?' open':'')+'><summary>📂 사건 파일 다시 보기</summary>'+rpCaseHTML(csE,me.cls,RP.team,true,RP.pages)+'</details>';
@@ -3401,8 +3403,8 @@ function drawRepTeacher(r,cls){
       '<button class="bPl" type="button">📝 계획서·결과 읽기</button></div>'+
       '<div class="plan2 hide"></div>'+
       '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
-      '<input type="text" placeholder="소장 의견 (학생의 계획 페이지에 보입니다)">'+
-      '<button class="bSv" type="button">저장</button></div>'+
+      '<button class="bSv" type="button">저장</button>'+
+      '<textarea class="apNote" rows="4" placeholder="소장 의견 (학생의 계획 페이지에 보입니다 · 엔터로 줄을 바꿀 수 있어요)"></textarea></div>'+
       '<div class="ap cs"><select class="cSel"></select>'+
       '<input type="text" class="cFind" placeholder="최초 발견 탐정 이름 (탐정 이름으로)">'+
       '<button class="cSv" type="button">사건 배정</button></div>';
@@ -3437,7 +3439,7 @@ function drawRepTeacher(r,cls){
       });
       mems.appendChild(sp);
     });
-    d.querySelector('.ap input').value=ap.note||'';
+    d.querySelector('.apNote').value=ap.note||'';
     var stSel=ap.st||'';
     function paint(){
       d.querySelector('.bOk').style.cssText=stSel==='승인'?'background:var(--ink);border-color:var(--ink);color:#fff':'';
@@ -3450,7 +3452,7 @@ function drawRepTeacher(r,cls){
       var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
       btn.disabled=true; btn.textContent='저장 중...';
       post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',
-        json:JSON.stringify({st:stSel,note:d.querySelector('.ap input').value.trim()})},
+        json:JSON.stringify({st:stSel,note:d.querySelector('.apNote').value.trim()})},
         function(){ btn.disabled=false; btn.textContent='저장';
           var ch=d.querySelector('.chip'); ch.textContent=stSel;
           ch.className='chip '+(stSel==='승인'?'ok':'fix'); rpToast('저장했습니다'); },
