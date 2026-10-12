@@ -884,6 +884,7 @@
   .trp .hist2{margin-top:10px;}
   .trp .rvsec{border-top:1px dashed var(--hair);margin-top:12px;padding-top:10px;}
   .trp .rvh{font-weight:900;font-size:13.5px;color:var(--ink);margin-bottom:6px;}
+  .trp .rvsec .ap{margin-top:14px;}
   .trp .h .chip+.chip{margin-left:4px;}
   .trp .hset{border:1px solid var(--hair);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fff;}
   .trp .hh{font-weight:800;font-size:13px;color:#a4271a;margin-bottom:6px;}
@@ -3473,11 +3474,13 @@ function drawRepTeacher(r,cls){
         q('.bOk').style.cssText=stSel==='승인'?'background:var(--ink);border-color:var(--ink);color:#fff':'';
         q('.bFx').style.cssText=stSel==='보완'?'background:#a4271a;border-color:#a4271a;color:#fff':'';
       }
-      q('.bOk').addEventListener('click',function(){ stSel='승인'; paint(); });
-      q('.bFx').addEventListener('click',function(){ stSel='보완'; paint(); });
+      /* 같은 버튼을 한 번 더 누르면 선택이 풀린다 → 아무것도 고르지 않고 저장하면 '검토 전'으로 되돌림 */
+      q('.bOk').addEventListener('click',function(){ stSel=(stSel==='승인'?'':'승인'); paint(); });
+      q('.bFx').addEventListener('click',function(){ stSel=(stSel==='보완'?'':'보완'); paint(); });
       paint();
       q('.bSv').addEventListener('click',function(){
-        var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
+        var btn=this;
+        if(!stSel && !confirm(S.lb+'을(를) \'검토 전\'으로 되돌릴까요? (승인·보완 표시가 사라집니다. 적어 둔 의견은 그대로 남아요)')) return;
         btn.disabled=true; btn.textContent='저장 중...';
         var note=q('.apNote').value.trim(), a=rvAp(ap,S);
         /* 보완을 보낼 때의 내용을 '수정 전' 사본으로 남긴다 (최근 5번까지) */
@@ -3492,8 +3495,9 @@ function drawRepTeacher(r,cls){
         post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',json:JSON.stringify(nap)},
           function(){ btn.disabled=false; btn.textContent='저장'; ap=nap; t.approve=nap;
             q('.bHs').classList.toggle('hide',!hist.length); q('.hist2').innerHTML=''; q('.hist2').classList.add('hide');
-            var ch=d.querySelector(S.k==='plan'?'.cP':'.cE'); ch.textContent=(S.k==='plan'?'계획 ':'결과 ')+stSel;
-            ch.className='chip '+(S.k==='plan'?'cP ':'cE ')+(stSel==='승인'?'ok':'fix'); rpToast(S.lb+' 의견을 저장했습니다'); },
+            var ch=d.querySelector(S.k==='plan'?'.cP':'.cE'); ch.textContent=(S.k==='plan'?'계획 ':'결과 ')+(stSel||'검토 전');
+            ch.className='chip '+(S.k==='plan'?'cP ':'cE ')+(stSel==='승인'?'ok':stSel==='보완'?'fix':'no');
+            rpToast(stSel?S.lb+' 의견을 저장했습니다':S.lb+'을(를) 검토 전으로 되돌렸습니다'); },
           function(err){ btn.disabled=false; btn.textContent='저장'; alert(err); });
       });
       q('.bHs').addEventListener('click',function(){
