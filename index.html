@@ -2166,6 +2166,7 @@ function rpJ(k){ return RP.pages[k]||{}; }
 function rpPage(k){ var P=null; RPAGES.forEach(function(x){ if(x.k===k) P=x; }); return P; }
 /* 측정은 조건마다 최대 5회 (예전 3회 기록도 그대로 읽힘) — 평균·범위는 적은 칸만으로 계산 */
 var RP_NV=5;
+var RP_NR=6;   /* 바꾼 조건(줄)은 6개까지 */
 function rpVals(r){
   var vs=[]; for(var k=1;k<=RP_NV;k++){ var x=parseFloat(r['v'+k]); if(isFinite(x)) vs.push(x); }
   return vs;
@@ -2776,7 +2777,7 @@ function rpPartCollect(P){
     if(f.t==='photos') v[f.f]=rpPh(RP._ed[f.f]);
     else if(f.t==='table'){
       var rows=[];
-      for(var i=0;i<4;i++){
+      for(var i=0;i<RP_NR;i++){
         var g=function(s){ var e=$(f.f+s+i); return e?e.value.trim():''; };
         var row={c:g('_c')}; for(var k=1;k<=RP_NV;k++) row['v'+k]=g('_'+k+'_');
         rows.push(row);
@@ -2842,7 +2843,7 @@ function rpPhotos(field,pg){
   draw(); return w;
 }
 function rpTableForm(F,fd){
-  var rows=RP._ed[fd.f]||[]; while(rows.length<4) rows.push({});
+  var rows=RP._ed[fd.f]||[]; while(rows.length<RP_NR) rows.push({});
   var p=fd.f;
   var lab2=document.createElement('div'); lab2.className='unitrow';
   lab2.innerHTML='<span>잰 것과 단위</span>';
@@ -2852,7 +2853,7 @@ function rpTableForm(F,fd){
   var h='<tr><th style="width:26%">바꾼 조건</th>';
   for(var k=1;k<=RP_NV;k++) h+='<th>'+k+'회</th>';
   h+='<th style="width:17%">평균<br><span style="font-weight:400;font-size:10px">범위</span></th></tr>';
-  for(var i=0;i<4;i++){
+  for(var i=0;i<RP_NR;i++){
     var r=rows[i]||{};
     h+='<tr><td><input id="'+p+'_c'+i+'" placeholder="'+(i===0?'예) 마른 바닥':'')+'" value="'+esc(r.c||'')+'"></td>';
     for(var k=1;k<=RP_NV;k++) h+='<td><input id="'+p+'_'+k+'_'+i+'" inputmode="decimal" value="'+esc(r['v'+k]||'')+'"></td>';
@@ -2863,7 +2864,7 @@ function rpTableForm(F,fd){
   var gw=document.createElement('div'); gw.className='gwrap'; F.appendChild(gw);
   function redraw(){
     var rs=[], mx=0;
-    for(var i=0;i<4;i++){
+    for(var i=0;i<RP_NR;i++){
       var r={c:$(p+'_c'+i).value.trim()};
       for(var k=1;k<=RP_NV;k++) r['v'+k]=$(p+'_'+k+'_'+i).value;
       var a=rpAvg(r), rg=rpRange(r);
