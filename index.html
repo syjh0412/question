@@ -1241,7 +1241,7 @@ var RANKS = [
   {n:'2급 탐정',  st:5, a:8,  sc:18},
   {n:'1급 탐정',  st:7, a:12, sc:25},
   {n:'명탐정',    st:8, a:12, sc:25, solved:2, adopted:1},
-  {n:'대탐정',    st:8, a:12, sc:25, solved:2, adopted:1, ref:8}   /* 명탐정 + 성찰 8차시 */
+  {n:'대탐정',    st:8, a:12, sc:25, solved:2, adopted:1, ref:10}   /* 명탐정 + 성찰 10차시 */
 ];
 var MASTER_I=6, GRAND_I=7;   /* 명탐정 · 대탐정의 계급 번호 */
 
@@ -1546,7 +1546,7 @@ function openRule(){
   h += '<h4>해결 도장</h4><div class="rnote">내 답변이 <b>채택</b>되고, 소장님이 그 사건에 <b>해결 도장</b>을 찍으면 1개를 받습니다.<br>'+
        '사건을 올린 사람이 아니라, 사건을 풀어 낸 탐정이 받습니다.</div>';
   h += '<h4>명탐정의 별</h4><div class="rnote">명탐정이 되어도 수사는 끝나지 않습니다. 해결 도장 하나마다 계급장에 <b>★</b>이 하나씩 늘어납니다.<br>명탐정 특별 임무: <b>아직 답이 없는 사건</b>과 🧊 <b>콜드 케이스</b>(3일 넘게 답이 없는 사건)를 해결하는 것.</div>';
-  h += '<h4>대탐정</h4><div class="rnote">명탐정 조건에 더해 <b>성찰 8차시</b>를 남기면 대탐정이 됩니다. 사건을 잘 푸는 탐정을 넘어, 자기 생각이 어떻게 자랐는지 기록하는 탐정입니다.<br>'+
+  h += '<h4>대탐정</h4><div class="rnote">명탐정 조건에 더해 <b>성찰 10차시</b>를 남기면 대탐정이 됩니다. 사건을 잘 푸는 탐정을 넘어, 자기 생각이 어떻게 자랐는지 기록하는 탐정입니다.<br>'+
        '대탐정이 인정 점수 <b>90점</b>에 이르면 <b>부소장 임명장</b>을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
@@ -4871,7 +4871,7 @@ function drawStats(items){
       '<td>'+s.extra+'</td><td>'+(s.ref==null?'-':s.ref)+'</td><td>'+(s.help==null?'-':s.help)+'</td><td><b>'+s.score+'</b></td><td>'+sv+'</td><td>'+r.name+'</td>'+
       '<td class="l" style="font-size:11px">'+(need.length?'<b>'+goal.n+'</b>까지 '+need.join(', '):
         '<b style="color:var(--gold)">★ 대탐정 달성</b>'+((s.score||0)>=90?' · 🏆 부소장':''))+
-        '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1 · 성찰 '+(mm.ref||0)+'/8</div></td>';
+        '<div style="color:var(--soft);margin-top:2px">도장 '+mm.stampCount+'/8 · 답변 '+mm.a+'/12 · 인정 '+mm.score+'/25 · 해결 '+mm.solved+'/2 · 채택 '+(mm.adopted||0)+'/1 · 성찰 '+(mm.ref||0)+'/'+RANKS[GRAND_I].ref+'</div></td>';
     if(s.q===0||s.a===0) tr.style.background='#fdf6f5';
     t.appendChild(tr);
   });
