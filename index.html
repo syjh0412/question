@@ -881,6 +881,17 @@
   .trp .ap input{flex:1;min-width:170px;font-size:13px;padding:8px 10px;}
   .trp .ap .apNote{flex:1 1 100%;min-height:96px;font-size:13px;line-height:1.55;padding:8px 10px;}
   .rpnote-t{white-space:pre-line;}
+  .trp .hist2{margin-top:10px;}
+  .trp .hset{border:1px solid var(--hair);border-radius:10px;padding:10px 12px;margin-top:8px;background:#fff;}
+  .trp .hh{font-weight:800;font-size:13px;color:#a4271a;margin-bottom:6px;}
+  .trp .hn{font-size:12.5px;background:#fdf3e6;color:#7a560e;border-radius:8px;padding:7px 9px;margin-bottom:8px;}
+  .trp .hrow{border-top:1px dashed var(--hair);padding:7px 0;font-size:12.5px;}
+  .trp .hrow>b{display:block;font-size:12px;color:var(--ink);margin-bottom:4px;}
+  .trp .hb,.trp .ha{white-space:pre-line;line-height:1.5;padding:4px 8px;border-radius:6px;margin-top:3px;}
+  .trp .hb{background:#f4f5f7;color:#7b8794;}
+  .trp .ha{background:#eaf6ee;color:#1d4d33;}
+  .trp .hb span,.trp .ha span{font-weight:900;font-size:11px;margin-right:6px;}
+  .trp .hnone{font-size:12px;color:var(--soft);}
   .bstats{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;}
   .bstats th{background:var(--ink);color:#fff;font-size:12px;padding:9px 6px;}
   .bstats td{border-bottom:1px solid #eef1f4;text-align:center;font-size:13.5px;padding:9px 6px;color:var(--ink);}
@@ -3400,8 +3411,9 @@ function drawRepTeacher(r,cls){
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
       '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button>'+
-      '<button class="bPl" type="button">📝 계획서·결과 읽기</button></div>'+
-      '<div class="plan2 hide"></div>'+
+      '<button class="bPl" type="button">📝 계획서·결과 읽기</button>'+
+      '<button class="bHs'+((ap.hist||[]).length?'':' hide')+'" type="button">🕘 보완 전·후</button></div>'+
+      '<div class="plan2 hide"></div><div class="hist2 hide"></div>'+
       '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
       '<button class="bSv" type="button">저장</button>'+
       '<textarea class="apNote" rows="4" placeholder="소장 의견 (학생의 계획 페이지에 보입니다 · 엔터로 줄을 바꿀 수 있어요)"></textarea></div>'+
@@ -3451,9 +3463,19 @@ function drawRepTeacher(r,cls){
     d.querySelector('.bSv').addEventListener('click',function(){
       var btn=this; if(!stSel){ alert('승인 또는 보완을 골라 주세요'); return; }
       btn.disabled=true; btn.textContent='저장 중...';
+      var note=d.querySelector('.apNote').value.trim();
+      /* 보완을 보낼 때의 계획서를 '수정 전' 사본으로 남긴다 (최근 5번까지) */
+      var hist=(ap.hist||[]).slice();
+      if(stSel==='보완'){
+        var curPlan=(t.pages||{}).plan||'{}', last=hist[hist.length-1];
+        if(!last || last.plan!==curPlan || last.note!==note) hist.push({at:rpNow(),note:note,plan:curPlan});
+        if(hist.length>5) hist=hist.slice(-5);
+      }
+      var nap={st:stSel,note:note,hist:hist};
       post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'approve',
-        json:JSON.stringify({st:stSel,note:d.querySelector('.apNote').value.trim()})},
-        function(){ btn.disabled=false; btn.textContent='저장';
+        json:JSON.stringify(nap)},
+        function(){ btn.disabled=false; btn.textContent='저장'; ap=nap; t.approve=nap;
+          d.querySelector('.bHs').classList.toggle('hide',!hist.length); d.querySelector('.hist2').innerHTML='';
           var ch=d.querySelector('.chip'); ch.textContent=stSel;
           ch.className='chip '+(stSel==='승인'?'ok':'fix'); rpToast('저장했습니다'); },
         function(err){ btn.disabled=false; btn.textContent='저장'; alert(err); });
@@ -3462,6 +3484,11 @@ function drawRepTeacher(r,cls){
       var pg={};
       for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
       rpSlides(pg,t.team,[],(t.members||[]).map(function(m){return m.name;}).join(' · '),cls);
+    });
+    d.querySelector('.bHs').addEventListener('click',function(){
+      var hd=d.querySelector('.hist2');
+      if(hd.classList.contains('hide')) hd.innerHTML=rpHistHTML(ap.hist||[],(t.pages||{}).plan||'{}');
+      hd.classList.toggle('hide');
     });
     d.querySelector('.bPl').addEventListener('click',function(){
       var pd=d.querySelector('.plan2');
@@ -3478,6 +3505,30 @@ function drawRepTeacher(r,cls){
     });
     box.appendChild(d);
   });
+}
+/* 보완 전·후 비교 — 보완을 보낸 때의 계획서 사본과 그다음 사본(마지막은 지금 계획서)을 칸별로 */
+function rpHistHTML(hist,curStr){
+  if(!hist.length) return '<div class="empty">보완 기록이 없습니다.</div>';
+  var parse=function(sx){ try{ return rpNorm({plan:JSON.parse(sx||'{}')}).plan||{}; }catch(e){ return {}; } };
+  var fs=[]; RGROUPS[0].parts.forEach(function(P){ P.fs.forEach(function(F){ fs.push(F); }); });
+  var val=function(F,j){ return F.t==='photos' ? (rpPh(j[F.f]).length?'사진 '+rpPh(j[F.f]).length+'장':'') : String(j[F.f]==null?'':j[F.f]).trim(); };
+  var h='';
+  hist.forEach(function(H,i){
+    var before=parse(H.plan), after=parse(i+1<hist.length?hist[i+1].plan:curStr);
+    var to = i+1<hist.length ? (hist[i+1].at+' 보완 때') : '지금';
+    var rows='';
+    fs.forEach(function(F){
+      var a=val(F,before), b=val(F,after);
+      if(a===b) return;
+      rows+='<div class="hrow"><b>'+esc(F.n)+'</b>'+
+        '<div class="hb"><span>전</span>'+(a?esc(a):'<i>(비어 있음)</i>')+'</div>'+
+        '<div class="ha"><span>후</span>'+(b?esc(b):'<i>(비어 있음)</i>')+'</div></div>';
+    });
+    h+='<div class="hset"><div class="hh">'+(i+1)+'차 보완 · '+esc(H.at||'')+' → '+to+'</div>'+
+      (H.note?'<div class="hn rpnote-t">소장 의견 · '+esc(H.note)+'</div>':'')+
+      (rows||'<div class="hnone">이 보완 뒤로 고친 칸이 없습니다.</div>')+'</div>';
+  });
+  return h+'<div class="hnone" style="margin-top:6px">보완을 보낸 순간의 계획서를 남겨 둔 것입니다. 발표 모드에는 지금 계획서만 나옵니다.</div>';
 }
 /* 검증 회의 타이머 — 현황판 위에 크게 */
 var BT={dur:360,left:360,run:false,endAt:null,warn:false,done:false,tick:null,ac:null};
