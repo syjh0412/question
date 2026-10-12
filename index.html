@@ -1453,13 +1453,11 @@ var GREET_AGAIN=[
 ];
 /* 참관 선생님 인사 (수업공개) */
 var GREET_GUEST=[
-  '힘 탐정 사무소 {c}반 수사 현장입니다. 오늘 탐정들의 수사를 함께 지켜봐 주세요.',
-  '{c}반 탐정들이 학교 곳곳에서 찾아낸 힘의 증거를 자유롭게 둘러보세요.',
-  '이 사무소의 탐정들은 추측 대신 측정으로 말합니다. 편하게 둘러보세요.'
+  '힘 탐정 사무소 {c}반 수사 현장입니다. 오늘 탐정들의 수사를 함께 지켜봐 주세요.<br>{c}반 탐정들이 학교 곳곳에서 찾아낸 힘의 증거를 자유롭게 둘러보세요.'
 ];
 function greetGuest(){
   var c=(me&&me.cls)||'';
-  var t=GREET_GUEST[Math.floor(Math.random()*GREET_GUEST.length)].replace('{c}',esc(c));
+  var t=GREET_GUEST[Math.floor(Math.random()*GREET_GUEST.length)].split('{c}').join(esc(c));
   var old=$('greetBox'); if(old) old.remove();
   var g=document.createElement('div'); g.id='greetBox'; g.className='greet';
   g.innerHTML='<span class="gi">🎩</span><span class="gt"><b>참관 오신 선생님, 반갑습니다.</b><br>'+t+'</span>';
