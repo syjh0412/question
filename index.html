@@ -4701,7 +4701,7 @@ function badgeHTML(x, prefill){
   /* 이름은 명렬표(roster)를 우선: 글에 남은 이름이 잘못 들어가 있어도 명찰은 명렬표대로 */
   var rn=lookName(String(x.cls),String(x.num)); if(rn){ x=Object.assign({},x,{name:rn}); }
   var ri = prefill ? rkOfStat(x) : 0;
-  var stars = (prefill && ri>=MASTER_I) ? Math.min(14, x.solved||0) : 0;
+  var stars = (prefill && ri>=MASTER_I) ? Math.min(8, x.solved||0) : 0;
   var big = x.det ? x.det : x.name;
   /* 학생이 고른 수사 파트너 — 이름 옆에 그림, 아래 줄에 이름 */
   var PT=(x.partner!=null && PARTNERS[x.partner]) ? PARTNERS[x.partner] : null;
@@ -4711,11 +4711,13 @@ function badgeHTML(x, prefill){
       '<div class="ghost"><b>'+RK_SHORT[r]+'</b></div>')+'</div>';
   }
   /* 별 칸: 오른쪽 위 2칸×2줄 자리에 대탐정 칸, 나머지에 ★ 14개 (4 + 4 + 6) */
-  var st='<div class="gslot">'+((prefill && ri>=GRAND_I) ? grandHTML(20) :
-    '<div class="gghost"><b>대탐정</b><span>성찰 10차시</span></div>')+'</div>';
-  for(var k=0;k<14;k++){
+  /* 명탐정 이후: 별 8칸(4×2) + 대탐정 칸을 한 줄 상자에 — 아래에 '맡은 사건' 적는 줄 */
+  var st='';
+  for(var k=0;k<8;k++){
     st += '<div class="sslot">'+(k<stars ? starHTML(12) : '<div class="sghost">★</div>')+'</div>';
   }
+  var gd='<div class="gslot">'+((prefill && ri>=GRAND_I) ? grandHTML(20) :
+    '<div class="gghost"><b>대탐정</b></div>')+'</div>';
   return '<div class="card">'+
     '<div class="band"><div class="stripe"></div>'+
       '<div class="org">🔍 힘 탐정 사무소</div>'+
@@ -4730,8 +4732,10 @@ function badgeHTML(x, prefill){
     '</div>'+
     '<div class="sec"><span>계급</span><em>훈련생에서 시작 · 승급하면 스티커를 붙입니다</em></div>'+
     '<div class="ladder">'+lad+'</div>'+
-    '<div class="sec gold"><span>명탐정의 별</span><em>해결 도장마다 ★ 하나 · 성찰 10차시면 대탐정</em></div>'+
-    '<div class="stars">'+st+'</div>'+
+    '<div class="honor"><div class="hl">명탐정이 된 뒤</div>'+
+      '<div class="hbox"><div class="hs"><div class="stars">'+st+'</div><div class="hc">해결 도장마다 ★</div></div>'+
+      '<div class="hd"></div><div class="hg">'+gd+'<div class="hc">성찰 10차시</div></div></div></div>'+
+    '<div class="case"><span>🗂 맡은 사건</span><i></i><span>모둠</span><i class="s"></i></div>'+
   '</div>';
 }
 var BADGE_CSS=
@@ -4756,13 +4760,21 @@ var BADGE_CSS=
   '.slot{width:21mm;height:21mm;display:flex;align-items:center;justify-content:center}'+
   '.ghost{width:20.4mm;height:20.4mm;border-radius:50%;border:.4mm dashed #b6c0cb;display:flex;align-items:center;justify-content:center}'+
   '.ghost b{font-size:7.5pt;color:#c3ccd6;font-weight:800}'+
-  '.stars{display:grid;grid-template-columns:repeat(6,13mm);justify-content:center;column-gap:1.8mm;row-gap:1mm}'+
-  '.gslot{grid-column:5/span 2;grid-row:1/span 2;display:flex;align-items:center;justify-content:center}'+
+  '.honor{margin:3mm 6mm 0;position:relative}'+
+  '.honor .hl{position:absolute;left:3mm;top:-2.1mm;background:#fff;padding:0 1.4mm;font-size:6.6pt;font-weight:900;color:#9a6f12;letter-spacing:.06em}'+
+  '.honor .hbox{display:flex;align-items:center;justify-content:center;gap:3.5mm;border:.3mm solid #ead9ab;border-radius:3mm;padding:3mm 3mm 1.8mm;background:#fffcf3}'+
+  '.honor .hd{width:.3mm;align-self:stretch;background:#ead9ab}'+
+  '.honor .hc{text-align:center;font-size:5.6pt;color:#b39552;font-weight:700;margin-top:.8mm}'+
+  '.stars{display:grid;grid-template-columns:repeat(4,13mm);column-gap:1.2mm;row-gap:.8mm}'+
+  '.gslot{display:flex;align-items:center;justify-content:center;width:22mm;height:22mm}'+
+  '.case{display:flex;align-items:flex-end;gap:2mm;margin:3.2mm 7mm 0;font-size:8pt;font-weight:800;color:#1b2a3f}'+
+  '.case i{flex:1;border-bottom:.3mm solid #b6c0cb;height:4mm}'+
+  '.case i.s{flex:0 0 12mm}'+
   '.gghost{width:21mm;height:21mm;border-radius:50%;border:.45mm dashed #8b9bb0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f5f7fa}'+
   '.gghost b{font-size:7.5pt;color:#9aa8b8;font-weight:900}'+
   '.gghost span{font-size:5.2pt;color:#aab6c4;font-weight:700;margin-top:.6mm}'+
   '.sslot{width:13mm;height:13mm;display:flex;align-items:center;justify-content:center}'+
-  '.sghost{width:12.6mm;height:12.6mm;border-radius:50%;border:.35mm dashed #e2cf9c;color:#ecdcb2;font-size:6mm;display:flex;align-items:center;justify-content:center}';
+  '.sghost{width:12.4mm;height:12.4mm;border-radius:50%;border:.3mm dashed #eadcb4;color:#f0e4c4;font-size:5.6mm;display:flex;align-items:center;justify-content:center}';
 
 function printBadges(items, prefill){
   if(!items.length){ alert('인쇄할 학생이 없습니다.'); return; }
