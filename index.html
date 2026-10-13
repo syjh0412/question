@@ -4851,7 +4851,8 @@ function drawBadgeTools(items){
   /* 2. 명찰 인쇄 */
   var b=document.createElement('div'); b.className='btool';
   b.innerHTML='<h3>🪪 명찰 인쇄</h3><div class="sub">A4 한 장에 4명, 한 칸은 105×148mm라 관광명찰 케이스(115×148mm)에 들어갑니다. '+
-    '위에서 고른 반 학생 <b>'+items.length+'명</b>이 번호순으로 나옵니다. 탐정 이름이 없는 학생은 본명을 크게 넣습니다.</div>'+
+    '위에서 고른 반 학생 <b>'+items.length+'명</b>이 번호순으로 나옵니다. 탐정 이름이 없는 학생은 본명을 크게 넣습니다.'+
+    ($('tCls')&&$('tCls').value?'<br>수사 파트너를 고른 학생 <b>'+items.filter(function(x){ return x.partner!=null; }).length+'명</b> (명찰 이름 옆에 파트너 그림이 나옵니다)':'')+'</div>'+
     '<div class="row"><label><input type="checkbox" id="bPre" checked> 지금 계급과 ★까지 채워서 인쇄 (그 뒤 승급분만 스티커로)</label></div>'+
     '<div class="row"><button class="go" id="bPrint">명찰 인쇄하기</button></div>';
   box.appendChild(b);
