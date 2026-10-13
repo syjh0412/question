@@ -890,6 +890,15 @@
   #slv .big{color:#fff;font-size:clamp(28px,7vw,80px);font-weight:900;line-height:1.35;letter-spacing:-.02em;
     white-space:pre-wrap;word-break:keep-all;}
   #slv .big.gold{color:#f6dc8c;}
+  #slv .big.ml{text-align:left;max-width:1100px;}
+  #slv .vgrid{width:100%;max-width:1100px;text-align:left;display:flex;flex-direction:column;gap:2.6vh;}
+  #slv .vr{display:flex;align-items:flex-start;gap:2vw;}
+  #slv .vl{flex:0 0 auto;min-width:9em;padding:.5em .8em;border-radius:10px;font-weight:900;font-size:clamp(15px,2.4vw,24px);line-height:1.2;text-align:center}
+  #slv .vl small{display:block;font-size:.62em;font-weight:700;opacity:.8;margin-top:.2em}
+  #slv .vl.d{background:#f0997b;color:#4a1b0c}
+  #slv .vl.m{background:#f6dc8c;color:#412402}
+  #slv .vl.s{background:#5dcaa5;color:#04342c}
+  #slv .big.vt{font-size:clamp(20px,3.8vw,42px);font-weight:800;text-align:left;padding-top:.15em}
   #slv .big.sm{font-size:clamp(20px,4.4vw,46px);text-align:left;max-width:1000px;}
   #slv .sub2{color:#9fb3c8;font-size:clamp(14px,2.4vw,22px);margin-top:2.4vh;line-height:1.5;}
   #slv .two{display:grid;grid-template-columns:1fr 1fr;gap:4vw;width:100%;max-width:1100px;text-align:left;}
@@ -3335,7 +3344,8 @@ function rpSlides(pages,teamNo,props,memText,cls){
   var exp=function(X,q,h,ind,dep,ctl,proc,rows,unit,ph,obs,res){
     var p=hasB?'실험 '+X+' · ':'';
     two(p+'실험 질문',q,p+'가설',h);
-    kb(p+'변인',vars(ind,dep,ctl));
+    var vr=[['다르게 할 것','조작 변인',ind,'d'],['잴 것','종속 변인',dep,'m'],['같게 할 것','통제 변인',ctl,'s']].filter(function(x){ return tx(x[2]); });
+    if(vr.length) S.push({tp:'vars',k:p+'변인',rows:vr.map(function(x){ return {l:x[0],l2:x[1],t:tx(x[2]),c:x[3]}; })});
     kb(p+'실험 과정',proc);
     graph(p+'재 보니',rows,unit); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
     kb(p+'실제 결과',res);
@@ -3393,7 +3403,11 @@ function rpSlDraw(){
       '<div class="big">'+esc(s.t)+'</div>'+
       (s.sub?'<div class="sub2">수사팀 · '+esc(s.sub)+'</div>':'');
   } else if(s.tp==='kb'){
-    h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+(s.sm?' sm':'')+'">'+esc(s.b)+'</div>';
+    var ml=/\n/.test(s.b);
+    h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+(s.sm?' sm':'')+(ml?' ml':'')+'">'+esc(s.b)+'</div>';
+  } else if(s.tp==='vars'){
+    h='<div class="k">'+esc(s.k)+'</div><div class="vgrid">'+s.rows.map(function(r){
+      return '<div class="vr"><div class="vl '+r.c+'">'+esc(r.l)+'<small>'+esc(r.l2)+'</small></div><div class="big vt">'+esc(r.t)+'</div></div>'; }).join('')+'</div>';
   } else if(s.tp==='two'){
     h='<div class="two"><div><div class="k">'+esc(s.k)+'</div><div class="big">'+esc(s.b)+'</div></div>'+
       '<div><div class="k">'+esc(s.k2)+'</div><div class="big">'+esc(s.b2)+'</div></div></div>';
@@ -4833,7 +4847,9 @@ var POSTER_CSS=
   '.br .l{flex:0 0 28%;text-align:right;font-weight:700;color:#4b5b6e;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}'+
   '.br .t{flex:1;height:3.6mm;background:#eef2f6;border-radius:1mm;overflow:hidden}.br .b{height:100%;background:#d9a441}'+
   '.br .v{flex:0 0 17%;font-weight:900}'+
-  '.dl div{display:flex;gap:1.6mm;line-height:1.45}.dl div+div{margin-top:.8mm}.dl b{flex:0 0 auto;color:#9a6f12}'+
+  '.dl div{display:flex;gap:1.8mm;line-height:1.45;align-items:flex-start}.dl div+div{margin-top:1.2mm}'+
+  '.dl b{flex:0 0 auto;font-size:.82em;font-weight:900;padding:.3mm 1.6mm;border-radius:1mm;margin-top:.2mm}'+
+  '.dl b.d{background:#fae3da;color:#712b13}.dl b.m{background:#faeeda;color:#633806}.dl b.s{background:#e1f5ee;color:#085041}'+
   '.ft{position:absolute;left:10mm;right:10mm;bottom:5mm;font-size:8.5pt;color:#8a96a4;display:flex;justify-content:space-between;border-top:.3mm solid #e1e6ec;padding-top:1.6mm}';
 
 function posterSheet(pg,team,cls,members){
@@ -4861,8 +4877,8 @@ function posterSheet(pg,team,cls,members){
   };
   var hasB=[pl.qB,pl.hB,pl.procB,ev.resB].some(tx) || rpPh(ev.phB).length>0 || rpRowsOk(ev.rowsB);
   var vars=function(ind,dep,ctl){
-    var r=[['다르게',ind],['잰 것',dep],['같게',ctl]].filter(function(x){ return tx(x[1]); });
-    return r.length?'<div class="dl">'+r.map(function(x){ return '<div><b>'+x[0]+'</b><span>'+esc(tx(x[1]))+'</span></div>'; }).join('')+'</div>':'';
+    var r=[['다르게 할 것',ind,'d'],['잴 것',dep,'m'],['같게 할 것',ctl,'s']].filter(function(x){ return tx(x[1]); });
+    return r.length?'<div class="dl">'+r.map(function(x){ return '<div><b class="'+x[2]+'">'+x[0]+'</b><span>'+esc(tx(x[1]))+'</span></div>'; }).join('')+'</div>':'';
   };
 
   sec('🔍','발견 장면',P(pl.scene)+pics(pl.scenePh,2));
