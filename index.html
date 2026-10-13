@@ -461,6 +461,24 @@
     background:radial-gradient(circle,#fff4c9 0 30%,#d9a441 32% 100%);box-shadow:0 0 10px #f0c45c;}
   @keyframes mshine{from{background-position:120% 0}to{background-position:-100% 0}}
 
+  /* ===== 부소장실 (대탐정 + 인정 90점) — 남색 집무실 + 금빛 ===== */
+  body.master.deputy{
+    background-color:#0c1422;
+    background-image:
+      radial-gradient(ellipse at 50% -8%, rgba(246,220,140,.30), transparent 58%),
+      radial-gradient(circle at 10% 95%, rgba(90,130,190,.18), transparent 45%),
+      repeating-linear-gradient(90deg, rgba(246,220,140,.045) 0 1px, transparent 1px 46px);
+  }
+  body.deputy header{background:linear-gradient(180deg,#1b2a3f,#0e1726);
+    border-bottom:3px double #d9a441;box-shadow:0 4px 28px rgba(246,220,140,.28);}
+  body.deputy header h1 small{color:#f6dc8c;}
+  body.deputy .whobox{border:1.5px solid #f0c45c;box-shadow:0 0 0 3px rgba(27,42,63,.9), 0 0 0 4.5px rgba(240,196,92,.55);}
+  body.deputy .rank{color:#1b2a3f;}
+  body.deputy .mbanner{color:#fff4c9;}
+  body.deputy .mbanner::before{content:'🏆';background:none;box-shadow:none;width:auto;height:auto;font-size:17px;
+    filter:drop-shadow(0 0 6px rgba(240,196,92,.8));}
+  .mcele.dep .seal{border-color:#f6dc8c;background:radial-gradient(circle,#1b2a3f 0 62%,#0e1726 100%);}
+
   /* 승급 축하 (처음 한 번) */
   .mcele{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;
     flex-direction:column;background:rgba(10,8,4,.88);cursor:pointer;text-align:center;padding:20px;}
@@ -1481,6 +1499,13 @@ var GREET_AGAIN=[
   '돌아오셨군요, {n} 탐정! 놓친 단서가 있었나요?',
   '{n} 탐정, 재출근 확인. 수사를 이어 가 볼까요?'
 ];
+/* 부소장 인사 — 부소장이 된 뒤 이 기기에서 들어올 때 */
+var GREET_DEP=[
+  '부소장님 출근하셨습니다! {n} 부소장님, 사무소가 든든합니다.',
+  '어서 오십시오, {n} 부소장님. 오늘도 사무소를 잘 부탁드립니다.',
+  '{n} 부소장님 출근 확인. 탐정들이 부소장님의 수사를 보고 배우고 있습니다.',
+  '부소장실 문이 열렸습니다. {n} 부소장님, 오늘은 어떤 사건부터 살펴볼까요?'
+];
 /* 참관 선생님 인사 (수업공개) */
 var GREET_GUEST=[
   '힘 탐정 사무소 {c}반 수사 현장입니다. 오늘 탐정들의 수사를 함께 지켜봐 주세요.<br>이곳에서 탐정들이 학교 곳곳에서 찾아낸 힘의 증거를 자유롭게 둘러보실 수 있습니다.'
@@ -1504,7 +1529,9 @@ function greetDet(){
   var again=(pick(key)===today); store(key,today);
   var pickOne=function(a){ return a[Math.floor(Math.random()*a.length)]; };
   var t;
-  if(again) t=pickOne(GREET_AGAIN);
+  var dep=(pick('fd_dep_'+me.cls+'_'+me.num)==='1');
+  if(dep) t=pickOne(GREET_DEP);
+  else if(again) t=pickOne(GREET_AGAIN);
   else if(h>=22||h<5) t='{n} 탐정, 늦은 밤까지 수사 중이군요. 너무 늦지 않게 퇴근하세요!';
   else if(wd===0||wd===6) t='주말에도 출근이라니, {n} 탐정은 진정한 탐정이군요!';
   else if(h<8) t='일찍 출근하셨네요, {n} 탐정! 부지런한 탐정이 단서를 먼저 찾습니다.';
@@ -1514,13 +1541,15 @@ function greetDet(){
   var old=$('greetBox'); if(old) old.remove();
   var g=document.createElement('div'); g.id='greetBox'; g.className='greet';
   /* 탐정 이름이 이미 '…탐정'으로 끝나면 '탐정'을 한 번만 */
-  var nm=/탐정$/.test(n)?n:n+' 탐정';
-  g.innerHTML='<span class="gi">🕵️</span><span class="gt">'+esc(t).replace('{n} 탐정','{n}').replace('{n}','<b>'+esc(nm)+'</b>')+'</span>';
+  var nm=dep?n:(/탐정$/.test(n)?n:n+' 탐정');
+  g.innerHTML='<span class="gi">'+(dep?'🏆':'🕵️')+'</span><span class="gt">'+esc(t).replace('{n} 탐정','{n}').replace('{n}','<b>'+esc(nm)+'</b>')+'</span>';
   g.addEventListener('click',function(){ g.classList.add('out'); setTimeout(function(){ g.remove(); },400); });
   document.body.appendChild(g);
   setTimeout(function(){ g.classList.add('on'); },60);
   setTimeout(function(){ if(g.parentNode){ g.classList.add('out'); setTimeout(function(){ g.remove(); },400); } },5200);
 }
+
+function isDeputy(m){ return !!m && rankOf(m).i>=GRAND_I && (m.score||0)>=90; }
 
 function rankOf(m){
   if(!m) return {i:0,name:RANKS[0].n};
@@ -1546,7 +1575,7 @@ function drawWho(){
     $('who').innerHTML='<span class="tmode">참관</span>'+
       '<div class="nm">'+me.cls+'반 둘러보기<span>나가기</span></div>';
     show($('stampBar'),false); show($('listDot'),false);
-    setMaster(false);
+    setMaster(false); setDeputy(false);
     return;
   }
 
@@ -1572,12 +1601,15 @@ function drawWho(){
     });
     show($('stampBar'), false);
     show($('listDot'), false);
-    setMaster(/master-preview/.test(location.hash));
+    setMaster(/master-preview|deputy-preview/.test(location.hash));
+    setDeputy(/deputy-preview/.test(location.hash));
     return;
   }
 
   var r=rankOf(ME);
-  setMaster(r.i>=MASTER_I || /master-preview/.test(location.hash));
+  var DEP=isDeputy(ME) || /deputy-preview/.test(location.hash);
+  setMaster(r.i>=MASTER_I || DEP || /master-preview/.test(location.hash));
+  setDeputy(DEP);
 
   /* 승급 연출 — 계급이 올라간 순간 한 번 (기기마다) */
   if(ME){
@@ -1591,7 +1623,7 @@ function drawWho(){
   }
 
   /* 명탐정은 해결 도장마다 ★이 늘어납니다 */
-  var rname=r.name+((r.i>=MASTER_I && ME)?' ★'+(ME.solved||0):'');
+  var rname=(DEP?'부소장':r.name)+((r.i>=MASTER_I && ME)?' ★'+(ME.solved||0):'');
   var PP=myPartner();
   $('who').innerHTML=
     '<span class="pchip" id="pChip">'+(PP?PP.e:'🗄')+(((!PP&&PARTNER_ON)||cpnReadyN()>0)?'<em></em>':'')+'</span>'+
@@ -1622,6 +1654,29 @@ function rankCele(nm){
     '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정, <b>'+nm+'</b> 승급을 축하합니다.<br>'+
     '수사 실력이 사무소에 인정되었습니다.</p>'+
     '<small>화면을 누르면 사무실로 돌아갑니다</small>';
+  o.addEventListener('click', function(){ o.remove(); });
+  document.body.appendChild(o);
+}
+
+function setDeputy(on){
+  document.body.classList.toggle('deputy', !!on);
+  var mb=$('mBanner');
+  if(mb){
+    var ri=rankOf(ME).i;
+    mb.textContent = on ? '부소장실 — 소장 다음 자리' : (ri>=GRAND_I ? '대탐정 전용 사무실' : '명탐정 전용 사무실');
+  }
+  if(!me || TEACHER || GUEST) return;
+  var k='fd_dep_'+me.cls+'_'+me.num;
+  if(!on){ if(ME) store(k,''); return; }
+  var first=(pick(k)!=='1'); store(k,'1');
+  if(!first && !/deputy-preview/.test(location.hash)) return;
+  if(document.getElementById('dCele')) return;
+  ['mCele','rCele'].forEach(function(id){ var x=document.getElementById(id); if(x) x.remove(); });
+  var o=document.createElement('div'); o.className='mcele dep'; o.id='dCele';
+  o.innerHTML='<div class="seal"><b>부소장</b><span>DEPUTY CHIEF</span></div>'+
+    '<p><b style="color:#f6dc8c">'+esc(me.det||me.name)+'</b> 탐정을<br><b>힘 탐정 사무소 부소장</b>에 임명합니다.<br>'+
+    '도장, 동료의 인정, 해결한 사건, 꾸준한 성찰, 인정 90점 —<br>모두 증거로 쌓은 자리입니다.</p>'+
+    '<small>화면을 누르면 부소장실로 들어갑니다</small>';
   o.addEventListener('click', function(){ o.remove(); });
   document.body.appendChild(o);
 }
