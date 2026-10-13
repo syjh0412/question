@@ -4851,6 +4851,52 @@ function printBadges(items, prefill){
   if(prefill) rkSave(items);
 }
 
+/* 부소장 임명장 — A4 세로 한 장에 한 명 */
+var CERT_CSS=
+  '.cert{position:absolute;inset:14mm;border:2.2mm solid #1b2a3f;padding:2.2mm}'+
+  '.cert .in{position:relative;height:100%;border:.6mm solid #d9a441;outline:.3mm solid #d9a441;outline-offset:-1.6mm;'+
+    'padding:24mm 20mm 18mm;text-align:center;color:#1b2a3f;'+
+    'background:radial-gradient(ellipse at 50% 30%,#fffdf6 0%,#fbf5e4 100%)}'+
+  '.cert .cn{position:absolute;left:12mm;top:9mm;font-size:10pt;font-weight:700;color:#7a6a45}'+
+  '.cert .crest{width:24mm;height:24mm;margin:0 auto 7mm;border-radius:50%;background:#1b2a3f;color:#f3cf72;'+
+    'display:flex;align-items:center;justify-content:center;font-size:12mm;box-shadow:0 0 0 1mm #fff,0 0 0 1.5mm #d9a441}'+
+  '.cert h1{font-size:34pt;font-weight:900;letter-spacing:.6em;margin-right:-.6em;color:#1b2a3f}'+
+  '.cert .en{font-size:9pt;letter-spacing:.45em;color:#a8791a;font-weight:800;margin-top:2mm}'+
+  '.cert .role{display:inline-block;margin-top:12mm;padding:2.5mm 10mm;border-top:.5mm solid #d9a441;border-bottom:.5mm solid #d9a441;'+
+    'font-size:22pt;font-weight:900;letter-spacing:.25em;color:#1b2a3f}'+
+  '.cert .who{margin-top:12mm;font-size:12pt;color:#4b5b6e;font-weight:700}'+
+  '.cert .who b{display:block;font-size:26pt;color:#16243a;font-weight:900;margin-top:2mm;letter-spacing:-.01em}'+
+  '.cert .body{margin:12mm auto 0;max-width:140mm;font-size:12.5pt;line-height:2;color:#2a3442;word-break:keep-all}'+
+  '.cert .rec{display:flex;justify-content:center;gap:3mm;margin-top:9mm;flex-wrap:wrap}'+
+  '.cert .rec span{border:.3mm solid #d9c48c;border-radius:1.5mm;padding:1.2mm 3mm;font-size:9.5pt;font-weight:700;color:#6b5a2e;background:#fffaf0}'+
+  '.cert .date{position:absolute;left:0;right:0;bottom:44mm;font-size:13pt;font-weight:700;letter-spacing:.08em}'+
+  '.cert .sign{position:absolute;left:0;right:0;bottom:22mm;font-size:15pt;font-weight:900;letter-spacing:.12em}'+
+  '.cert .seal{position:absolute;right:30mm;bottom:15mm;width:22mm;height:22mm;border-radius:50%;border:.8mm double #b8862b;'+
+    'color:#b8862b;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:7.5pt;font-weight:900;line-height:1.25;transform:rotate(-10deg);opacity:.9}';
+
+function certHTML(x, no, opt){
+  var nm=realName(x)||'', det=x.det||'';
+  var d=opt.date ? new Date(opt.date+'T00:00:00') : new Date();
+  var ds=d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';
+  return '<div class="sheet"><div class="cert"><div class="in">'+
+    '<div class="cn">부소장 제 '+esc(x.cls)+'-'+esc(x.num)+' 호</div>'+
+    '<div class="crest">🏆</div>'+
+    '<h1>임명장</h1><div class="en">CERTIFICATE OF APPOINTMENT</div>'+
+    '<div class="who">'+esc(x.cls)+'반 '+esc(x.num)+'번 '+(det&&det!==nm?esc(nm):'')+
+      '<b>'+esc(det||nm)+(det?' 탐정':'')+'</b></div>'+
+    '<div class="role">부 소 장</div>'+
+    '<div class="body">위 탐정은 학교 곳곳에서 힘을 찾아 질문하고, 친구들의 사건에 답하며, 측정한 증거로 사건을 해결하였습니다. '+
+      '또한 차시마다 성찰을 기록하여 대탐정에 올랐고, 동료들의 인정을 차곡차곡 모았습니다. '+
+      '이에 <b>힘 탐정 사무소 부소장</b>에 임명합니다.</div>'+
+    '<div class="rec"><span>차시 도장 '+(x.stamp||0)+'</span><span>답변 '+(x.a||0)+'</span><span>해결 '+(x.solved||0)+'</span>'+
+      '<span>성찰 '+(x.ref||0)+'차시</span><span>인정 '+(x.score||0)+'점</span></div>'+
+    '<div class="date">'+ds+'</div>'+
+    '<div class="sign">힘 탐정 사무소 소장'+(opt.boss?' '+esc(opt.boss):'')+'</div>'+
+    '<div class="seal">힘 탐정<br>사무소<br>소장인</div>'+
+  '</div></div></div>';
+}
+function isDeputyStat(x){ return rkOfStat(x)>=GRAND_I && (x.score||0)>=90; }
+
 /* 계급 스티커 · 별 스티커 시트 */
 function printStickers(opt){
   var html='<div class="sheet">', n=0;
@@ -4955,6 +5001,38 @@ function drawBadgeTools(items){
       btn.disabled=false; pkLabel();
       printBadges(arr.map(function(x){ var k=x.cls+'-'+x.num; return pm[k]!=null?Object.assign({},x,{partner:pm[k]}):x; }), pre); }
   });
+
+  /* 2-1. 부소장 임명장 */
+  var deps=items.filter(isDeputyStat).sort(function(p,q){ return (p.cls-q.cls)||(p.num-q.num); });
+  var dv=document.createElement('div'); dv.className='btool';
+  var td=new Date(), tds=td.getFullYear()+'-'+('0'+(td.getMonth()+1)).slice(-2)+'-'+('0'+td.getDate()).slice(-2);
+  dv.innerHTML='<h3>📜 부소장 임명장</h3><div class="sub">대탐정이면서 인정 점수 90점 이상인 학생입니다. A4 세로 한 장에 한 명씩 인쇄됩니다.'+
+    (deps.length?' 지금 <b>'+deps.length+'명</b>':'')+'</div>'+
+    (deps.length?
+      '<div class="bpick" id="dPick"></div>'+
+      '<div class="row"><label>임명일 <input type="date" id="dDate" value="'+tds+'"></label>'+
+      '<label>소장 이름 <input type="text" id="dBoss" placeholder="비우면 「소장」까지만" style="width:150px"></label></div>'+
+      '<div class="row"><button class="go" id="dPrint">임명장 인쇄하기</button></div>'
+     : '<div class="empty" style="padding:12px 0">아직 부소장이 된 학생이 없습니다.</div>');
+  box.appendChild(dv);
+  if(deps.length){
+    var DP={}; deps.forEach(function(x){ DP[x.cls+'-'+x.num]=1; });
+    var dpk=$('dPick');
+    function dLabel(){ var n=Object.keys(DP).length; $('dPrint').textContent=n?(n+'명 임명장 인쇄하기'):'인쇄할 학생을 골라 주세요'; }
+    deps.forEach(function(x){
+      var k=x.cls+'-'+x.num, c=document.createElement('button'); c.type='button'; c.className='bpc on';
+      c.textContent=x.cls+'반 '+x.num+' '+(realName(x)||'')+' · '+(x.score||0)+'점';
+      c.addEventListener('click',function(){ if(DP[k]) delete DP[k]; else DP[k]=1; c.classList.toggle('on',!!DP[k]); dLabel(); });
+      dpk.appendChild(c);
+    });
+    dLabel();
+    $('dPrint').addEventListener('click', function(){
+      var arr=deps.filter(function(x){ return DP[x.cls+'-'+x.num]; });
+      if(!arr.length){ alert('인쇄할 학생을 골라 주세요.'); return; }
+      var opt={date:$('dDate').value, boss:$('dBoss').value.trim()};
+      printDoc('부소장 임명장', CERT_CSS, arr.map(function(x){ return certHTML(x, 0, opt); }).join(''));
+    });
+  }
 
   /* 3. 스티커 인쇄 */
   var c=document.createElement('div'); c.className='btool';
