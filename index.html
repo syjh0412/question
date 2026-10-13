@@ -2382,46 +2382,55 @@ function rpAnyV(r){ for(var k=1;k<=RP_NV;k++) if(r['v'+k]) return true; return f
 /* ───────── 사건 파일 ─────────
    학생 실명은 넣지 않는다(이 파일은 공개 저장소에 올라감). 최초 발견 탐정 이름은 소장이 앱에서 입력해 서버에만 저장. */
 var CASES={
-  1:{t:'교실 속 완충재',sub:'문 끝 고무와 나무 의자',f:['탄성력'],place:'교실 미닫이문의 닫히는 쪽 끝, 교실 나무 의자',
-    clues:['문 끝에 붙은 고무가 충격을 흡수해 주는 것 같다','고무가 뜯겨 나간 문이 있다','나무 의자에 털썩 앉으면 엉덩이와 등이 아프다','"충격을 숫자로 어떻게 재지?"'],
+  1:{t:'교실 문 고무',sub:'문이 닫힐 때 손가락을 지켜 줄까?',f:['탄성력'],place:'교실 미닫이문의 닫히는 쪽 끝',
+    clues:['문 끝에 붙은 고무가 충격을 흡수해 주는 것 같다','고무가 뜯겨 나간 문이 있다','"충격을 숫자로 어떻게 재지?"'],
     ask:'문 끝 고무가 뜯긴 교실이 있습니다. 고무가 정말 손가락을 지켜 주는지, 다시 붙인다면 어떤 재료가 좋은지 힘으로 알아봐 주십시오.',
     keep:['실제 문에 손가락이나 물건을 끼우지 않는다','찰흙 같은 모형은 손을 펴서 떨어뜨리고 던지지 않는다']},
-  2:{t:'계단',sub:'어느 계단이 가장 미끄러울까',f:['마찰력'],place:'나무 스탠드, 회색 페인트 계단(검은 미끄럼방지 줄), 주차장 쪽 돌계단',
+  2:{t:'계단과 경사로',sub:'오르내리는 길은 언제 가장 미끄러울까?',f:['마찰력'],place:'나무 스탠드, 회색 페인트 계단(검은 미끄럼방지 줄), 주차장 쪽 돌계단',
     clues:['비가 오면 계단이 미끄러울 것 같다','계단마다 재질이 다르다','미끄럼방지 줄이 붙은 계단과 없는 계단이 있다'],
     ask:'우리 학교 계단 가운데 어디가 가장 미끄러운지, 미끄럼방지 줄이 정말 도움이 되는지 숫자로 알려 주십시오.',
     keep:['계단에서 뛰지 않는다','사람이 직접 미끄러져 보지 않는다','다른 학생이 지나가면 멈춘다']},
-  3:{t:'실내 바닥',sub:'과학실 엉덩방아에서 시작된 물 묻은 바닥',f:['마찰력'],place:'과학실 바닥(복도와 같은 재질), 개수대 주변, 비 오는 날 복도',
+  3:{t:'실내 바닥',sub:'물이 묻으면 얼마나 미끄러워질까?',f:['마찰력'],place:'과학실 바닥(복도와 같은 재질), 개수대 주변, 비 오는 날 복도',
     clues:['과학실 바닥에 물이 묻어 친구가 미끄러져 엉덩방아를 찧고 크게 다칠 뻔했다 (소장 목격)','과학실 바닥은 복도와 같은 재질이다','비 오는 날 복도는 우산에서 떨어진 물로 미끄럽다'],
     ask:'소장이 직접 본 사고입니다. 물이 바닥을 얼마나 위험하게 만드는지, 어떻게 하면 다시 안전해지는지 밝혀 주십시오.',
     keep:['사람은 절대 미끄러져 보지 않는다','물을 뿌린 곳에는 표지를 세우고, 끝나면 바로 닦는다']},
-  4:{t:'농구장 바닥',sub:'물과 낙엽',f:['마찰력'],place:'운동장 농구장',
+  4:{t:'농구장 바닥',sub:'낙엽과 빗물은 코트를 얼마나 미끄럽게 할까?',f:['마찰력'],place:'운동장 농구장',
     clues:['바닥이 고르지 않아 비가 오면 물이 고이는 곳이 있다','가을에는 낙엽이 쌓인다','뛰다가 미처 못 보고 밟아 미끄러질 수 있다'],
     ask:'농구장에서 물이나 낙엽을 밟으면 얼마나 미끄러운지, 무엇을 먼저 치워야 하는지 알려 주십시오.',
     keep:['사람이 직접 미끄러져 보지 않는다','끝나면 낙엽을 쓸고 물을 닦는다']},
-  5:{t:'운동장 바닥은 왜 모두 다를까',sub:'마찰과 공의 반발',f:['마찰력','탄성력'],place:'농구장, 인조잔디, 트랙, 페인트 칠한 시멘트, 철 배수구 덮개',
+  5:{t:'운동장 바닥',sub:'바닥마다 미끄러짐과 튀어 오름은 왜 다를까?',f:['마찰력','탄성력'],place:'농구장, 인조잔디, 트랙, 페인트 칠한 시멘트, 철 배수구 덮개',
     clues:['농구장 바닥은 탄성이 있어 다칠 위험이 줄어든다','인조잔디 덕분에 잘 넘어지지 않는다','철 배수구 덮개는 미끄러지기 쉽다','농구 골대에 공이 걸려 있다'],
     ask:'운동장 바닥은 왜 장소마다 다른 재료로 만들었을까요? 바닥마다 힘으로 어떤 특징이 있는지, 어디를 조심해야 하는지 알려 주십시오.',
     keep:['다른 학생이 운동하는 구역을 피한다','배수구 덮개 위에서 뛰지 않는다','골대를 흔들지 않는다']},
-  6:{t:'골대 보호 패드',sub:'지금 그대로 충분할까',f:['탄성력'],place:'농구 골대와 축구 골대의 기둥',
+  6:{t:'골대 보호 패드',sub:'지금 패드로 충분히 막아 줄까?',f:['탄성력'],place:'농구 골대와 축구 골대의 기둥',
     clues:['딱딱한 기둥에 두꺼운 보호 패드가 감겨 있다','패드 상태는 좋지만 높이가 높지 않다','키 큰 학생에게는 짧다','왜 앞쪽에만 있을까?'],
     ask:'골대 패드가 지금 그대로 충분한지, 고쳐야 할 곳이 있는지 판단해 주십시오. 측정해 보니 지금 그대로가 맞다면, 그것도 훌륭한 결론입니다.',
     keep:['패드에 일부러 몸을 부딪치지 않는다','관찰은 경기 구역 밖에서, 사진에 얼굴이 나오지 않게']},
-  7:{t:'스탠드 지붕',sub:'기둥들은 지붕을 어떻게 받치고 있을까',f:['중력','힘의 평형'],place:'운동장 스탠드 위 초록색 지붕과 철 기둥',
+  7:{t:'스탠드 지붕',sub:'기둥들은 지붕의 무게를 어떻게 나눠 받칠까?',f:['중력','힘의 평형'],place:'운동장 스탠드 위 초록색 지붕과 철 기둥',
     clues:['지붕에는 아래쪽으로 중력이 작용하고 기둥이 떠받친다','철 기둥이 천장을 들어 올리고 있다'],
     ask:'스탠드 지붕은 철 기둥들이 아래에서 받치고 있습니다. 지붕 위에 눈 같은 짐이 쌓이면 기둥들이 받치는 힘은 어떻게 달라지는지, 폭설 뒤에는 무엇을 확인해야 하는지 알려 주십시오.',
     keep:['지붕이나 기둥에 올라가지 않는다','학생이 직접 지붕 위의 눈이나 물건을 치우는 것은 안전 제안에 넣지 않는다','모형 판은 기둥 위에 안정되게 걸치고, 물병 뚜껑을 꼭 닫는다']},
-  8:{t:'안전망과 펜스',sub:'공을 막는 그물',f:['탄성력','힘의 평형'],place:'운동장 쪽 창문 앞 안전망, 펜스',
+  8:{t:'안전망과 펜스',sub:'그물은 날아오는 공을 어떻게 멈출까?',f:['탄성력','힘의 평형'],place:'운동장 쪽 창문 앞 안전망, 펜스',
     clues:['공을 던지면 그물이 다시 튕겨 내고 창문이 깨지지 않는다','그물이 충격을 흡수해 준다','펜스 종류에 따라 튕겨 나오는 정도가 다를까?'],
     ask:'공이 세게 맞아도 그물이 창문까지 밀려나지 않는지, 그물은 어떻게 설치해야 안전한지 알려 주십시오.',
     keep:['실제 안전망에 매달리거나 공을 세게 차지 않는다']}
 };
 var CASE_NUM=['','①','②','③','④','⑤','⑥','⑦','⑧'];
+/* 반마다 다르게 보일 사건 — 3반은 의자 패드를 고른 모둠이 있어 ① 사건을 넓혀서 */
+var CASE_CLS={'3':{1:{t:'교실 완충재',sub:'문 고무와 의자 패드는 충격을 얼마나 줄여 줄까?',
+  place:'교실 미닫이문의 닫히는 쪽 끝, 교실 의자',
+  clues:['문 끝에 붙은 고무가 충격을 흡수해 주는 것 같다','고무가 뜯겨 나간 문이 있다','의자에 털썩 앉으면 엉덩이와 등이 아프다','"충격을 숫자로 어떻게 재지?"']}}};
+function caseD(n,cls){
+  if(!CASES[n]) return null;
+  var o=(CASE_CLS[String(cls||'')]||{})[n];
+  return o?Object.assign({},CASES[n],o):CASES[n];
+}
 /* 사건은 모둠이 고르고(by:'학생'), 소장이 확정하거나 바꾼다(by:'소장' → 학생은 바꿀 수 없음) */
 function rpCaseOf(pages,cls,team){
   var c=(pages&&pages['case'])||{};
   var no=Number(c.no)||0;
   if(!CASES[no]) return null;
-  return {no:no,finder:c.finder||'',by:c.by||'소장',D:CASES[no]};
+  return {no:no,finder:c.finder||'',by:c.by||'소장',D:caseD(no,cls)};
 }
 /* 사건 고르기 (학생) */
 function rpCasePick(keep){
@@ -2437,7 +2446,7 @@ function rpCasePick(keep){
   function draw(){
     var L=$('rpKL'); if(!L) return; L.innerHTML='';
     for(var n=1;n<=8;n++){(function(n){
-      var D=CASES[n], tk=taken[n], mine=cur&&cur.no===n;
+      var D=caseD(n,me&&me.cls), tk=taken[n], mine=cur&&cur.no===n;
       var d=document.createElement('div'); d.className='pickc'+(tk?' taken':'')+(mine?' mine':'');
       d.innerHTML='<div class="pn">'+CASE_NUM[n]+'</div><div class="pb"><b>'+esc(D.t)+'</b><span class="ps">'+esc(D.sub)+' · '+esc(D.f.join(', '))+'</span>'+
         '<span class="pa">'+esc(D.ask)+'</span>'+
@@ -2835,7 +2844,7 @@ function rpPartCard(P,roles){
 /* 사건 고르기 전 미리 보기 */
 function rpCasePreview(n,tk,mine){
   RP.view='preview';
-  var D=CASES[n], box=$('repBody');
+  var D=caseD(n,me&&me.cls), box=$('repBody');
   box.innerHTML='<div class="rpbar"><button class="back" id="rpBkV">← 사건 목록</button><b>📂 사건 '+CASE_NUM[n]+' 살펴보기</b></div>'+
     rpCaseHTML({no:n,finder:'',by:'',D:D},me.cls,null)+
     '<div class="rpsave">'+(tk?'<button disabled>'+tk+'모둠이 수사 중인 사건이에요</button>':
@@ -3613,7 +3622,7 @@ function drawRepTeacher(r,cls){
       var cur=rpCaseOf(pg0,cls,t.team), sel=d.querySelector('.cSel');
       var o0=document.createElement('option'); o0.value=''; o0.textContent='📂 사건 고르기'; sel.appendChild(o0);
       for(var n=1;n<=8;n++){ var o=document.createElement('option'); o.value=n;
-        o.textContent='사건 '+CASE_NUM[n]+' '+CASES[n].t; if(cur&&cur.no===n) o.selected=true; sel.appendChild(o); }
+        o.textContent='사건 '+CASE_NUM[n]+' '+caseD(n,cls).t; if(cur&&cur.no===n) o.selected=true; sel.appendChild(o); }
       d.querySelector('.cFind').value=(cur&&cur.finder)||'';
       if(cur&&cur.by==='학생'){ var bt0=d.querySelector('.cSv'); bt0.textContent='확정하기'; bt0.title='모둠이 고른 사건입니다'; }
       d.querySelector('.cSv').addEventListener('click',function(){
