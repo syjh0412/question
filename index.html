@@ -62,6 +62,12 @@
   .rf .rfx{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:11.5px;color:var(--soft);}
   .rf .rfx button{font-size:12px;padding:3px 9px;border-radius:999px;}
   .rf .rfx button.on{background:#fff3d6;border-color:#d9a441;color:#8a5d0b;font-weight:800;}
+  .bpick-h{font-size:12.5px;font-weight:800;margin:10px 0 6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .bpick-h em{font-style:normal;font-weight:500;color:var(--soft);font-size:11.5px;}
+  .bpick-h button{font-size:11.5px;padding:3px 9px;border-radius:999px;}
+  .bpick{display:flex;flex-wrap:wrap;gap:5px;max-height:220px;overflow:auto;padding:2px;}
+  .bpick .bpc{font-size:12px;padding:5px 9px;border-radius:999px;background:#fff;border:1px solid var(--hair);color:var(--ink);}
+  .bpick .bpc.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700;}
   .greet{position:fixed;left:50%;top:12px;transform:translate(-50%,-140%);z-index:9999;width:max-content;max-width:min(92vw,520px);box-sizing:border-box;
     display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;cursor:pointer;
     background:linear-gradient(135deg,#1b2a3f,#2b3f5c);color:#f3f6fa;border:1px solid #d9a441;
@@ -4854,10 +4860,29 @@ function drawBadgeTools(items){
     '위에서 고른 반 학생 <b>'+items.length+'명</b>이 번호순으로 나옵니다. 탐정 이름이 없는 학생은 본명을 크게 넣습니다.'+
     ($('tCls')&&$('tCls').value?'<br>수사 파트너를 고른 학생 <b>'+items.filter(function(x){ return x.partner!=null; }).length+'명</b> (명찰 이름 옆에 파트너 그림이 나옵니다)':'')+'</div>'+
     '<div class="row"><label><input type="checkbox" id="bPre" checked> 지금 계급과 ★까지 채워서 인쇄 (그 뒤 승급분만 스티커로)</label></div>'+
+    '<div class="bpick-h">인쇄할 학생 고르기 <em>누른 학생만 인쇄 · 아무도 안 고르면 모두</em> '+
+      '<button type="button" id="bpAll">모두 고르기</button><button type="button" id="bpNone">모두 풀기</button></div>'+
+    '<div class="bpick" id="bPick"></div>'+
     '<div class="row"><button class="go" id="bPrint">명찰 인쇄하기</button></div>';
   box.appendChild(b);
+  /* 학생 고르기 칩 — 반·번호순 */
+  var PICK={};
+  var sorted0=items.slice().sort(function(p,q){ return (p.cls-q.cls)||(p.num-q.num); });
+  var pk=$('bPick');
+  function pkLabel(){ var n=Object.keys(PICK).length; $('bPrint').textContent=n?('고른 '+n+'명 명찰 인쇄하기'):'명찰 인쇄하기 (모두)'; }
+  sorted0.forEach(function(x){
+    var k=x.cls+'-'+x.num, c=document.createElement('button'); c.type='button'; c.className='bpc';
+    c.textContent=($('tCls').value?'':x.cls+'반 ')+x.num+' '+(realName(x)||'');
+    c.addEventListener('click',function(){ if(PICK[k]) delete PICK[k]; else PICK[k]=1; c.classList.toggle('on',!!PICK[k]); pkLabel(); });
+    pk.appendChild(c);
+  });
+  $('bpAll').addEventListener('click',function(){ sorted0.forEach(function(x){ PICK[x.cls+'-'+x.num]=1; });
+    Array.prototype.forEach.call(pk.children,function(c){ c.classList.add('on'); }); pkLabel(); });
+  $('bpNone').addEventListener('click',function(){ PICK={}; Array.prototype.forEach.call(pk.children,function(c){ c.classList.remove('on'); }); pkLabel(); });
+  pkLabel();
   $('bPrint').addEventListener('click', function(){
     var arr=items.slice().sort(function(p,q){ return (p.cls-q.cls)||(p.num-q.num); });
+    if(Object.keys(PICK).length) arr=arr.filter(function(x){ return PICK[x.cls+'-'+x.num]; });
     var pre=$('bPre').checked, btn=this;
     /* 서버는 반을 고른 경우에만 수사 파트너를 보내 줌 → 전체 반이면 반마다 받아 채운 뒤 인쇄 */
     if($('tCls').value || arr.some(function(x){ return x.partner!=null; })){ printBadges(arr, pre); return; }
@@ -4870,7 +4895,7 @@ function drawBadgeTools(items){
       },function(){ done1(); });
     });
     function done1(){ if(--left>0) return;
-      btn.disabled=false; btn.textContent='명찰 인쇄하기';
+      btn.disabled=false; pkLabel();
       printBadges(arr.map(function(x){ var k=x.cls+'-'+x.num; return pm[k]!=null?Object.assign({},x,{partner:pm[k]}):x; }), pre); }
   });
 
