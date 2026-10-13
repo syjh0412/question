@@ -4725,7 +4725,7 @@ function badgeHTML(x, prefill){
       '<div class="motto">이 탐정은 힘의 렌즈로 학교를 본다.</div></div>'+
     '<div class="who">'+
       '<div class="lab">'+(x.det?'탐정 이름':'이름')+'</div>'+
-      '<div class="det" style="font-size:'+(big.length>6?'16pt':'20pt')+'">'+esc(big)+
+      '<div class="det" style="font-size:'+(big.length>6?'17pt':'22pt')+'">'+esc(big)+
         (PT?'<span class="pt" title="수사 파트너">'+PT.e+'</span>':'')+'</div>'+
       '<div class="real">'+(x.det?esc(x.name)+' · ':'')+'1학년 '+esc(x.cls)+'반 '+esc(x.num)+'번'+
         (PT?' · 파트너 '+esc(PT.n):'')+'</div>'+
@@ -4735,37 +4735,37 @@ function badgeHTML(x, prefill){
     '<div class="honor"><div class="hl">명탐정이 된 뒤</div>'+
       '<div class="hbox"><div class="hs"><div class="stars">'+st+'</div><div class="hc">해결 도장마다 ★</div></div>'+
       '<div class="hd"></div><div class="hg">'+gd+'<div class="hc">성찰 10차시</div></div></div></div>'+
-    '<div class="case"><span>🗂 맡은 사건</span><i></i><span>모둠</span><i class="s"></i></div>'+
+
   '</div>';
 }
 var BADGE_CSS=
   '.sheet{display:grid;grid-template-columns:105mm 105mm;grid-template-rows:148.5mm 148.5mm}'+
   '.card{position:relative;border:.25mm dashed #c8ced6;overflow:hidden;background:#fff}'+
-  '.band{height:13mm;background:#1b2a3f;color:#fff;padding:2mm 6mm 0;position:relative}'+
+  '.band{height:16mm;background:#1b2a3f;color:#fff;padding:2.8mm 6mm 0;position:relative}'+
   '.band .org{font-weight:800;font-size:11.5pt;letter-spacing:-.02em;line-height:1.2}'+
-  '.band .id{position:absolute;right:6mm;top:2.4mm;font-size:7pt;font-weight:800;letter-spacing:.25em;color:#d9a441;border:.35mm solid #d9a441;border-radius:1mm;padding:.6mm 1.6mm}'+
-  '.band .motto{font-size:6.8pt;color:#b9c7d6;margin-top:.5mm;font-weight:600}'+
+  '.band .id{position:absolute;right:6mm;top:3.2mm;font-size:7pt;font-weight:800;letter-spacing:.25em;color:#d9a441;border:.35mm solid #d9a441;border-radius:1mm;padding:.6mm 1.6mm}'+
+  '.band .motto{font-size:7pt;color:#b9c7d6;margin-top:1mm;font-weight:600}'+
   '.band .stripe{position:absolute;right:-6mm;bottom:1.2mm;width:40mm;height:3.5mm;transform:rotate(-8deg);'+
     'background:repeating-linear-gradient(135deg,rgba(217,164,65,.55) 0 2.5mm,transparent 2.5mm 5mm)}'+
-  '.who{text-align:center;padding:2mm 6mm 0}'+
+  '.who{text-align:center;padding:3mm 6mm 0}'+
   '.who .lab{font-size:6.5pt;color:#8a96a4;font-weight:700;letter-spacing:.25em}'+
   '.who .det{font-weight:900;color:#16243a;letter-spacing:-.03em;line-height:1.12;margin-top:.4mm}'+
   '.who .det .pt{display:inline-block;margin-left:1.6mm;font-size:.95em;vertical-align:-.05em;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}'+
-  '.who .real{font-size:9pt;color:#4b5b6e;font-weight:700;margin-top:.6mm}'+
-  '.sec{display:flex;align-items:baseline;gap:2mm;margin:2mm 6mm 1.1mm;border-top:.3mm solid #e1e6ec;padding-top:1.3mm}'+
+  '.who .real{font-size:9pt;color:#4b5b6e;font-weight:700;margin-top:1mm}'+
+  '.sec{display:flex;align-items:baseline;gap:2mm;margin:3mm 6mm 1.8mm;border-top:.3mm solid #e1e6ec;padding-top:1.8mm}'+
   '.sec span{font-size:8pt;font-weight:900;color:#1b2a3f}'+
   '.sec em{font-style:normal;font-size:6.2pt;color:#8a96a4;font-weight:600}'+
   '.sec.gold span{color:#9a6f12}'+
-  '.ladder{display:grid;grid-template-columns:repeat(3,21mm);justify-content:center;column-gap:8mm;row-gap:.6mm}'+
-  '.slot{width:21mm;height:21mm;display:flex;align-items:center;justify-content:center}'+
-  '.ghost{width:20.4mm;height:20.4mm;border-radius:50%;border:.4mm dashed #b6c0cb;display:flex;align-items:center;justify-content:center}'+
+  '.ladder{display:grid;grid-template-columns:repeat(3,22mm);justify-content:center;column-gap:8mm;row-gap:2mm}'+
+  '.slot{width:22mm;height:22mm;display:flex;align-items:center;justify-content:center}'+
+  '.ghost{width:21mm;height:21mm;border-radius:50%;border:.4mm dashed #b6c0cb;display:flex;align-items:center;justify-content:center}'+
   '.ghost b{font-size:7.5pt;color:#c3ccd6;font-weight:800}'+
-  '.honor{margin:3mm 6mm 0;position:relative}'+
+  '.honor{margin:5mm 6mm 0;position:relative}'+
   '.honor .hl{position:absolute;left:3mm;top:-2.1mm;background:#fff;padding:0 1.4mm;font-size:6.6pt;font-weight:900;color:#9a6f12;letter-spacing:.06em}'+
-  '.honor .hbox{display:flex;align-items:center;justify-content:center;gap:3.5mm;border:.3mm solid #ead9ab;border-radius:3mm;padding:3mm 3mm 1.8mm;background:#fffcf3}'+
+  '.honor .hbox{display:flex;align-items:center;justify-content:center;gap:3.5mm;border:.3mm solid #ead9ab;border-radius:3mm;padding:3.6mm 3mm 2.2mm;background:#fffcf3}'+
   '.honor .hd{width:.3mm;align-self:stretch;background:#ead9ab}'+
   '.honor .hc{text-align:center;font-size:5.6pt;color:#b39552;font-weight:700;margin-top:.8mm}'+
-  '.stars{display:grid;grid-template-columns:repeat(4,13mm);column-gap:1.2mm;row-gap:.8mm}'+
+  '.stars{display:grid;grid-template-columns:repeat(4,13mm);column-gap:1.6mm;row-gap:1.4mm}'+
   '.gslot{display:flex;align-items:center;justify-content:center;width:22mm;height:22mm}'+
   '.case{display:flex;align-items:flex-end;gap:2mm;margin:3.2mm 7mm 0;font-size:8pt;font-weight:800;color:#1b2a3f}'+
   '.case i{flex:1;border-bottom:.3mm solid #b6c0cb;height:4mm}'+
@@ -4857,7 +4857,20 @@ function drawBadgeTools(items){
   box.appendChild(b);
   $('bPrint').addEventListener('click', function(){
     var arr=items.slice().sort(function(p,q){ return (p.cls-q.cls)||(p.num-q.num); });
-    printBadges(arr, $('bPre').checked);
+    var pre=$('bPre').checked, btn=this;
+    /* 서버는 반을 고른 경우에만 수사 파트너를 보내 줌 → 전체 반이면 반마다 받아 채운 뒤 인쇄 */
+    if($('tCls').value || arr.some(function(x){ return x.partner!=null; })){ printBadges(arr, pre); return; }
+    var cl={}; arr.forEach(function(x){ cl[x.cls]=1; }); var cs=Object.keys(cl), left=cs.length, pm={};
+    if(!left){ printBadges(arr, pre); return; }
+    btn.disabled=true; btn.textContent='수사 파트너 불러오는 중...';
+    cs.forEach(function(c){
+      call({action:'stats',pin:PIN,cls:c},function(r){
+        (r.items||[]).forEach(function(y){ if(y.partner!=null) pm[y.cls+'-'+y.num]=y.partner; }); done1();
+      },function(){ done1(); });
+    });
+    function done1(){ if(--left>0) return;
+      btn.disabled=false; btn.textContent='명찰 인쇄하기';
+      printBadges(arr.map(function(x){ var k=x.cls+'-'+x.num; return pm[k]!=null?Object.assign({},x,{partner:pm[k]}):x; }), pre); }
   });
 
   /* 3. 스티커 인쇄 */
