@@ -902,6 +902,14 @@
   #slv .gslide .gt{flex:1;height:clamp(22px,4.2vh,40px);background:#1d2b3d;border-radius:8px;overflow:hidden;}
   #slv .gslide .gb{height:100%;background:#d9a441;border-radius:8px;}
   #slv .gslide .gv{flex:0 0 17%;color:#fff;font-size:clamp(16px,3.2vw,30px);font-weight:900;}
+  #slv .gtab{border-collapse:collapse;margin:0 auto 2.4vh;color:#e6eef7;font-size:clamp(13px,2.1vw,22px);max-width:100%;}
+  #slv .gtab th{color:#9fb3c8;font-weight:700;padding:.5vh 1.1vw;border-bottom:2px solid #3a4c66;}
+  #slv .gtab td{padding:.6vh 1.1vw;text-align:center;border-bottom:1px solid #26364b;font-weight:700;}
+  #slv .gtab td.c{text-align:left;color:#cfdced;}
+  #slv .gtab td.av{color:#f6dc8c;font-weight:900;}
+  #slv .gslide.wt .grow{margin-bottom:1vh;}
+  #slv .gslide.wt .gt{height:clamp(16px,3vh,30px);}
+  #slv .gslide.wt .gl,#slv .gslide.wt .gv{font-size:clamp(13px,2.3vw,22px);}
   #slv .foot{display:flex;align-items:center;padding:10px 16px 16px;color:#61758c;font-size:13px;}
   #slv .foot .pgn{margin-left:auto;font-weight:800;color:#9fb3c8;font-size:clamp(14px,2.2vw,20px);}
   /* 교사: 보고서 검토 · 현황판 */
@@ -1993,7 +2001,8 @@ var RGROUPS=[
     {k:'m3',no:'결과',n:'실제 결과 · 가설과 비교',ic:'📊',fs:[
       {f:'resA',t:'ta',n:'실험 A의 실제 결과',ph:'측정값으로 말하기: (     ) 조건에서 가장 크게, (     ) 조건에서 가장 작게 나왔다'},
       {f:'resB',t:'ta',n:'실험 B의 실제 결과',opt:1},
-      {f:'cmp',t:'ta',n:'가설과 비교',ph:'가설이 맞았나요, 달랐나요? 다르다면 왜 그랬을까요? (예상 결과와 견주어 보세요)'}]},
+      {f:'cmp',t:'ta',n:'가설과 비교',ph:'가설이 맞았나요, 달랐나요? 다르다면 왜 그랬을까요? (예상 결과와 견주어 보세요)'},
+      {f:'phX',t:'photos',n:'더 설명하고 싶은 장면',em:'발표 때 꼭 보여 주고 싶은 장면 (최대 4장) — 실험 중 생긴 문제와 해결, 예상과 다른 순간 등. 사진마다 무엇이 일어났고 무엇을 알게 됐는지 설명을 붙이세요 · 예) 저울 높이가 달라 값이 달랐는데, 종이를 받쳐 높이를 맞추니 같아졌다',opt:1}]},
     {k:'m4',no:'결론',n:'결론 · 안전 제안 · 아직 모르는 것',ic:'🧲',fs:[
       {f:'concl',t:'ta',n:'결론',ph:'재 보니 (      )할수록 (      )했다'},
       {f:'prop',t:'ta',n:'안전 제안',ph:'어떤 힘을 · 얼마나 · 어느 방향으로 바꾸자 (장치 · 관리 방법 · 사용 규칙)'},
@@ -2527,6 +2536,7 @@ function rpNorm(pages){
   d(ev,'rowsA',ev.rows); d(ev,'unitA',ev.unit);
   ev.phA=rpPh(ev.phA); if(!ev.phA.length) ev.phA=rpPh(ev.photo);
   ev.phB=rpPh(ev.phB);
+  ev.phX=rpPh(ev.phX);
   d(ev,'prop',an.prop); d(ev,'basis',an.basis); d(ev,'unk',an.unk);
   return {cover:c,plan:pl,evid:ev};
 }
@@ -2979,7 +2989,7 @@ function rpPartCollect(P){
   return v;
 }
 /* 사진 여러 장 + 사진마다 설명 */
-var RP_MAXPH={phA:6,phB:6};   /* 실험 장면은 6장, 발견 장면·힘 화살표는 4장 */
+var RP_MAXPH={phA:6,phB:6,phX:4};   /* 실험 장면은 6장, 발견 장면·힘 화살표는 4장 */
 function rpPhotos(field,pg){
   var MAX=RP_MAXPH[field]||4;
   var w=document.createElement('div'); w.className='phslot';
@@ -3304,7 +3314,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
     return [tx(ind)?'다르게 · '+tx(ind):'',tx(dep)?'잰 것 · '+tx(dep):'',tx(ctl)?'같게 · '+tx(ctl):''].filter(Boolean).join('\n');
   };
   var graph=function(k,rows,unit){
-    var rs=(rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r)}; }).filter(function(r){ return r.c&&r.a!=null; });
+    var rs=(rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r),v:rpVals(r),g:rpRange(r)}; }).filter(function(r){ return r.c&&r.a!=null; });
     if(rs.length) S.push({tp:'graph',k:k,rows:rs,unit:unit||''});
   };
   kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
@@ -3324,6 +3334,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
   exp('A',pl.qA,pl.hA,pl.indA,pl.depA,pl.ctlA,pl.procA,ev.rowsA,ev.unitA,ev.phA,ev.obsA,ev.resA);
   if(hasB) exp('B',pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.rowsB,ev.unitB,ev.phB,ev.obsB,ev.resB);
   kb('가설과 비교',ev.cmp);
+  phs('더 보여 줄 장면',ev.phX);
   kb('결론',ev.concl,true);
   kb('안전 제안',ev.prop);
   kb('근거 — 우리가 잰 값',ev.basis,true);
@@ -3383,7 +3394,13 @@ function rpSlDraw(){
   } else if(s.tp==='graph'){
     var mx=0; s.rows.forEach(function(r){ if(r.a>mx) mx=r.a; });
     var u=(s.unit||'').replace(/^.*\(|\)$/g,'');
-    h='<div class="k">'+esc(s.k||'재 보니 이랬다')+(s.unit?' · '+esc(s.unit):'')+'</div><div class="gslide">'+
+    /* 측정표(1~5회 · 평균 · 범위)를 위에, 평균 막대그래프를 아래에 */
+    var nv=0; s.rows.forEach(function(r){ if((r.v||[]).length>nv) nv=r.v.length; });
+    var hd='<th>조건</th>'; for(var q=1;q<=nv;q++) hd+='<th>'+q+'회</th>'; hd+='<th>평균</th><th>범위</th>';
+    var tb=nv?'<table class="gtab"><tr>'+hd+'</tr>'+s.rows.map(function(r){
+      var tr='<td class="c">'+esc(r.c)+'</td>'; for(var q2=0;q2<nv;q2++) tr+='<td>'+(r.v[q2]!=null?r.v[q2]:'')+'</td>';
+      return '<tr>'+tr+'<td class="av">'+r.a+'</td><td>'+esc(r.g||'')+'</td></tr>'; }).join('')+'</table>':'';
+    h='<div class="k">'+esc(s.k||'재 보니 이랬다')+(s.unit?' · '+esc(s.unit):'')+'</div>'+tb+'<div class="gslide'+(nv?' wt':'')+'">'+
       s.rows.map(function(r){
         return '<div class="grow"><div class="gl">'+esc(r.c)+'</div>'+
           '<div class="gt"><div class="gb" style="width:'+Math.max(3,Math.round(r.a/mx*100))+'%"></div></div>'+
@@ -3401,7 +3418,7 @@ function rpSlDraw(){
     }
     if(fs<fs0*0.6) Array.prototype.forEach.call(bigs,function(x){ x.classList.add('fit'); });
     if(b.scrollHeight>b.clientHeight+2) b.classList.add('long');
-  }
+  } else if(b.scrollHeight>b.clientHeight+2) b.classList.add('long');
 
   $('slPg').textContent=(SL.i+1)+' / '+SL.list.length;
 }
@@ -3537,6 +3554,10 @@ function cfEditor(back){
   },true);
 }
 /* 교사: 보고서 검토 */
+function posterItem(t,cls){
+  var pg={}; for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
+  return {pages:pg,team:t.team,cls:cls,members:t.members||[]};
+}
 function drawRepTeacher(r,cls){
   var box=$('tBody'); box.innerHTML=''; cfLoad();
   var eb=document.createElement('button'); eb.type='button'; eb.className='cfedit-b noprint';
@@ -3563,6 +3584,10 @@ function drawRepTeacher(r,cls){
     ch+='<div class="ml"><b style="color:#a4271a">겹침</b><span style="color:#a4271a">사건 '+CASE_NUM[n]+'을 '+cmap[n].join('·')+'모둠이 함께 골랐어요. 한 모둠을 다른 사건으로 바꿔 확정해 주세요.</span></div>'; });
   mh+=ch;
   mb.innerHTML=mh; box.appendChild(mb);
+  var pa=document.createElement('button'); pa.type='button'; pa.className='cfedit-b noprint';
+  pa.textContent='🖼 '+cls+'반 모둠 포스터 모두 인쇄 — 계획서 · 측정표 · 사진 · 결론을 한 장에 (A3 · A2 · A1)';
+  pa.addEventListener('click',function(){ printPosters(items.map(function(t){ return posterItem(t,cls); })); });
+  box.appendChild(pa);
   items.forEach(function(t){
     var d=document.createElement('div'); d.className='trp';
     var ap=t.approve||{};
@@ -3571,7 +3596,7 @@ function drawRepTeacher(r,cls){
       '<span class="chip cE '+((ap.ev||{}).st==='승인'?'ok':(ap.ev||{}).st==='보완'?'fix':'no')+'">결과 '+esc((ap.ev||{}).st||'검토 전')+'</span>'+
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
-      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bPo" type="button">🖼 포스터</button></div>'+
       RV_SEC.map(function(S){ var a=rvAp(ap,S);
         return '<div class="rvsec" data-k="'+S.k+'"><div class="rvh">'+S.ic+' '+S.lb+' 검토</div>'+
           '<div class="btns"><button class="bRd" type="button">'+S.ic+' '+S.lb+' 읽기</button>'+
@@ -3614,6 +3639,7 @@ function drawRepTeacher(r,cls){
       });
       mems.appendChild(sp);
     });
+    d.querySelector('.bPo').addEventListener('click',function(){ printPosters([posterItem(t,cls)]); });
     d.querySelector('.bSl').addEventListener('click',function(){
       var pg={};
       for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
@@ -4756,6 +4782,153 @@ function printDoc(title, css, body){
     body+'</body></html>');
   w.document.close();
   setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 600);
+}
+
+/* ───────── 탐구 포스터 (과학전람회식 큰 포스터) ─────────
+   A3 세로(297×420mm)로 짜고, A2·A1은 같은 배치를 그대로 키워(zoom) 인쇄한다.
+   내용이 많으면 글씨·사진을 줄여 한 장에 맞춘다(창 안의 posterBoot). */
+var POSTER_CSS=
+  '*{box-sizing:border-box;margin:0;padding:0}'+
+  'body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:#e9edf2;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+  '.bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:#1b2a3f;color:#fff;font:14px sans-serif}'+
+  '.bar button{font:inherit;font-weight:700;padding:6px 12px;border-radius:8px;border:1px solid #d9a441;background:#24364f;color:#f6dc8c;cursor:pointer}'+
+  '.bar button.on{background:#d9a441;color:#1b2a3f}.bar .st{color:#b9c7d6}.bar .go{background:#d9a441;color:#1b2a3f;margin-left:auto}'+
+  '.pz{padding:16px 0}'+
+  '.sheet{width:297mm;height:420mm;margin:0 auto 16px;position:relative;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.2);page-break-after:always;--f:13pt;--ph:46mm}'+
+  '.sheet:last-child{page-break-after:auto}'+
+  '@media print{body{background:#fff}.bar{display:none}.pz{padding:0}.sheet{margin:0;box-shadow:none}}'+
+  '.hd{position:absolute;left:0;right:0;top:0;height:44mm;background:#1b2a3f;color:#fff;padding:7mm 12mm 0 12mm}'+
+  '.hd::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2.2mm;background:repeating-linear-gradient(135deg,#d9a441 0 4mm,#1b2a3f 4mm 8mm)}'+
+  '.hd .org{font-size:11pt;font-weight:800;color:#d9a441;letter-spacing:.12em}'+
+  '.hd .tt{font-size:30pt;font-weight:900;letter-spacing:-.02em;margin-top:2mm;line-height:1.15;padding-right:40mm}'+
+  '.hd .sb{font-size:11.5pt;color:#cfdced;margin-top:2.6mm;font-weight:700}'+
+  '.hd .no{position:absolute;right:12mm;top:7mm;width:30mm;height:30mm;border-radius:50%;border:1.2mm double #d9a441;color:#f6dc8c;'+
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900}'+
+  '.hd .no b{font-size:24pt;line-height:1}.hd .no span{font-size:7.5pt;letter-spacing:.2em;margin-top:1mm}'+
+  '.pb{position:absolute;top:52mm;left:10mm;right:10mm;bottom:14mm;column-count:3;column-gap:7mm;column-fill:auto;font-size:var(--f);color:#1d2836;overflow:hidden}'+
+  '.sec{break-inside:avoid;margin-bottom:4mm;border:.4mm solid #d5dde6;border-radius:2.5mm;padding:2.8mm 3.4mm 3mm;background:#fff}'+
+  '.sec h3{font-size:1.08em;font-weight:900;color:#1b2a3f;border-bottom:.5mm solid #d9a441;padding-bottom:1mm;margin-bottom:1.8mm}'+
+  '.sec h3 i{font-style:normal;margin-right:1.2mm}'+
+  '.sec p{white-space:pre-line;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}'+
+  '.sec p+p{margin-top:1.4mm}.sec p b{color:#9a6f12}'+
+  '.sec.key{background:#1b2a3f;border-color:#1b2a3f;color:#fff}.sec.key h3{color:#f6dc8c;border-color:#d9a441}'+
+  '.sec.gold{background:#fffaf0;border-color:#e3c77a}'+
+  '.pics{display:grid;grid-template-columns:1fr;gap:2mm;margin-top:2mm}.pics.two{grid-template-columns:1fr 1fr}'+
+  '.pics figure{margin:0}.pics img{width:100%;height:var(--ph);object-fit:cover;border-radius:1.5mm;background:#eef2f6;display:block}'+
+  '.pics.two img{height:calc(var(--ph)*.62)}'+
+  '.pics figcaption{font-size:.78em;color:#4b5b6e;line-height:1.35;margin-top:.8mm;white-space:pre-line}'+
+  '.mt{width:100%;border-collapse:collapse;font-size:.82em;margin-top:1mm}'+
+  '.mt th{background:#eef2f6;color:#4b5b6e;font-weight:800;padding:.8mm .6mm;border:.25mm solid #d5dde6}'+
+  '.mt td{text-align:center;padding:.8mm .6mm;border:.25mm solid #d5dde6}.mt td.c{text-align:left;font-weight:700}.mt td.av{font-weight:900;color:#9a6f12;background:#fffaf0}'+
+  '.bars{margin-top:2.4mm}.br{display:flex;align-items:center;gap:1.6mm;margin-bottom:1.2mm;font-size:.82em}'+
+  '.br .l{flex:0 0 28%;text-align:right;font-weight:700;color:#4b5b6e;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}'+
+  '.br .t{flex:1;height:3.6mm;background:#eef2f6;border-radius:1mm;overflow:hidden}.br .b{height:100%;background:#d9a441}'+
+  '.br .v{flex:0 0 17%;font-weight:900}'+
+  '.dl div{display:flex;gap:1.6mm;line-height:1.45}.dl div+div{margin-top:.8mm}.dl b{flex:0 0 auto;color:#9a6f12}'+
+  '.ft{position:absolute;left:10mm;right:10mm;bottom:5mm;font-size:8.5pt;color:#8a96a4;display:flex;justify-content:space-between;border-top:.3mm solid #e1e6ec;padding-top:1.6mm}';
+
+function posterSheet(pg,team,cls,members){
+  var N=rpNorm(pg), c=N.cover, pl=N.plan, ev=N.evid, cs=rpCaseOf(pg,cls,team);
+  var tx=function(v){ return String(v||'').trim(); };
+  var P=function(v){ return tx(v)?'<p>'+esc(tx(v))+'</p>':''; };
+  var out='';
+  var sec=function(ic,t,body,cl){ if(body) out+='<div class="sec'+(cl?' '+cl:'')+'"><h3><i>'+ic+'</i>'+esc(t)+'</h3>'+body+'</div>'; };
+  var pics=function(arr,max){
+    var L=rpPh(arr).slice(0,max); if(!L.length) return '';
+    return '<div class="pics'+(L.length>1?' two':'')+'">'+L.map(function(p){
+      return '<figure><img src="'+rpImg(p.id,1)+'" alt="">'+(tx(p.cap)?'<figcaption>'+esc(tx(p.cap))+'</figcaption>':'')+'</figure>'; }).join('')+'</div>';
+  };
+  var meas=function(rows,unit){
+    var rs=(rows||[]).filter(function(r){ return r&&tx(r.c)&&rpAvg(r)!=null; });
+    if(!rs.length) return '';
+    var nv=0, mx=0; rs.forEach(function(r){ nv=Math.max(nv,rpVals(r).length); mx=Math.max(mx,rpAvg(r)); });
+    var h='<table class="mt"><tr><th>조건</th>'; for(var q=1;q<=nv;q++) h+='<th>'+q+'</th>'; h+='<th>평균</th><th>범위</th></tr>';
+    rs.forEach(function(r){ var v=rpVals(r); h+='<tr><td class="c">'+esc(r.c)+'</td>';
+      for(var q=0;q<nv;q++) h+='<td>'+(v[q]!=null?v[q]:'')+'</td>';
+      h+='<td class="av">'+rpAvg(r)+'</td><td>'+esc(rpRange(r))+'</td></tr>'; });
+    h+='</table><div class="bars">'+rs.map(function(r){ var a=rpAvg(r);
+      return '<div class="br"><span class="l">'+esc(r.c)+'</span><span class="t"><span class="b" style="display:block;width:'+(mx>0?Math.max(2,Math.round(a/mx*100)):2)+'%"></span></span><span class="v">'+a+'</span></div>'; }).join('')+'</div>';
+    return (tx(unit)?'<p style="font-size:.85em;color:#4b5b6e">단위 · '+esc(tx(unit))+'</p>':'')+h;
+  };
+  var hasB=[pl.qB,pl.hB,pl.procB,ev.resB].some(tx) || rpPh(ev.phB).length>0 || rpRowsOk(ev.rowsB);
+  var vars=function(ind,dep,ctl){
+    var r=[['다르게',ind],['잰 것',dep],['같게',ctl]].filter(function(x){ return tx(x[1]); });
+    return r.length?'<div class="dl">'+r.map(function(x){ return '<div><b>'+x[0]+'</b><span>'+esc(tx(x[1]))+'</span></div>'; }).join('')+'</div>':'';
+  };
+
+  sec('🔍','발견 장면',P(pl.scene)+pics(pl.scenePh,2));
+  sec('❓','궁금증',P(pl.wonder));
+  sec('➡️','힘 분석',P(pl.forces)+pics(pl.forcePh,1));
+  [['A',pl.qA,pl.hA,pl.indA,pl.depA,pl.ctlA,pl.procA,ev.rowsA,ev.unitA,ev.phA,ev.obsA],
+   ['B',pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.rowsB,ev.unitB,ev.phB,ev.obsB]].forEach(function(X,i){
+    if(i===1&&!hasB) return;
+    var pre=hasB?'실험 '+X[0]+' · ':'';
+    sec('🧪',pre+'실험 질문과 가설',(tx(X[1])?'<p><b>질문</b> '+esc(tx(X[1]))+'</p>':'')+(tx(X[2])?'<p><b>가설</b> '+esc(tx(X[2]))+'</p>':''));
+    sec('⚖️',pre+'변인',vars(X[3],X[4],X[5]));
+    sec('📋',pre+'실험 과정',P(X[6]));
+    sec('📏',pre+'측정 결과',meas(X[7],X[8])+(tx(X[10])?'<p style="margin-top:1.6mm"><b>측정하며 본 것</b> '+esc(tx(X[10]))+'</p>':''),'gold');
+    sec('📷',pre+'실험 장면',pics(X[9],hasB?2:4));
+  });
+  sec('📊','실제 결과',(tx(ev.resA)?'<p>'+(hasB?'<b>A</b> ':'')+esc(tx(ev.resA))+'</p>':'')+(tx(ev.resB)?'<p><b>B</b> '+esc(tx(ev.resB))+'</p>':''));
+  sec('🔁','가설과 비교',P(ev.cmp));
+  sec('🔎','더 보여 줄 장면',pics(ev.phX,4));
+  sec('🧲','결론',P(ev.concl),'key');
+  sec('🛡','안전 제안',P(ev.prop)+(tx(ev.basis)?'<p><b>근거</b> '+esc(tx(ev.basis))+'</p>':''),'gold');
+  sec('🕵️','아직 모르는 것',P(ev.unk));
+
+  var no=c.caseNo||(cs?CASE_NUM[cs.no]:'');
+  var title=tx(c.title)||(cs?cs.D.t:'사건 제목 없음');
+  var crew=(members||[]).map(function(m){ return m.det||m.name; }).filter(Boolean).join(' · ');
+  return '<div class="sheet"><div class="hd"><div class="org">힘 탐정 사무소 · 1학년 '+esc(cls)+'반 '+esc(team)+'모둠 수사 보고</div>'+
+    '<div class="tt">'+esc(title)+'</div>'+
+    '<div class="sb">'+(cs?'살펴본 힘 · '+esc(cs.D.f.join(', '))+'&nbsp;&nbsp;':'')+(crew?'수사팀 · '+esc(crew):'')+'</div>'+
+    '<div class="no"><b>'+esc(no||'?')+'</b><span>사건 번호</span></div></div>'+
+    '<div class="pb">'+out+'</div>'+
+    '<div class="ft"><span>우리 학교 속 힘 찾기 · 질문과 탐구중심 수업</span><span>힘 탐정 사무소</span></div></div>';
+}
+/* 포스터 창 안에서 돈다: 사진을 기다린 뒤 장마다 글씨·사진 크기를 줄여 한 장에 맞추고, 용지 크기를 고른다 */
+function posterBoot(){
+  var SZ={A3:[297,420,1],A2:[420,594,420/297],A1:[594,841,2]};
+  var st=document.getElementById('pst'), pg=document.getElementById('pgsz'), pz=document.querySelector('.pz');
+  function fitAll(){
+    Array.prototype.forEach.call(document.querySelectorAll('.sheet'),function(sh){
+      var pb=sh.querySelector('.pb'), f=20, ph=72, g=0;
+      do{ sh.style.setProperty('--f',f+'pt'); sh.style.setProperty('--ph',ph+'mm');
+        if(pb.scrollWidth<=pb.clientWidth+2) break; f*=0.95; ph*=0.93; g++; } while(f>6 && g<40);
+      if(pb.scrollWidth>pb.clientWidth+2) sh.setAttribute('data-over','1');
+    });
+    var over=document.querySelectorAll('.sheet[data-over]').length;
+    st.textContent=over?('⚠ '+over+'장은 내용이 너무 많아 끝부분이 잘릴 수 있어요'):'준비됨 · 용지를 고르고 인쇄하세요';
+  }
+  function size(k){
+    var s=SZ[k]; pg.textContent='@page{size:'+s[0]+'mm '+s[1]+'mm;margin:0}';
+    pz.style.zoom=s[2];
+    Array.prototype.forEach.call(document.querySelectorAll('.bar [data-sz]'),function(b){ b.classList.toggle('on',b.getAttribute('data-sz')===k); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.bar [data-sz]'),function(b){
+    b.addEventListener('click',function(){ size(b.getAttribute('data-sz')); });
+  });
+  document.getElementById('pgo').addEventListener('click',function(){ window.print(); });
+  size('A3');
+  var imgs=document.querySelectorAll('img'), t0=Date.now();
+  (function wait(){
+    var left=0; Array.prototype.forEach.call(imgs,function(im){ if(!im.complete) left++; });
+    if(left && Date.now()-t0<20000){ st.textContent='사진 불러오는 중... '+left+'장 남음'; setTimeout(wait,400); return; }
+    fitAll();
+  })();
+}
+function printPosters(list){
+  if(!list.length){ alert('인쇄할 모둠이 없습니다.'); return; }
+  var w=window.open('','_blank');
+  if(!w){ alert('팝업이 막혀 있습니다. 브라우저 주소창 옆에서 팝업을 허용해 주세요.'); return; }
+  w.document.write('<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>탐구 포스터</title>'+
+    '<style>'+POSTER_CSS+'</style><style id="pgsz">@page{size:297mm 420mm;margin:0}</style></head><body>'+
+    '<div class="bar"><b>🖼 탐구 포스터</b><span>용지</span>'+
+    '<button type="button" data-sz="A3">A3</button><button type="button" data-sz="A2">A2</button><button type="button" data-sz="A1">A1</button>'+
+    '<span class="st" id="pst">준비 중...</span><button type="button" class="go" id="pgo">인쇄하기</button></div>'+
+    '<div class="pz">'+list.map(function(x){ return posterSheet(x.pages,x.team,x.cls,x.members); }).join('')+'</div>'+
+    '<script>('+posterBoot.toString()+')();<\/script></body></html>');
+  w.document.close();
 }
 
 /* 명찰 한 장 */
