@@ -623,6 +623,8 @@
   .rphead .mem{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;}
   .rphead .mem span{background:#1d2b3d;border:1px solid #3a4c66;color:#cfdced;font-size:11.5px;
     font-weight:700;border-radius:20px;padding:2px 9px;}
+  #rpS3{display:block;width:100%;border:0;border-radius:11px;padding:12px 10px;margin-bottom:8px;background:var(--ink);color:#f6dc8c;font-weight:900;font-size:15px;cursor:pointer;text-align:center}
+  #rpS3 small{display:block;font-size:11.5px;font-weight:600;color:#cfdced;margin-top:2px}
   .rpacts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
   .rpacts button{border:0;border-radius:11px;padding:11px 4px;font-weight:800;font-size:13px;cursor:pointer;}
   .rpacts .a1{background:var(--amber);color:#fff;}
@@ -921,6 +923,17 @@
   #slv .gslide.wt .grow{margin-bottom:1vh;}
   #slv .gslide.wt .gt{height:clamp(16px,3vh,30px);}
   #slv .gslide.wt .gl,#slv .gslide.wt .gv{font-size:clamp(13px,2.3vw,22px);}
+  #slv .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4vw;width:100%;max-width:1150px}
+  #slv .pgrid.n1{grid-template-columns:1fr;max-width:700px}
+  #slv .pgrid.n2,#slv .pgrid.n4{grid-template-columns:repeat(2,1fr);max-width:900px}
+  #slv .pgrid figure{margin:0;cursor:zoom-in}
+  #slv .pgrid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#1d2b3d;display:block}
+  #slv .pgrid.n1 img{aspect-ratio:auto;max-height:55vh;object-fit:contain}
+  #slv .pgrid figcaption{color:#cfdced;font-size:clamp(12px,1.7vw,17px);font-weight:700;margin-top:.6vh;line-height:1.35;text-align:left}
+  #slv .pgz{color:#61758c;font-size:13px;margin-top:1.4vh}
+  #slv .slzoom{position:absolute;inset:0;z-index:5;background:rgba(8,14,22,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3vh 4vw;cursor:zoom-out}
+  #slv .slzoom img{max-width:96%;max-height:80vh;object-fit:contain;border-radius:10px}
+  #slv .slzoom div{color:#e6eef7;font-size:clamp(15px,2.4vw,24px);font-weight:700;margin-top:2vh;max-width:90%;text-align:center}
   #slv .foot{display:flex;align-items:center;padding:10px 16px 16px;color:#61758c;font-size:13px;}
   #slv .foot .pgn{margin-left:auto;font-weight:800;color:#9fb3c8;font-size:clamp(14px,2.2vw,20px);}
   /* 교사: 보고서 검토 · 현황판 */
@@ -2798,7 +2811,8 @@ function rpHome(){
   var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||(cs?CASE_NUM[cs.no]:'?'))+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
     '<h2>'+esc(c.title||(cs?cs.D.t:'사건 제목을 아직 정하지 않았어요'))+'</h2><div class="mem">'+
     RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
-  h+='<div class="rpacts">'+
+  h+='<button class="a0" id="rpS3" type="button">⏱ 3분 발표 <small>핵심 장면만 · 실험 사진은 한 화면에 모아서</small></button>'+
+    '<div class="rpacts">'+
     '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
     '<button class="a2" id="rpVB">🕵 검증 회의</button>'+
     '<button class="a3" id="rpMB">📨 내 제안</button></div>';
@@ -2812,6 +2826,9 @@ function rpHome(){
   box.innerHTML=h;
   if($('rpOff')) $('rpOff').addEventListener('click',function(){ this.textContent='연결하는 중...'; rpLoad(); });
   if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint2_'+me.cls+'_'+RP.team,'1'); this.remove(); });
+  $('rpS3').addEventListener('click',function(){
+    rpSlides(RP.pages,RP.team,RP.props,RP.members.map(function(m){return m.det||m.name;}).join(' · '),null,true);
+  });
   $('rpSB').addEventListener('click',function(){
     rpSlides(RP.pages,RP.team,RP.props,RP.members.map(function(m){return m.det||m.name;}).join(' · '));
   });
@@ -3359,11 +3376,12 @@ function rpMyProps(){
 
 /* 발표 모드 */
 var SL={list:[],i:0,run:false,left:180,tick:null};
-function rpSlides(pages,teamNo,props,memText,cls){
+/* short=true → '3분 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
+function rpSlides(pages,teamNo,props,memText,cls,short){
   var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
   var cs=rpCaseOf(pages,cls||(me&&me.cls),teamNo);
   var S=[{tp:'title',no:c.caseNo||(cs?CASE_NUM[cs.no]:''),t:c.title||(cs?cs.D.t:'사건 제목 없음'),sub:(memText||'')}];
-  if(cs){
+  if(cs&&!short){
     S.push({tp:'kb',k:'사건 의뢰 · 살펴볼 힘: '+cs.D.f.join(', '),b:cs.D.ask});
     var CX=cfOf(cs.no);
     S.push({tp:'kb',k:'현장 단서'+(CX.names?' · '+CX.names:'')+(cs.finder?' · 최초 발견 '+cs.finder:''),b:cs.D.clues.map(function(x){ return '· '+x; }).join('\n'),sm:true});
@@ -3383,9 +3401,16 @@ function rpSlides(pages,teamNo,props,memText,cls){
     var rs=(rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r),v:rpVals(r),g:rpRange(r)}; }).filter(function(r){ return r.c&&r.a!=null; });
     if(rs.length) S.push({tp:'graph',k:k,rows:rs,unit:unit||''});
   };
+  var grid=function(k,arr){ var L=rpPh(arr).slice(0,6); if(L.length) S.push({tp:'grid',k:k,items:L}); };
+  if(short){
+    var sp=rpPh(pl.scenePh)[0];
+    if(sp) S.push({tp:'ph',k:'발견 장면',id:sp.id,cap:sp.cap||tx(pl.scene)}); else kb('발견 장면',pl.scene);
+    kb('힘 분석',pl.forces);
+  } else {
   kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
   kb('2. 궁금증',pl.wonder);
   kb('3. 힘 분석',pl.forces); phs('힘 화살표',pl.forcePh);
+  }
   /* 실험 A를 질문부터 결과까지 다 보여 준 뒤 실험 B로 넘어간다 (A·B를 번갈아 보이면 헷갈림) */
   var hasB=[pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.obsB,ev.resB].some(tx) ||
            rpPh(ev.phB).length>0 || (ev.rowsB||[]).some(function(r){ return r&&r.c&&rpAvg(r)!=null; });
@@ -3394,6 +3419,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
     two(p+'실험 질문',q,p+'가설',h);
     var vr=[['다르게 할 것','조작 변인',ind,'d'],['잴 것','종속 변인',dep,'m'],['같게 할 것','통제 변인',ctl,'s']].filter(function(x){ return tx(x[2]); });
     if(vr.length) S.push({tp:'vars',k:p+'변인',rows:vr.map(function(x){ return {l:x[0],l2:x[1],t:tx(x[2]),c:x[3]}; })});
+    if(short){ grid(p+'실험 장면',ph); graph(p+'재 보니',rows,unit); return; }
     kb(p+'실험 과정',proc);
     graph(p+'재 보니',rows,unit); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
     kb(p+'실제 결과',res);
@@ -3404,7 +3430,7 @@ function rpSlides(pages,teamNo,props,memText,cls){
   phs('더 보여 줄 장면',ev.phX);
   kb('결론',ev.concl,true);
   kb('안전 제안',ev.prop);
-  kb('근거 — 우리가 잰 값',ev.basis,true);
+  if(!short) kb('근거 — 우리가 잰 값',ev.basis,true);
   kb('아직 모르는 것',ev.unk);
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
@@ -3440,7 +3466,9 @@ function rpSlGo(d){
 /* 다음 사진 두 장만 미리 받아 두기 — 사진이 많아도 발표를 열 때 느려지지 않게 */
 function rpSlPre(){
   for(var k=SL.i, got=0; k<SL.list.length && got<2; k++){
-    var x=SL.list[k]; if(x.tp!=='ph') continue; got++;
+    var x=SL.list[k];
+    if(x.tp==='grid'){ x.items.forEach(function(p){ if(!SL.pre['g'+p.id]){ var im=new Image(); im.src=rpImg(p.id); SL.pre['g'+p.id]=im; } }); got++; continue; }
+    if(x.tp!=='ph') continue; got++;
     if(!SL.pre[x.id]){ var im=new Image(); im.src=rpImg(x.id,1); SL.pre[x.id]=im; }
   }
 }
@@ -3453,6 +3481,10 @@ function rpSlDraw(){
   } else if(s.tp==='kb'){
     var ml=/\n/.test(s.b);
     h='<div class="k">'+esc(s.k)+'</div><div class="big'+(s.gold?' gold':'')+(s.sm?' sm':'')+(ml?' ml':'')+'">'+esc(s.b)+'</div>';
+  } else if(s.tp==='grid'){
+    h='<div class="k">'+esc(s.k)+'</div><div class="pgrid n'+Math.min(s.items.length,6)+'">'+s.items.map(function(p){
+      return '<figure data-id="'+esc(p.id)+'"><img src="'+rpImg(p.id)+'" alt="사진">'+(p.cap?'<figcaption>'+esc(p.cap)+'</figcaption>':'')+'</figure>'; }).join('')+'</div>'+
+      '<div class="pgz">사진을 누르면 크게 볼 수 있어요</div>';
   } else if(s.tp==='vars'){
     h='<div class="k">'+esc(s.k)+'</div><div class="vgrid">'+s.rows.map(function(r){
       return '<div class="vr"><div class="vl '+r.c+'">'+esc(r.l)+'<small>'+esc(r.l2)+'</small></div><div class="big vt">'+esc(r.t)+'</div></div>'; }).join('')+'</div>';
@@ -3479,6 +3511,14 @@ function rpSlDraw(){
       }).join('')+'</div>';
   }
   b.innerHTML=h; b.classList.remove('long'); b.scrollTop=0;
+  Array.prototype.forEach.call(b.querySelectorAll('.pgrid figure'),function(f){
+    f.addEventListener('click',function(e){ e.stopPropagation();
+      var z=document.createElement('div'); z.className='slzoom';
+      z.innerHTML='<img src="'+rpImg(f.dataset.id,1)+'" alt="사진">'+(f.querySelector('figcaption')?'<div>'+f.querySelector('figcaption').innerHTML+'</div>':'');
+      z.addEventListener('click',function(ev){ ev.stopPropagation(); z.remove(); });
+      $('slv').appendChild(z);
+    });
+  });
   /* 글이 길면 화면에 들어갈 때까지 글씨를 줄이고, 그래도 넘치면 위에서부터 스크롤 */
   var bigs=b.querySelectorAll('.big');
   if(bigs.length){
@@ -3667,7 +3707,7 @@ function drawRepTeacher(r,cls){
       '<span class="chip cE '+((ap.ev||{}).st==='승인'?'ok':(ap.ev||{}).st==='보완'?'fix':'no')+'">결과 '+esc((ap.ev||{}).st||'검토 전')+'</span>'+
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
-      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bPo" type="button">🖼 포스터</button></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bS3" type="button">⏱ 3분 발표</button><button class="bPo" type="button">🖼 포스터</button></div>'+
       RV_SEC.map(function(S){ var a=rvAp(ap,S);
         return '<div class="rvsec" data-k="'+S.k+'"><div class="rvh">'+S.ic+' '+S.lb+' 검토</div>'+
           '<div class="btns"><button class="bRd" type="button">'+S.ic+' '+S.lb+' 읽기</button>'+
@@ -3711,6 +3751,7 @@ function drawRepTeacher(r,cls){
       mems.appendChild(sp);
     });
     d.querySelector('.bPo').addEventListener('click',function(){ printPosters([posterItem(t,cls)]); });
+    d.querySelector('.bS3').addEventListener('click',function(){ var it=posterItem(t,cls); rpSlides(it.pages,t.team,[],(t.members||[]).map(function(m){return m.det||m.name;}).join(' · '),cls,true); });
     d.querySelector('.bSl').addEventListener('click',function(){
       var pg={};
       for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
