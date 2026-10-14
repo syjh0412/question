@@ -1568,6 +1568,9 @@ function greetDet(){
 
 function isDeputy(m){ return !!m && rankOf(m).i>=GRAND_I && (m.score||0)>=90; }
 
+/* 탐정 이름 뒤에 '탐정'이 이미 붙어 있으면 한 번만 */
+function detName(n){ n=String(n||'').trim(); return /탐정$/.test(n)?n:n+' 탐정'; }
+
 function rankOf(m){
   if(!m) return {i:0,name:RANKS[0].n};
   var i=0;
@@ -1668,7 +1671,7 @@ function rankCele(nm){
   if(document.getElementById('rCele')) return;
   var o=document.createElement('div'); o.className='mcele'; o.id='rCele';
   o.innerHTML='<div class="seal"><b style="font-size:'+(nm.length>3?'32px':'44px')+'">'+nm+'</b><span>승 급</span></div>'+
-    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정, <b>'+nm+'</b> 승급을 축하합니다.<br>'+
+    '<p><b style="color:#f6dc8c">'+esc(detName(me.det||me.name))+'</b>, <b>'+nm+'</b> 승급을 축하합니다.<br>'+
     '수사 실력이 사무소에 인정되었습니다.</p>'+
     '<small>화면을 누르면 사무실로 돌아갑니다</small>';
   o.addEventListener('click', function(){ o.remove(); });
@@ -1691,7 +1694,7 @@ function setDeputy(on){
   ['mCele','rCele'].forEach(function(id){ var x=document.getElementById(id); if(x) x.remove(); });
   var o=document.createElement('div'); o.className='mcele dep'; o.id='dCele';
   o.innerHTML='<div class="seal"><b>부소장</b><span>DEPUTY CHIEF</span></div>'+
-    '<p><b style="color:#f6dc8c">'+esc(me.det||me.name)+'</b> 탐정을<br><b>힘 탐정 사무소 부소장</b>에 임명합니다.<br>'+
+    '<p><b style="color:#f6dc8c">'+esc(detName(me.det||me.name))+'</b>을<br><b>힘 탐정 사무소 부소장</b>에 임명합니다.<br>'+
     '도장, 동료의 인정, 해결한 사건, 꾸준한 성찰, 인정 90점 —<br>모두 증거로 쌓은 자리입니다.</p>'+
     '<small>화면을 누르면 부소장실로 들어갑니다</small>';
   o.addEventListener('click', function(){ o.remove(); });
@@ -1707,7 +1710,7 @@ function setMaster(on){
   if(document.getElementById('mCele')) return;
   var o=document.createElement('div'); o.className='mcele'; o.id='mCele';
   o.innerHTML='<div class="seal"><b>명탐정</b><span>MASTER DETECTIVE</span></div>'+
-    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정, 승급을 축하합니다.<br>'+
+    '<p><b style="color:#f6dc8c">'+esc(detName(me.det||me.name))+'</b>, 승급을 축하합니다.<br>'+
     '도장 8개, 동료의 인정, 해결한 사건까지 — 모두 증거로 쌓은 계급입니다.</p>'+
     '<small>화면을 누르면 사무실로 돌아갑니다</small>';
   o.addEventListener('click', function(){ o.remove(); });
@@ -2347,7 +2350,7 @@ function charCele(P){
   if(!P||document.getElementById('cCele')) return;
   var o=document.createElement('div'); o.className='mcele'; o.id='cCele';
   o.innerHTML='<div class="seal"><b style="font-size:62px">'+P.e+'</b><span>수사 파트너</span></div>'+
-    '<p><b style="color:#f6dc8c">'+(me.det||me.name)+'</b> 탐정과 <b>'+P.n+'</b>의 수사 계약이 체결되었습니다.<br>'+P.d+'</p>'+
+    '<p><b style="color:#f6dc8c">'+esc(detName(me.det||me.name))+'</b>과 <b>'+P.n+'</b>의 수사 계약이 체결되었습니다.<br>'+P.d+'</p>'+
     '<small>화면을 누르면 사무실로 돌아갑니다</small>';
   o.addEventListener('click',function(){ o.remove(); });
   document.body.appendChild(o);
@@ -5081,7 +5084,7 @@ function certHTML(x, no, opt){
     '<div class="crest">🏆</div>'+
     '<h1>임명장</h1><div class="en">CERTIFICATE OF APPOINTMENT</div>'+
     '<div class="who">'+esc(x.cls)+'반 '+esc(x.num)+'번 '+(det&&det!==nm?esc(nm):'')+
-      '<b>'+esc(det||nm)+(det?' 탐정':'')+'</b></div>'+
+      '<b>'+esc(det?detName(det):nm)+'</b></div>'+
     '<div class="role">부 소 장</div>'+
     '<div class="body">위 탐정은 학교 곳곳에서 힘을 찾아 질문하고, 친구들의 사건에 답하며, 측정한 증거로 사건을 해결하였습니다. '+
       '또한 차시마다 성찰을 기록하여 대탐정에 올랐고, 동료들의 인정을 차곡차곡 모았습니다. '+
