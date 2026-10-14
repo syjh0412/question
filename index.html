@@ -2375,7 +2375,7 @@ function rpJ(k){ return RP.pages[k]||{}; }
 function rpPage(k){ var P=null; RPAGES.forEach(function(x){ if(x.k===k) P=x; }); return P; }
 /* 측정은 조건마다 최대 5회 (예전 3회 기록도 그대로 읽힘) — 평균·범위는 적은 칸만으로 계산 */
 var RP_NV=5;
-var RP_NR=6;   /* 바꾼 조건(줄)은 6개까지 */
+var RP_NR=8;   /* 바꾼 조건(줄)은 8개까지 */
 function rpVals(r){
   var vs=[]; for(var k=1;k<=RP_NV;k++){ var x=parseFloat(r['v'+k]); if(isFinite(x)) vs.push(x); }
   return vs;
