@@ -2020,6 +2020,18 @@ var RGROUPS=[
       {f:'prop',t:'ta',n:'안전 제안',ph:'어떤 힘을 · 얼마나 · 어느 방향으로 바꾸자 (장치 · 관리 방법 · 사용 규칙)'},
       {f:'basis',t:'ta',n:'제안의 근거 (우리가 잰 값)',ph:'예) 젖은 바닥의 마찰력은 마른 바닥의 절반쯤이었다'},
       {f:'unk',t:'ta',n:'아직 모르는 것',ph:'재 보지 못한 것, 모형과 실제가 다를 수 있는 점 (탐정 수칙 3)'}]}
+  ]},
+  {pg:'script',n:'🎤 발표 대본 · 3분 말하기',sub:'네 명이 한 칸씩 쓰고, 「전체 보기」로 함께 읽으며 다듬어요. 보고서를 옮겨 적지 말고 친구에게 말하듯 쓰세요. 발표 화면과 포스터에는 나오지 않는 연습용이에요.',parts:[
+    {k:'s1',no:'①②',n:'사건 · 질문과 방법 (1분)',ic:'🗣',fs:[
+      {f:'sc1',t:'ta',n:'① 사건 — 20초',em:'무엇을 보고 왜 위험하다고 생각했나요? (발견 장면 사진을 짚으며)',ph:'예) 우리는 과학실 바닥에 물이 묻어 친구가 미끄러질 뻔한 걸 봤어요. 그래서 물이 바닥을 얼마나 미끄럽게 하는지 궁금했어요.'},
+      {f:'sc2',t:'ta',n:'② 질문과 방법 — 40초',em:'무엇을 다르게 하고, 무엇을 쟀고, 무엇을 같게 했나요? (바구니의 실물을 보여 주며)',ph:'예) 우리는 마른 바닥과 젖은 바닥에서 이 블록이 움직이기 시작하는 힘을 5번씩 쟀어요. 블록과 장소, 당기는 방향은 똑같이 했어요.'}]},
+    {k:'s2',no:'③',n:'결과 (1분)',ic:'📊',fs:[
+      {f:'sc3',t:'ta',n:'③ 결과 — 60초',em:'숫자를 꼭 말하기 · 가장 큰 값과 가장 작은 값 · 범위가 겹쳤나요? (측정표를 짚으며)',ph:'예) 마른 바닥은 평균 2.75 N, 젖은 바닥은 3.36 N이었어요. 범위가 겹치지 않아서 차이가 있다고 말할 수 있어요. 그런데 예상과 반대였어요.'}]},
+    {k:'s3',no:'④⑤',n:'결론과 제안 · 아직 모르는 것 (1분)',ic:'🛡',fs:[
+      {f:'sc4',t:'ta',n:'④ 결론과 안전 제안 — 40초',em:'그래서 학교 어디를 어떻게 바꾸자고 말할 건가요?',ph:'예) 그래서 우리는 ○○에 □□를 하자고 제안해요. 왜냐하면 우리가 잰 값이 …'},
+      {f:'sc5',t:'ta',n:'⑤ 아직 모르는 것 — 20초',em:'우리 실험의 한계 하나',ph:'예) 우리는 가벼운 블록을 천천히 당겼지만, 실제 사람은 무겁고 빠르게 걸어요.'}]},
+    {k:'s4',no:'Q&A',n:'예상 질문과 우리 답',ic:'❓',fs:[
+      {f:'qa',t:'ta',n:'친구들이 물어볼 질문 3개와 우리 답',em:'제안 카드 종류를 떠올려 보세요 — 증거, 변인, 우연, 모형과 실제, 부작용',ph:'Q. 몇 번 쟀어? 범위가 겹쳐?\nA. \nQ. 무엇을 같게 했어?\nA. \nQ. 그렇게 바꾸면 다른 문제는 없어?\nA. '}]}
   ]}
 ];
 var RPARTS={};
@@ -2944,10 +2956,12 @@ function rpEdit(k){
   if(csE&&(P.pg==='plan'||k==='cover'))
     h+='<details class="rpref"'+(k==='p1'?' open':'')+'><summary>📂 사건 파일 다시 보기</summary>'+rpCaseHTML(csE,me.cls,RP.team,true,RP.pages)+'</details>';
   if(G) h+='<details class="rpref"><summary>📖 친구들이 쓴 다른 부분 보기</summary><div class="rdwrap" id="rpRef"></div></details>';
+  if(P.pg==='script') h+='<details class="rpref"><summary>🔬 우리 측정 · 결과 · 결론 다시 보기</summary><div class="rdwrap" id="rpRefE"></div></details>';
   h+='<div class="rpcard rpform" id="rpF"></div><div class="rpsave"><button id="rpSv">저장하기</button></div>';
   box.innerHTML=h;
   $('rpBk').addEventListener('click',function(){ rpPingStop(); rpHome(); rpRefreshQuiet(); });
   if(G) $('rpRef').innerHTML=rpReadGroup(G,rpNorm(RP.pages)[G.pg]||{},rpJ('roles'),k);
+  if($('rpRefE')) RGROUPS.forEach(function(g){ if(g.pg==='evid') $('rpRefE').innerHTML=rpReadGroup(g,rpNorm(RP.pages).evid||{},rpJ('roles')); });
   var F=$('rpF');
   if(k==='rx'){
     RP._ed=JSON.parse(JSON.stringify(rpJ('rx')));
