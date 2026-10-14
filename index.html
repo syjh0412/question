@@ -1571,6 +1571,12 @@ function greetDet(){
 function isDeputy(m){ return !!m && rankOf(m).i>=GRAND_I && (m.score||0)>=90; }
 
 /* 탐정 이름 뒤에 '탐정'이 이미 붙어 있으면 한 번만 */
+/* 성의 있는 글자 수 (서버와 같은 규칙) — ㅋㅋ·ㅠㅠ, 띄어쓰기·문장부호, 같은 글자 반복은 빼고 셈 */
+function effLen(t){
+  return String(t||'').replace(/[\u3131-\u318E]/g,'')
+    .replace(/[\s.,!?~^·…\-_=+*#@'"()\[\]<>:;/\\|]/g,'')
+    .replace(/(.)\1{2,}/g,'$1').length;
+}
 function detName(n){ n=String(n||'').trim(); return /탐정$/.test(n)?n:n+' 탐정'; }
 
 function rankOf(m){
@@ -4290,7 +4296,7 @@ function card(it){
   if(arr.length) cnt.textContent='답변 '+arr.length+'개';
 
   var box=document.createElement('div'); box.className='ansbox';
-  var ta=document.createElement('textarea'); ta.placeholder='10자 이상 써 주세요';
+  var ta=document.createElement('textarea'); ta.placeholder='20자 이상 · 왜 그런지 이유까지 써 주세요';
   var bs=document.createElement('button'); bs.textContent='올리기';
   bs.addEventListener('click', function(){ doAnswer(it, d, ta, bs, alist, cnt); });
   box.appendChild(ta); box.appendChild(bs);
@@ -4405,7 +4411,7 @@ function doTip(it, cardEl, btn){
 
 function doAnswer(it, cardEl, ta, btn, alist, cnt){
   var t=ta.value.trim();
-  if(t.length<10){ alert('답변은 10자 이상 써 주세요'); ta.focus(); return; }
+  if(effLen(t)<20){ alert('답변은 20자 이상 써 주세요.\n(ㅋㅋ, 문장부호, 같은 글자 반복은 글자 수에 들어가지 않아요)\n왜 그런지 이유를 한 문장 더 붙여 보세요.'); ta.focus(); return; }
   btn.disabled=true; btn.textContent='...';
   call({action:'answer',qid:it.id,cls:me.cls,num:me.num,name:me.name,
         det:(TEACHER?'소장님':(me.det||'')),text:t},
