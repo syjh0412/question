@@ -2811,7 +2811,7 @@ function rpHome(){
   var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||(cs?CASE_NUM[cs.no]:'?'))+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
     '<h2>'+esc(c.title||(cs?cs.D.t:'사건 제목을 아직 정하지 않았어요'))+'</h2><div class="mem">'+
     RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
-  h+='<button class="a0" id="rpS3" type="button">⏱ 3분 발표 <small>핵심 장면만 · 실험 사진은 한 화면에 모아서</small></button>'+
+  h+='<button class="a0" id="rpS3" type="button">⏱ 3분 30초 발표 <small>핵심 장면만 · 실험 사진은 한 화면에 모아서</small></button>'+
     '<div class="rpacts">'+
     '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
     '<button class="a2" id="rpVB">🕵 검증 회의</button>'+
@@ -3375,8 +3375,8 @@ function rpMyProps(){
 }
 
 /* 발표 모드 */
-var SL={list:[],i:0,run:false,left:180,tick:null};
-/* short=true → '3분 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
+var SL={list:[],i:0,run:false,left:210,tick:null};
+/* short=true → '3분 30초 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
 function rpSlides(pages,teamNo,props,memText,cls,short){
   var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
   var cs=rpCaseOf(pages,cls||(me&&me.cls),teamNo);
@@ -3436,12 +3436,12 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
   SL.pre={}; rpSlPre();
-  SL.left=180;
+  SL.left=210;
   var v=$('slv');
   if(!v){
     v=document.createElement('div'); v.id='slv';
     v.innerHTML='<div class="top"><span class="tmchip" id="slTeam"></span>'+
-      '<button class="timer" id="slTime" type="button">⏱ 3:00</button>'+
+      '<button class="timer" id="slTime" type="button">⏱ 3:30</button>'+
       '<button class="x" id="slX" type="button">✕ 닫기</button></div>'+
       '<div class="body" id="slBody"></div>'+
       '<div class="foot"><span>왼쪽을 누르면 이전 · 오른쪽을 누르면 다음</span><span class="pgn" id="slPg"></span></div>';
@@ -3454,7 +3454,7 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
     });
   }
   $('slTeam').textContent=teamNo+'모둠';
-  $('slTime').textContent='⏱ 3:00'; $('slTime').classList.remove('lowt');
+  $('slTime').textContent='⏱ 3:30'; $('slTime').classList.remove('lowt');
   v.classList.add('on');
   rpSlDraw();
 }
@@ -3707,7 +3707,8 @@ function drawRepTeacher(r,cls){
       '<span class="chip cE '+((ap.ev||{}).st==='승인'?'ok':(ap.ev||{}).st==='보완'?'fix':'no')+'">결과 '+esc((ap.ev||{}).st||'검토 전')+'</span>'+
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
-      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bS3" type="button">⏱ 3분 발표</button><button class="bPo" type="button">🖼 포스터</button></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bS3" type="button">⏱ 3분 30초 발표</button><button class="bPo" type="button">🖼 포스터</button><button class="bCf" type="button">📷 현장 사진 고르기</button></div>'+
+      '<div class="cfpk hide"></div>'+
       RV_SEC.map(function(S){ var a=rvAp(ap,S);
         return '<div class="rvsec" data-k="'+S.k+'"><div class="rvh">'+S.ic+' '+S.lb+' 검토</div>'+
           '<div class="btns"><button class="bRd" type="button">'+S.ic+' '+S.lb+' 읽기</button>'+
@@ -3751,6 +3752,43 @@ function drawRepTeacher(r,cls){
       mems.appendChild(sp);
     });
     d.querySelector('.bPo').addEventListener('click',function(){ printPosters([posterItem(t,cls)]); });
+    /* 소장이 발표 보기에 나올 사건 파일 현장 사진을 모둠 대신 고르기 — 최신 표지를 받아 cfOff만 바꿔 저장 */
+    d.querySelector('.bCf').addEventListener('click',function(){
+      var pk=d.querySelector('.cfpk');
+      if(!pk.classList.contains('hide')){ pk.classList.add('hide'); return; }
+      pk.classList.remove('hide'); pk.innerHTML='<div class="empty">불러오는 중...</div>';
+      cfLoad(function(){
+        call({action:'report',cls:cls,team:t.team},function(res){
+          var pg={}, raw=res.pages||{};
+          for(var k in raw){ try{ pg[k]=JSON.parse(raw[k].j||'{}'); }catch(e){ pg[k]={}; } }
+          var cs=rpCaseOf(pg,cls,t.team);
+          if(!cs){ pk.innerHTML='<div class="empty">아직 배정된 사건이 없습니다.</div>'; return; }
+          var L=cfOf(cs.no).ph, off=cfOffOf(pg);
+          if(!L.length){ pk.innerHTML='<div class="empty">사건 '+CASE_NUM[cs.no]+' 사건 파일에 현장 사진이 없습니다.</div>'; return; }
+          pk.innerHTML='<div class="cf-k" style="margin-top:6px">사건 '+CASE_NUM[cs.no]+' 현장 사진 — 발표 보기에 넣을 사진만 체크</div>'+
+            '<div class="cf-ph sm">'+L.map(function(p){ var on=off.indexOf(p.id)<0;
+              return '<figure'+(on?'':' class="off"')+'><img src="'+rpImg(p.id)+'" alt="현장 사진" loading="lazy">'+(p.cap?'<figcaption>'+esc(p.cap)+'</figcaption>':'')+
+                '<label class="cfsel"><input type="checkbox" data-cfid="'+esc(p.id)+'"'+(on?' checked':'')+'> 넣기</label></figure>'; }).join('')+'</div>'+
+            '<div class="btns" style="margin-top:8px"><button class="pri cfSv" type="button">현장 사진 선택 저장</button></div>';
+          var cks=pk.querySelectorAll('input[data-cfid]');
+          Array.prototype.forEach.call(cks,function(ck){ ck.addEventListener('change',function(){ ck.closest('figure').classList.toggle('off',!ck.checked); }); });
+          pk.querySelector('.cfSv').addEventListener('click',function(){
+            var btn=this, o=[]; Array.prototype.forEach.call(cks,function(ck){ if(!ck.checked) o.push(ck.getAttribute('data-cfid')); });
+            btn.disabled=true; btn.textContent='저장 중...';
+            /* 저장 직전에 표지를 다시 받아 학생이 그사이 고친 제목 등을 덮어쓰지 않게 */
+            call({action:'report',cls:cls,team:t.team},function(r2){
+              var cv={}; try{ cv=JSON.parse(((r2.pages||{}).cover||{}).j||'{}')||{}; }catch(e){ cv={}; }
+              cv.cfOff=o;
+              post({action:'tpage',pin:PIN,cls:cls,team:t.team,page:'cover',json:JSON.stringify(cv)},
+                function(){ btn.disabled=false; btn.textContent='저장됨';
+                  t.pages=t.pages||{}; t.pages.cover=JSON.stringify(cv);
+                  rpToast(t.team+'모둠 현장 사진을 '+(cks.length-o.length)+'장으로 정했어요'); },
+                function(err){ btn.disabled=false; btn.textContent='현장 사진 선택 저장'; alert(err); });
+            },function(err){ btn.disabled=false; btn.textContent='현장 사진 선택 저장'; alert(err); });
+          });
+        },function(err){ pk.innerHTML='<div class="empty">불러오지 못했어요: '+esc(String(err))+'</div>'; });
+      });
+    });
     d.querySelector('.bS3').addEventListener('click',function(){ var it=posterItem(t,cls); rpSlides(it.pages,t.team,[],(t.members||[]).map(function(m){return m.det||m.name;}).join(' · '),cls,true); });
     d.querySelector('.bSl').addEventListener('click',function(){
       var pg={};
