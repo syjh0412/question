@@ -3717,6 +3717,9 @@ function drawRepTeacher(r,cls){
           '<div class="ap"><button class="bOk" type="button">✔ 승인</button><button class="bFx" type="button">△ 보완</button>'+
           '<button class="bSv" type="button">저장</button>'+
           '<textarea class="apNote" rows="4" placeholder="'+S.lb+'에 대한 소장 의견 (학생의 '+S.lb+' 화면에 보입니다 · 엔터로 줄바꿈)"></textarea></div></div>'; }).join('')+
+      '<div class="rvsec" data-k="script"><div class="rvh">🎤 발표 대본 · 예상 질문</div>'+
+        '<div class="btns"><button class="bRdS" type="button">🎤 발표 대본 읽기</button></div>'+
+        '<div class="plan2 hide"></div></div>'+
       '<div class="ap cs"><select class="cSel"></select>'+
       '<input type="text" class="cFind" placeholder="최초 발견 탐정 이름 (탐정 이름으로)">'+
       '<button class="cSv" type="button">사건 배정</button></div>';
@@ -3846,6 +3849,20 @@ function drawRepTeacher(r,cls){
         }
         pd.classList.toggle('hide');
       });
+    });
+    /* 발표 대본(t1~t9 · 예상 질문) 읽기 — 승인 없이 읽기만. 맡은 사람은 역할표 s1~s5 */
+    d.querySelector('.bRdS').addEventListener('click',function(){
+      var pd=d.querySelector('.rvsec[data-k="script"] .plan2');
+      if(pd.classList.contains('hide')){
+        var pg={};
+        for(var k in (t.pages||{})){ try{ pg[k]=JSON.parse(t.pages[k]||'{}'); }catch(e){ pg[k]={}; } }
+        var N=rpNorm(pg), ro=pg.roles||{}, G=null;
+        RGROUPS.forEach(function(g){ if(g.pg==='script') G=g; });
+        var who=function(num){ var n=''; (t.members||[]).forEach(function(m){ if(String(m.num)===String(num)) n=m.num+'번 '+(m.name||''); }); return n; };
+        pd.innerHTML=G?'<div class="rdwrap">'+G.parts.map(function(P){ return rpReadPart(P,N.script||{},who(ro[P.k])); }).join('')+'</div>'
+          :'<div class="empty">발표 대본 양식을 찾지 못했어요.</div>';
+      }
+      pd.classList.toggle('hide');
     });
     box.appendChild(d);
   });
