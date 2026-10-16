@@ -4984,6 +4984,7 @@ var POSTER_CSS=
   /* 사진은 자르지 않고 전체를 보여 준다 (세로 사진은 높이 상한 안에서 줄여 양옆을 비움) */
   '.pics figure{margin:0}.pics img{width:100%;height:auto;max-height:var(--ph);object-fit:contain;border-radius:1.5mm;background:#eef2f6;display:block}'+
   '.pics.two{align-items:start}.pics.two img{max-height:calc(var(--ph)*.8)}'+
+  '.pics.three{grid-template-columns:1fr 1fr 1fr;align-items:start}.pics.three img{max-height:calc(var(--ph)*.6)}'+
   '.pics figcaption{font-size:.78em;color:#4b5b6e;line-height:1.35;margin-top:.8mm;white-space:pre-line}'+
   '.mt{width:100%;border-collapse:collapse;font-size:.82em;margin-top:1mm}'+
   '.mt th{background:#eef2f6;color:#4b5b6e;font-weight:800;padding:.8mm .6mm;border:.25mm solid #d5dde6}'+
@@ -5005,7 +5006,7 @@ function posterSheet(pg,team,cls,members){
   var sec=function(ic,t,body,cl){ if(body) out+='<div class="sec'+(cl?' '+cl:'')+'"><h3><i>'+ic+'</i>'+esc(t)+'</h3>'+body+'</div>'; };
   var pics=function(arr,max){
     var L=rpPh(arr).slice(0,max); if(!L.length) return '';
-    return '<div class="pics'+(L.length>1?' two':'')+'">'+L.map(function(p){
+    return '<div class="pics'+(L.length===3?' three':L.length>1?' two':'')+'">'+L.map(function(p){
       return '<figure><img src="'+rpImg(p.id,1)+'" alt="">'+(tx(p.cap)?'<figcaption>'+esc(tx(p.cap))+'</figcaption>':'')+'</figure>'; }).join('')+'</div>';
   };
   var meas=function(rows,unit){
@@ -5028,7 +5029,7 @@ function posterSheet(pg,team,cls,members){
 
   sec('🔍','발견 장면',P(pl.scene)+pics(pl.scenePh,2));
   sec('❓','궁금증',P(pl.wonder));
-  sec('➡️','힘 분석',P(pl.forces)+pics(pl.forcePh,1));
+  sec('➡️','힘 분석',P(pl.forces)+pics(pl.forcePh,2));
   [['A',pl.qA,pl.hA,pl.indA,pl.depA,pl.ctlA,pl.procA,ev.rowsA,ev.unitA,ev.phA,ev.obsA],
    ['B',pl.qB,pl.hB,pl.indB,pl.depB,pl.ctlB,pl.procB,ev.rowsB,ev.unitB,ev.phB,ev.obsB]].forEach(function(X,i){
     if(i===1&&!hasB) return;
@@ -5037,7 +5038,7 @@ function posterSheet(pg,team,cls,members){
     sec('⚖️',pre+'변인',vars(X[3],X[4],X[5]));
     sec('📋',pre+'실험 과정',P(X[6]));
     sec('📏',pre+'측정 결과',meas(X[7],X[8])+(tx(X[10])?'<p style="margin-top:1.6mm"><b>측정하며 본 것</b> '+esc(tx(X[10]))+'</p>':''),'gold');
-    sec('📷',pre+'실험 장면',pics(X[9],hasB?2:4));
+    sec('📷',pre+'실험 장면',pics(X[9],hasB?3:4));
   });
   sec('📊','실제 결과',(tx(ev.resA)?'<p>'+(hasB?'<b>A</b> ':'')+esc(tx(ev.resA))+'</p>':'')+(tx(ev.resB)?'<p><b>B</b> '+esc(tx(ev.resB))+'</p>':''));
   sec('🔁','가설과 비교',P(ev.cmp));
