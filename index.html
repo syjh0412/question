@@ -646,6 +646,17 @@
   .pgc .chip.fix{background:#fdecea;color:#a4271a;}
   .pgc .chip.note{background:#fdf3e6;color:#9a6f12;}
   .rpbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  #repPeek{background:#132235;border:1.5px solid #3a4c66;border-radius:12px;padding:9px 10px 8px;margin-bottom:12px;}
+  #repPeek .pk1{font-size:12px;color:#9fb3c8;font-weight:700;margin:0 2px 7px;line-height:1.45;}
+  #repPeek .pk1 b{color:#f6dc8c;}
+  #repPeek .pkl{display:flex;flex-wrap:wrap;gap:6px;}
+  #repPeek button{background:#1d3048;border:1.5px solid #3a4c66;color:#cfdced;border-radius:9px;
+    padding:6px 10px;font-weight:800;font-size:12.5px;cursor:pointer;max-width:100%;text-align:left;}
+  #repPeek button small{display:block;font-weight:600;font-size:10.5px;color:#8fa4bb;max-width:150px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #repPeek button.on{background:#f6dc8c;border-color:#f6dc8c;color:#132235;}
+  #repPeek button.on small{color:#5b4a1a;}
+  #repPeek button.vt{border-style:dashed;}
   .rpbar .back{background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:9px;
     padding:7px 12px;font-weight:800;font-size:13px;cursor:pointer;}
   .rpbar b{color:#fff;font-size:16px;}
@@ -1247,6 +1258,7 @@
     </div>
 
     <div id="paneRep" class="hide narrow">
+      <div id="repPeek" class="hide"></div>
       <div id="repBody"><div class="empty">불러오는 중...</div></div>
     </div>
 
@@ -1445,7 +1457,11 @@ function newTotal(){
 var seq=0;
 var NETLOG=[];
 var READ_ACT={report:1,repTeams:1,feed:1,teamInfo:1,materials:1,myprops:1,repTeacher:1,board:1,myrefs:1};
+var PEEK_W={pageSave:1,photo:1,propose:1,judge:1,editPing:1,teamJoin:1};
+function peekBlocked(p){ return TEACHER && RP && RP.peek && PEEK_W[p.action] && !p.pin; }
+var PEEK_MSG='소장님 학생 화면 보기는 읽기 전용입니다. 여기서 고친 내용은 저장되지 않아요.';
 function call(params, done, fail, _try){
+  if(peekBlocked(params)){ if(fail) fail(PEEK_MSG); return; }
   if(GUEST && !GUEST_OK[params.action]){
     var gm='참관 모드에서는 둘러보기만 할 수 있어요';
     if(fail) fail(gm); else alert(gm); return;
@@ -1639,6 +1655,7 @@ function drawWho(){
       me.cls=sel.value; QS=[]; ME=null; MATC=null; rpReset();
       $('list').innerHTML=''; $('matList').innerHTML=''; $('hero').innerHTML='';
       load(); loadMat();
+      if(!$('paneRep').classList.contains('hide')) repOpen();
     });
     show($('stampBar'), false);
     show($('listDot'), false);
@@ -1760,7 +1777,7 @@ function openRule(){
   h += '<h4>대탐정</h4><div class="rnote">명탐정 조건에 더해 <b>성찰 10차시</b>를 남기면 대탐정이 됩니다. 사건을 잘 푸는 탐정을 넘어, 자기 생각이 어떻게 자랐는지 기록하는 탐정입니다.<br>'+
        '대탐정이 인정 점수 <b>90점</b>에 이르면 <b>부소장 임명장</b>을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
-       '답변은 <b>10자 이상</b>, 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
+       '답변은 <b>20자 이상</b>(ㅋㅋ·문장부호·같은 글자 반복은 빼고 셈), 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
        '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
   if(ME){
     var nx = nextHint(ME);
@@ -2066,6 +2083,7 @@ RGROUPS.forEach(function(G){ G.parts.forEach(function(P){ P.pg=G.pg; RPARTS[P.k]
 var PTYPES=['증거가 부족해요','변인이 섞였어요','힘 분석이 달라요','모형과 실제가 달라요','차이가 우연일 수도 있어요','제안의 부작용이 걱정돼요','이 점이 좋아요'];
 
 function post(params,done,fail){
+  if(peekBlocked(params)){ if(fail) fail(PEEK_MSG,null); else alert(PEEK_MSG); return; }
   if(GUEST && !GUEST_OK[params.action]){
     var gm='참관 모드에서는 둘러보기만 할 수 있어요';
     if(fail) fail(gm); else alert(gm); return;
@@ -2687,7 +2705,16 @@ function rpPingStart(k){
 function rpPingStop(){ if(RP.pingT){ clearInterval(RP.pingT); RP.pingT=null; } }
 
 function repOpen(){
-  if(TEACHER||GUEST){ rpVisit(true); return; }
+  if(GUEST){ show($('repPeek'),false); rpVisit(true); return; }
+  if(TEACHER){
+    rpPeekBar();
+    if(RP.peek&&RP.team){
+      if(RP.loaded){ if(RP.view==='edit'&&RP.cur) rpEdit(RP.cur); else rpHome(); }
+      else rpLoad();
+    } else rpVisit(true);
+    return;
+  }
+  show($('repPeek'),false);
   if(RP.loaded){ if(RP.view==='edit'&&RP.cur) rpEdit(RP.cur); else rpHome(); return; }
   $('repBody').innerHTML='<div class="empty">불러오는 중...</div>';
   var tk='fd_team_'+me.cls+'_'+me.num, ct=pick(tk);
@@ -2708,6 +2735,40 @@ function repOpen(){
     if(!res.team){ rpJoin(); return; }
     store(tk,String(res.team)); RP.team=res.team; rpLoad();
   },rpFailBox);
+}
+/* 소장님: 모둠을 골라 학생과 같은 보고서 화면으로 보기 (읽기 전용) */
+function rpPeekBar(){
+  var bar=$('repPeek'); show(bar,true);
+  var cls=me.cls;
+  function draw(items){
+    var on=RP.peek?String(RP.team):'';
+    var h='<div class="pk1">'+cls+'반 · <b>모둠을 누르면 학생이 보는 보고서 화면</b>이 그대로 열립니다. 둘러보기만 되고 저장은 되지 않아요.</div><div class="pkl">'+
+      '<button type="button" class="vt'+(on?'':' on')+'" data-t="">🕵 검증 회의<small>교사용 목록</small></button>';
+    items.forEach(function(t){
+      h+='<button type="button" data-t="'+t.team+'"'+(on===String(t.team)?' class="on"':'')+'>'+t.team+'모둠<small>'+esc(t.title||'제목 없음')+'</small></button>';
+    });
+    bar.innerHTML=h+'</div>';
+    Array.prototype.forEach.call(bar.querySelectorAll('button'),function(b){
+      b.addEventListener('click',function(){ rpPeekGo(b.getAttribute('data-t')); });
+    });
+  }
+  if(RP.peekCls===cls&&RP.peekItems){ draw(RP.peekItems); return; }
+  bar.innerHTML='<div class="pk1">모둠 목록을 불러오는 중...</div>';
+  call({action:'repTeams',cls:cls,num:me.num},function(res){
+    if(String(me.cls)!==String(cls)) return;
+    var items=(res.items||[]).slice().sort(function(a,b){ return Number(a.team)-Number(b.team); });
+    RP.peekCls=cls; RP.peekItems=items; draw(items);
+  },function(){
+    var items=[]; for(var i=1;i<=7;i++) items.push({team:i,title:''});
+    draw(items);
+  });
+}
+function rpPeekGo(t){
+  var ic=RP.peekItems, pc=RP.peekCls;
+  rpReset(); RP.peekItems=ic; RP.peekCls=pc;
+  if(t){ RP.peek=true; RP.team=t; rpPeekBar(); rpLoad(); }
+  else { RP.peek=false; rpPeekBar(); rpVisit(true); }
+  window.scrollTo(0,0);
 }
 function rpFailBox(err){
   $('repBody').innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?
@@ -2885,6 +2946,7 @@ function rpPartCard(P,roles){
       var o=document.createElement('option'); o.value=m.num; o.textContent='맡음: '+(m.det||m.name);
       if(String(roles[P.k]||'')===String(m.num)) o.selected=true; selR.appendChild(o);
     });
+    if(RP.peek) selR.disabled=true;
     selR.addEventListener('click',function(e){ e.stopPropagation(); });
     selR.addEventListener('change',function(e){
       e.stopPropagation(); roles[P.k]=selR.value; RP.pages.roles=roles;
@@ -3252,7 +3314,7 @@ function rpVisit(isT){
       var d=document.createElement('div'); d.className='vrow';
       d.innerHTML='<div class="t"><b>'+t.team+'모둠 · '+esc(t.title||'제목 없음')+'</b><span>카드 '+t.cards+'장</span></div>'+
         '<div class="vb"><button class="b1" type="button">🎤 발표 보기</button>'+
-        (isT?'':'<button class="b2'+(rpSentN(t)?' sent':'')+'" type="button">'+rpSentLb(t,two)+'</button>')+
+        (isT?(TEACHER?'<button class="b2" type="button">📖 학생 화면으로</button>':''):'<button class="b2'+(rpSentN(t)?' sent':'')+'" type="button">'+rpSentLb(t,two)+'</button>')+
         '</div><div class="cardform hide"></div>';
       d.querySelector('.b1').addEventListener('click',function(){
         var bb=this; bb.disabled=true; bb.textContent='여는 중...';
@@ -3263,6 +3325,9 @@ function rpVisit(isT){
           rpSlides(pg,t.team,r2.props||[],(r2.members||[]).map(function(m){return m.det||m.name;}).join(' · '));
         },function(err){ bb.disabled=false; bb.textContent='🎤 발표 보기'; alert(err); });
       });
+      if(isT&&TEACHER){
+        d.querySelector('.b2').addEventListener('click',function(){ rpPeekGo(String(t.team)); });
+      }
       if(!isT){
         var b2=d.querySelector('.b2'), cf=d.querySelector('.cardform');
         b2.addEventListener('click',function(){
