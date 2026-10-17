@@ -2490,6 +2490,9 @@ var CASES={
     ask:'공이 세게 맞아도 그물이 창문까지 밀려나지 않는지, 그물은 어떻게 설치해야 안전한지 알려 주십시오.',
     keep:['실제 안전망에 매달리거나 공을 세게 차지 않는다']}
 };
+/* 막대그래프가 의미 없는 실험 — 측정표만 보이고 막대는 숨김 ('반|모둠': {실험:1}) */
+var NO_BAR={'1|4':{B:1}};
+function rpNoBar(cls,team,X){ var o=NO_BAR[String(cls)+'|'+String(team)]; return !!(o&&o[X]); }
 var CASE_NUM=['','①','②','③','④','⑤','⑥','⑦','⑧'];
 /* 반마다 다르게 보일 사건 — 3반은 의자 패드를 고른 모둠이 있어 ① 사건을 넓혀서 */
 var CASE_CLS={'3':{1:{t:'교실 완충재',sub:'문 보호대와 의자 패드는 충격을 얼마나 줄여 줄까?',
@@ -3470,9 +3473,9 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   var vars=function(ind,dep,ctl){
     return [tx(ind)?'다르게 · '+tx(ind):'',tx(dep)?'잰 것 · '+tx(dep):'',tx(ctl)?'같게 · '+tx(ctl):''].filter(Boolean).join('\n');
   };
-  var graph=function(k,rows,unit){
+  var graph=function(k,rows,unit,nb){
     var rs=(rows||[]).map(function(r){ return {c:r.c,a:rpAvg(r),v:rpVals(r),g:rpRange(r)}; }).filter(function(r){ return r.c&&r.a!=null; });
-    if(rs.length) S.push({tp:'graph',k:k,rows:rs,unit:unit||''});
+    if(rs.length) S.push({tp:'graph',k:k,rows:rs,unit:unit||'',nb:!!nb});
   };
   var grid=function(k,arr){ var L=rpPh(arr).slice(0,6); if(L.length) S.push({tp:'grid',k:k,items:L}); };
   if(short){
@@ -3495,9 +3498,10 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
     two(p+'실험 질문',q,p+'가설',h);
     var vr=[['다르게 할 것','조작 변인',ind,'d'],['잴 것','종속 변인',dep,'m'],['같게 할 것','통제 변인',ctl,'s']].filter(function(x){ return tx(x[2]); });
     if(vr.length) S.push({tp:'vars',k:p+'변인',rows:vr.map(function(x){ return {l:x[0],l2:x[1],t:tx(x[2]),c:x[3]}; })});
-    if(short){ grid(p+'실험 장면',ph); graph(p+'재 보니',rows,unit); kb(p+'실제 결과',res); return; }
+    var nb=rpNoBar(cls||(me&&me.cls),teamNo,X);
+    if(short){ grid(p+'실험 장면',ph); graph(p+'재 보니',rows,unit,nb); kb(p+'실제 결과',res); return; }
     kb(p+'실험 과정',proc);
-    graph(p+'재 보니',rows,unit); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
+    graph(p+'재 보니',rows,unit,nb); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
     kb(p+'실제 결과',res);
   };
   exp('A',pl.qA,pl.hA,pl.indA,pl.depA,pl.ctlA,pl.procA,ev.rowsA,ev.unitA,ev.phA,ev.obsA,ev.resA);
@@ -3579,12 +3583,12 @@ function rpSlDraw(){
     var tb=nv?'<table class="gtab"><tr>'+hd+'</tr>'+s.rows.map(function(r){
       var tr='<td class="c">'+esc(r.c)+'</td>'; for(var q2=0;q2<nv;q2++) tr+='<td>'+(r.v[q2]!=null?r.v[q2]:'')+'</td>';
       return '<tr>'+tr+'<td class="av">'+r.a+'</td><td>'+esc(r.g||'')+'</td></tr>'; }).join('')+'</table>':'';
-    h='<div class="k">'+esc(s.k||'재 보니 이랬다')+(s.unit?' · '+esc(s.unit):'')+'</div>'+tb+'<div class="gslide'+(nv?' wt':'')+'">'+
+    h='<div class="k">'+esc(s.k||'재 보니 이랬다')+(s.unit?' · '+esc(s.unit):'')+'</div>'+tb+(s.nb&&tb?'':'<div class="gslide'+(nv?' wt':'')+'">'+
       s.rows.map(function(r){
         return '<div class="grow"><div class="gl">'+esc(r.c)+'</div>'+
           '<div class="gt"><div class="gb" style="width:'+Math.max(3,Math.round(r.a/mx*100))+'%"></div></div>'+
           '<div class="gv">'+r.a+(u?' '+esc(u):'')+'</div></div>';
-      }).join('')+'</div>';
+      }).join('')+'</div>');
   }
   b.innerHTML=h; b.classList.remove('long'); b.scrollTop=0;
   Array.prototype.forEach.call(b.querySelectorAll('.pgrid figure'),function(f){
@@ -5085,7 +5089,7 @@ function posterSheet(pg,team,cls,members){
     return '<div class="pics'+(L.length===3?' three':L.length>1?' two':'')+'">'+L.map(function(p){
       return '<figure><img src="'+rpImg(p.id,1)+'" alt="">'+(tx(p.cap)?'<figcaption>'+esc(tx(p.cap))+'</figcaption>':'')+'</figure>'; }).join('')+'</div>';
   };
-  var meas=function(rows,unit){
+  var meas=function(rows,unit,nb){
     var rs=(rows||[]).filter(function(r){ return r&&tx(r.c)&&rpAvg(r)!=null; });
     if(!rs.length) return '';
     var nv=0, mx=0; rs.forEach(function(r){ nv=Math.max(nv,rpVals(r).length); mx=Math.max(mx,rpAvg(r)); });
@@ -5093,8 +5097,8 @@ function posterSheet(pg,team,cls,members){
     rs.forEach(function(r){ var v=rpVals(r); h+='<tr><td class="c">'+esc(r.c)+'</td>';
       for(var q=0;q<nv;q++) h+='<td>'+(v[q]!=null?v[q]:'')+'</td>';
       h+='<td class="av">'+rpAvg(r)+'</td><td>'+esc(rpRange(r))+'</td></tr>'; });
-    h+='</table><div class="bars">'+rs.map(function(r){ var a=rpAvg(r);
-      return '<div class="br"><span class="l">'+esc(r.c)+'</span><span class="t"><span class="b" style="display:block;width:'+(mx>0?Math.max(2,Math.round(a/mx*100)):2)+'%"></span></span><span class="v">'+a+'</span></div>'; }).join('')+'</div>';
+    h+='</table>'+(nb?'':'<div class="bars">'+rs.map(function(r){ var a=rpAvg(r);
+      return '<div class="br"><span class="l">'+esc(r.c)+'</span><span class="t"><span class="b" style="display:block;width:'+(mx>0?Math.max(2,Math.round(a/mx*100)):2)+'%"></span></span><span class="v">'+a+'</span></div>'; }).join('')+'</div>');
     return (tx(unit)?'<p style="font-size:.85em;color:#4b5b6e">단위 · '+esc(tx(unit))+'</p>':'')+h;
   };
   var hasB=[pl.qB,pl.hB,pl.procB,ev.resB].some(tx) || rpPh(ev.phB).length>0 || rpRowsOk(ev.rowsB);
@@ -5113,7 +5117,7 @@ function posterSheet(pg,team,cls,members){
     sec('🧪',pre+'실험 질문과 가설',(tx(X[1])?'<p><b>질문</b> '+esc(tx(X[1]))+'</p>':'')+(tx(X[2])?'<p><b>가설</b> '+esc(tx(X[2]))+'</p>':''));
     sec('⚖️',pre+'변인',vars(X[3],X[4],X[5]));
     sec('📋',pre+'실험 과정',P(X[6]));
-    sec('📏',pre+'측정 결과',meas(X[7],X[8])+(tx(X[10])?'<p style="margin-top:1.6mm"><b>측정하며 본 것</b> '+esc(tx(X[10]))+'</p>':''),'gold');
+    sec('📏',pre+'측정 결과',meas(X[7],X[8],rpNoBar(cls,team,X[0]))+(tx(X[10])?'<p style="margin-top:1.6mm"><b>측정하며 본 것</b> '+esc(tx(X[10]))+'</p>':''),'gold');
     sec('📷',pre+'실험 장면',pics(X[9],hasB?3:4));
   });
   sec('📊','실제 결과',(tx(ev.resA)?'<p>'+(hasB?'<b>A</b> ':'')+esc(tx(ev.resA))+'</p>':'')+(tx(ev.resB)?'<p><b>B</b> '+esc(tx(ev.resB))+'</p>':''));
