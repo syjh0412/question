@@ -361,6 +361,13 @@
   .tq{border:1px solid var(--hair);border-left:4px solid var(--hair);border-radius:10px;
     background:#fff;padding:12px;margin-bottom:9px;}
   .tq.lv3{border-left-color:var(--gold);background:var(--gold-soft);}
+  .tq.wait{border:2px solid #e2a92a;border-left:6px solid #e2a92a;background:#fffaf0;}
+  .tq .waitb{display:inline-block;font-size:11px;font-weight:800;color:#8a5a00;background:#fdeec8;
+    border-radius:20px;padding:2px 9px;margin:0 0 6px 6px;}
+  .waitbox{border:2px solid #e2a92a;background:#fff7e3;border-radius:12px;padding:10px 10px 4px;margin:6px 0 14px;}
+  .waitbox h3{margin:0 0 4px;font-size:15px;color:#7a4f00;}
+  .waitbox .s{font-size:12px;color:#8a6a2a;margin-bottom:8px;line-height:1.45;}
+  .waitbox .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;}
   .tq .m{font-size:11px;color:var(--soft);display:flex;gap:6px;align-items:center;
     flex-wrap:wrap;margin-bottom:5px;}
   .tq .m .an{background:#fdecea;color:#a8322a;border-radius:20px;padding:1px 7px;font-weight:700;}
@@ -5484,6 +5491,20 @@ function tBoard(items, make){
   head.className='count'; head.textContent='모두 '+items.length+'건';
   box.appendChild(head);
 
+  /* 채택은 됐는데 해결 도장을 아직 안 찍은 사건 — 맨 위에 모아서 */
+  if(make===tCard){
+    var wait=items.filter(tWaitStamp);
+    if(wait.length){
+      var wb=document.createElement('div'); wb.className='waitbox';
+      wb.innerHTML='<h3>⭐ 채택됨 · 해결 도장 대기 '+wait.length+'건</h3>'+
+        '<div class="s">학생이 답변을 채택했지만 아직 해결 도장을 찍지 않은 사건입니다. 도장을 찍으면 채택된 답변을 쓴 학생이 해결 도장을 받습니다. 도장을 찍지 않을 사건은 그대로 두셔도 됩니다.</div>';
+      var gr=document.createElement('div'); gr.className='grid';
+      wait.forEach(function(it){ gr.appendChild(make(it)); });
+      wb.appendChild(gr); box.appendChild(wb);
+      items=items.filter(function(it){ return wait.indexOf(it)<0; });
+      if(!items.length) return;
+    }
+  }
   if($('tLesson').value){
     items.forEach(function(it){ box.appendChild(make(it)); });
     return;
@@ -5503,11 +5524,19 @@ function tBoard(items, make){
   box.appendChild(b);
 }
 
+function tWaitStamp(it){
+  return !it.solved && (it.answers||[]).some(function(a){ return a.adopted; });
+}
 function tCard(it){
-  var d=document.createElement('div'); d.className='tq'+(it.solved?' lv3':'');
+  var d=document.createElement('div'); d.className='tq'+(it.solved?' lv3':(tWaitStamp(it)?' wait':''));
   var no=document.createElement('div'); no.className='caseno';
   no.textContent='CASE '+String(it.lesson).padStart(2,'0')+'-'+String(it.id).slice(-4);
   d.appendChild(no);
+  if(tWaitStamp(it)){
+    var wbd=document.createElement('span'); wbd.className='waitb';
+    wbd.textContent=it.lesson+'차시 · ⭐ 채택됨 · 도장 대기';
+    d.appendChild(wbd);
+  }
   var m=document.createElement('div'); m.className='m';
   m.innerHTML='<span>'+it.cls+'반 '+it.num+'번 '+it.name+
     (it.det?' <b style="color:var(--amber)">'+it.det+'</b>':'')+'</span>'+
@@ -5527,7 +5556,8 @@ function tCard(it){
       it.solved=res.on;
       sb.classList.toggle('on', res.on);
       sb.textContent=res.on?'✅ 해결':'해결 도장';
-      d.className='tq'+(res.on?' lv3':'');
+      d.className='tq'+(res.on?' lv3':(tWaitStamp(it)?' wait':''));
+      var wbd2=d.querySelector('.waitb'); if(wbd2) wbd2.style.display=res.on?'none':'';
     }, function(err){ alert(err); });
   });
   var del=document.createElement('button');
