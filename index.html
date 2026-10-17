@@ -2066,7 +2066,7 @@ var RGROUPS=[
       {f:'basis',t:'ta',n:'제안의 근거 (우리가 잰 값)',ph:'예) 젖은 바닥의 마찰력은 마른 바닥의 절반쯤이었다'},
       {f:'unk',t:'ta',n:'아직 모르는 것',ph:'재 보지 못한 것, 모형과 실제가 다를 수 있는 점 (탐정 수칙 3)'}]}
   ]},
-  {pg:'script',n:'🎤 발표 대본 · 3분 말하기',sub:'발표 화면 순서대로 네 부분입니다. 칸마다 위에 우리 보고서 내용이 보이니, 그걸 보며 친구에게 말할 문장으로 바꿔 쓰세요. 발표 화면과 포스터에는 나오지 않는 연습용이에요.',parts:[
+  {pg:'script',n:'🎤 발표 대본 · 4분 30초 말하기',sub:'발표 화면 순서대로 네 부분입니다. 칸마다 위에 우리 보고서 내용이 보이니, 그걸 보며 친구에게 말할 문장으로 바꿔 쓰세요. 발표 화면과 포스터에는 나오지 않는 연습용이에요.',parts:[
     {k:'s1',no:'1',n:'시작 — 발견 장면 · 궁금증 · 힘 분석 (30초)',ic:'🔍',fs:[
       {f:'t1',t:'ta',n:'발견 장면과 궁금증',ref:['plan.scene','plan.wonder'],em:'발견 장면 사진을 짚으며',ph:'예) 우리는 과학실 바닥에 물이 묻어 친구가 미끄러질 뻔한 걸 봤어요. 그래서 물이 묻으면 얼마나 미끄러워지는지 궁금했어요.'},
       {f:'t2',t:'ta',n:'힘 분석',ref:['plan.forces'],em:'힘 화살표 그림을 짚으며',ph:'예) 신발이 앞으로 미끄러지려 하면, 바닥이 신발에 뒤쪽으로 마찰력을 작용해요.'}]},
@@ -2879,7 +2879,7 @@ function rpHome(){
   var h='<div class="rphead"><div class="cn">사건 '+esc(c.caseNo||(cs?CASE_NUM[cs.no]:'?'))+' · '+me.cls+'반 '+RP.team+'모둠 수사 보고서</div>'+
     '<h2>'+esc(c.title||(cs?cs.D.t:'사건 제목을 아직 정하지 않았어요'))+'</h2><div class="mem">'+
     RP.members.map(function(m){ return '<span>'+esc(m.det||m.name)+'</span>'; }).join('')+'</div></div>';
-  h+='<button class="a0" id="rpS3" type="button">⏱ 3분 30초 발표 <small>핵심 장면만 · 실험 사진은 한 화면에 모아서</small></button>'+
+  h+='<button class="a0" id="rpS3" type="button">⏱ 4분 30초 발표 <small>핵심 장면만 · 실험 사진은 한 화면에 모아서</small></button>'+
     '<div class="rpacts">'+
     '<button class="a1" id="rpSB">🎤 발표 모드</button>'+
     '<button class="a2" id="rpVB">🕵 검증 회의</button>'+
@@ -3447,8 +3447,8 @@ function rpMyProps(){
 }
 
 /* 발표 모드 */
-var SL={list:[],i:0,run:false,left:210,tick:null};
-/* short=true → '3분 30초 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
+var SL={list:[],i:0,run:false,left:270,tick:null};
+/* short=true → '4분 30초 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
 function rpSlides(pages,teamNo,props,memText,cls,short){
   var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
   var cs=rpCaseOf(pages,cls||(me&&me.cls),teamNo);
@@ -3508,12 +3508,12 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
   SL.list=S; SL.i=0; SL.team=teamNo; rpSlStop();
   SL.pre={}; rpSlPre();
-  SL.left=210;
+  SL.left=270;
   var v=$('slv');
   if(!v){
     v=document.createElement('div'); v.id='slv';
     v.innerHTML='<div class="top"><span class="tmchip" id="slTeam"></span>'+
-      '<button class="timer" id="slTime" type="button">⏱ 3:30</button>'+
+      '<button class="timer" id="slTime" type="button">⏱ 4:30</button>'+
       '<button class="x" id="slX" type="button">✕ 닫기</button></div>'+
       '<div class="body" id="slBody"></div>'+
       '<div class="foot"><span>왼쪽을 누르면 이전 · 오른쪽을 누르면 다음</span><span class="pgn" id="slPg"></span></div>';
@@ -3526,7 +3526,7 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
     });
   }
   $('slTeam').textContent=teamNo+'모둠';
-  $('slTime').textContent='⏱ 3:30'; $('slTime').classList.remove('lowt');
+  $('slTime').textContent='⏱ 4:30'; $('slTime').classList.remove('lowt');
   v.classList.add('on');
   rpSlDraw();
 }
@@ -3779,7 +3779,7 @@ function drawRepTeacher(r,cls){
       '<span class="chip cE '+((ap.ev||{}).st==='승인'?'ok':(ap.ev||{}).st==='보완'?'fix':'no')+'">결과 '+esc((ap.ev||{}).st||'검토 전')+'</span>'+
       '<span class="mems"></span>'+
       '<span style="margin-left:auto;font-size:11.5px;color:var(--soft)">카드 '+(t.cards||0)+'장</span></div>'+
-      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bS3" type="button">⏱ 3분 30초 발표</button><button class="bPo" type="button">🖼 포스터</button><button class="bCf" type="button">📷 현장 사진 고르기</button></div>'+
+      '<div class="btns"><button class="pri bSl" type="button">🎤 보고서 보기</button><button class="bS3" type="button">⏱ 4분 30초 발표</button><button class="bPo" type="button">🖼 포스터</button><button class="bCf" type="button">📷 현장 사진 고르기</button></div>'+
       '<div class="cfpk hide"></div>'+
       RV_SEC.map(function(S){ var a=rvAp(ap,S);
         return '<div class="rvsec" data-k="'+S.k+'"><div class="rvh">'+S.ic+' '+S.lb+' 검토</div>'+
@@ -4005,8 +4005,8 @@ function btHTML(){
       '<button type="button" data-bt="rs">↺ 처음</button>'+
       '<button type="button" data-bt="m">−30초</button>'+
       '<button type="button" data-bt="p">+30초</button>'+
-      '<span class="btPre">'+[3,6,8].map(function(m){
-        return '<button type="button" data-bt="d'+m+'"'+(BT.dur===m*60?' class="on"':'')+'>'+m+'분</button>';
+      '<span class="btPre">'+[3,4.5,6,8].map(function(m){
+        return '<button type="button" data-bt="d'+m+'"'+(BT.dur===m*60?' class="on"':'')+'>'+(m===4.5?'4분 30초':m+'분')+'</button>';
       }).join('')+'</span>'+
     '</div></div>';
 }
