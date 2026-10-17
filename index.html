@@ -3448,7 +3448,8 @@ function rpMyProps(){
 
 /* 발표 모드 */
 var SL={list:[],i:0,run:false,left:270,tick:null};
-/* short=true → '4분 30초 발표': 사건 파일·과정 글을 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다 */
+/* short=true → '4분 30초 발표': 사건 파일·실험 과정·측정하며 본 것은 빼고, 실험 사진은 한 화면에 모아(바둑판) 보여 준다.
+   3분 30초 판에 더해 궁금증 · 힘 화살표 사진 1장 · 실험별 실제 결과 · 근거(우리가 잰 값)를 넣었다 */
 function rpSlides(pages,teamNo,props,memText,cls,short){
   var N=rpNorm(pages), c=N.cover, pl=N.plan, ev=N.evid;
   var cs=rpCaseOf(pages,cls||(me&&me.cls),teamNo);
@@ -3477,7 +3478,10 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   if(short){
     var sp=rpPh(pl.scenePh)[0];
     if(sp) S.push({tp:'ph',k:'발견 장면',id:sp.id,cap:sp.cap||tx(pl.scene)}); else kb('발견 장면',pl.scene);
+    kb('궁금증',pl.wonder);
     kb('힘 분석',pl.forces);
+    var fp=rpPh(pl.forcePh)[0];   /* 4분 30초 판: 힘 화살표 사진 1장 */
+    if(fp) S.push({tp:'ph',k:'힘 화살표',id:fp.id,cap:fp.cap||''});
   } else {
   kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
   kb('2. 궁금증',pl.wonder);
@@ -3491,7 +3495,7 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
     two(p+'실험 질문',q,p+'가설',h);
     var vr=[['다르게 할 것','조작 변인',ind,'d'],['잴 것','종속 변인',dep,'m'],['같게 할 것','통제 변인',ctl,'s']].filter(function(x){ return tx(x[2]); });
     if(vr.length) S.push({tp:'vars',k:p+'변인',rows:vr.map(function(x){ return {l:x[0],l2:x[1],t:tx(x[2]),c:x[3]}; })});
-    if(short){ grid(p+'실험 장면',ph); graph(p+'재 보니',rows,unit); return; }
+    if(short){ grid(p+'실험 장면',ph); graph(p+'재 보니',rows,unit); kb(p+'실제 결과',res); return; }
     kb(p+'실험 과정',proc);
     graph(p+'재 보니',rows,unit); phs(hasB?'실험 '+X:'실험 장면',ph); kb(p+'측정하며 본 것',obs);
     kb(p+'실제 결과',res);
@@ -3502,7 +3506,7 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   phs('더 보여 줄 장면',ev.phX);
   kb('결론',ev.concl,true);
   kb('안전 제안',ev.prop);
-  if(!short) kb('근거 — 우리가 잰 값',ev.basis,true);
+  kb('근거 — 우리가 잰 값',ev.basis,true);
   kb('아직 모르는 것',ev.unk);
   var star=(props||[]).filter(function(p){ return p.helpful==='Y'; })[0];
   if(star) S.push({tp:'kb',k:'가장 도움이 된 제안',b:'“'+star.text+'”\n\n우리 판단: '+(star.verdict||'')+(star.reason?' — '+star.reason:'')});
