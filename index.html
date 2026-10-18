@@ -3483,8 +3483,8 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
     if(sp) S.push({tp:'ph',k:'발견 장면',id:sp.id,cap:sp.cap||tx(pl.scene)}); else kb('발견 장면',pl.scene);
     kb('궁금증',pl.wonder);
     kb('힘 분석',pl.forces);
-    var fp=rpPh(pl.forcePh)[0];   /* 4분 30초 판: 힘 화살표 사진 1장 */
-    if(fp) S.push({tp:'ph',k:'힘 화살표',id:fp.id,cap:fp.cap||''});
+    /* 4분 30초 판: 힘 화살표 사진 2장까지 */
+    rpPh(pl.forcePh).slice(0,2).forEach(function(fp,i,a){ S.push({tp:'ph',k:'힘 화살표'+(a.length>1?' '+(i+1)+'/'+a.length:''),id:fp.id,cap:fp.cap||''}); });
   } else {
   kb('1. 발견 장면',pl.scene); phs('발견 장면',pl.scenePh);
   kb('2. 궁금증',pl.wonder);
