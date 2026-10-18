@@ -901,7 +901,8 @@
   #lsv .l-tm.lowt{background:#7a1f1f;border-color:#a4271a;color:#ffd9d4;}
   #lsv .l-tr{background:none;border:1px solid #3a4c66;color:#9fb3c8;border-radius:10px;padding:6px 10px;font-size:clamp(13px,1.8vw,18px);cursor:pointer;}
   #lsv .l-x{margin-left:auto;background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:10px;padding:6px 14px;font-size:clamp(13px,1.8vw,18px);font-weight:700;cursor:pointer;}
-  #lsv .l-body{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:safe center;padding:1vh 4vw 2vh;text-align:center;}
+  #lsv .l-fit{display:flex;flex-direction:column;align-items:center;width:100%;}
+  #lsv .l-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1vh 4vw 2vh;text-align:center;}
   #lsv .l-foot{display:flex;align-items:center;gap:10px;padding:10px 18px;color:#6f8399;font-size:14px;}
   #lsv .l-foot button{background:#1d2b3d;border:1px solid #3a4c66;color:#cfdced;border-radius:10px;padding:8px 18px;font-size:16px;font-weight:700;cursor:pointer;}
   #lsv .l-foot .l-dots{flex:1;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
@@ -917,7 +918,7 @@
   #lsv .l-paper .l-msg{font-size:clamp(16px,2.5vw,28px);line-height:1.6;margin:2vh 0 1.6vh;font-weight:600;}
   #lsv .l-paper .l-cases{display:grid;grid-template-columns:1fr 1fr;gap:.6vh 2vw;font-size:clamp(14px,1.9vw,21px);border-top:1px solid #d8ccb0;padding-top:1.4vh;}
   #lsv .l-paper .l-cases span b{color:#8a5a12;margin-right:.4em;}
-  #lsv .l-paper .l-seal{position:absolute;right:3vw;bottom:2.4vh;border:3px solid #b23a2a;color:#b23a2a;border-radius:50%;width:clamp(70px,9vw,110px);height:clamp(70px,9vw,110px);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:clamp(12px,1.6vw,18px);line-height:1.2;transform:rotate(-12deg);opacity:.85;}
+  #lsv .l-paper .l-seal{position:absolute;right:3vw;top:2.4vh;border:3px solid #b23a2a;color:#b23a2a;border-radius:50%;width:clamp(70px,9vw,110px);height:clamp(70px,9vw,110px);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:clamp(12px,1.6vw,18px);line-height:1.2;transform:rotate(-12deg);opacity:.85;}
   #lsv .l-two{display:grid;grid-template-columns:1fr 1fr;gap:3vw;width:100%;max-width:1150px;margin-top:3vh;}
   #lsv .l-scene{background:#16263a;border:1.5px solid #2d4260;border-radius:18px;padding:3.4vh 2.4vw;text-align:left;}
   #lsv .l-scene .l-n{font-size:clamp(34px,6vw,70px);font-weight:900;color:#d9a441;line-height:1;}
@@ -3753,7 +3754,6 @@ function lsVisitHtml(r){
 }
 function lsBuild(){
   var T=lsTeams();
-  var cases=T.map(function(no){ var t=lsTitle(no); return '<span><b>'+no+'모둠</b>'+esc(t||'—')+'</span>'; }).join('');
   LS.list=[
     {id:'req',lb:'사건 의뢰서',stage:'배움 열기',tm:{ph:[{l:'배움 열기',s:240}]},html:function(){
       return '<div class="l-paper"><div class="l-pt">사건 의뢰서</div>'+
@@ -3761,7 +3761,6 @@ function lsBuild(){
         '<div class="l-row"><b>의뢰인</b><span>고천중학교 → 힘 탐정 사무소 '+esc(LS.cls)+'반 탐정 여러분께</span></div>'+
         '<div class="l-msg">하나. 우리 학교에서 힘과 관련된 안전 단서를 찾아 주십시오.<br>둘. 그곳에 어떤 힘이 어떻게 작용하는지 밝혀 주십시오.<br>셋. 직접 잰 증거로, 더 안전하게 바꿀 방법을 제안해 주십시오.</div>'+
         '<div style="font-size:clamp(13px,1.7vw,18px);color:#6b5a3a;margin-bottom:1.4vh">※ 추측만 담긴 보고서는 받지 않습니다. 증거가 있는 보고서만 받습니다. · 최종 보고서 제출 기한 10월 20일</div>'+
-        '<div class="l-cases">'+cases+'</div>'+
         '<div class="l-seal">고천<br>중학교</div></div>';
     }},
     {id:'two',lb:'오늘의 두 장면',stage:'배움 열기',tm:null,html:function(){
@@ -3840,6 +3839,15 @@ function lsOpen(cls,items){
   v.classList.add('on');
   lsDraw();
 }
+/* 화면 크기에 맞춰 한 번에 다 보이도록 줄이기 (스크롤 없이) */
+function lsFit(){
+  var b=$('lsBody'), f=b&&b.firstChild; if(!f) return;
+  f.style.zoom=1;
+  var cs=getComputedStyle(b), ah=b.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom), aw=b.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  var r=f.getBoundingClientRect(), z=Math.min(1,ah/Math.max(1,f.scrollHeight),aw/Math.max(1,f.scrollWidth));
+  if(z<1) f.style.zoom=Math.max(0.35,z*0.98);
+}
+window.addEventListener('resize',function(){ var v=$('lsv'); if(v&&v.classList.contains('on')) lsFit(); });
 function lsCur(){ var s=LS.list[LS.i]; return s&&LS.T[s.id]; }
 function lsGo(n){ if(n<0||n>=LS.list.length) return; LS.i=n; lsDraw(); }
 function lsToggle(){
@@ -3884,7 +3892,8 @@ function lsTimerDraw(){
 function lsDraw(){
   var s=LS.list[LS.i];
   $('lsStg').textContent=s.stage;
-  $('lsBody').innerHTML=s.html();
+  $('lsBody').innerHTML='<div class="l-fit">'+s.html()+'</div>';
+  lsFit();
   $('lsD').innerHTML=LS.list.map(function(x,k){ return '<span data-k="'+k+'" class="'+(k===LS.i?'on':'')+'">'+esc(x.lb)+'</span>'; }).join('');
   Array.prototype.forEach.call($('lsD').children,function(d){ d.addEventListener('click',function(){ lsGo(Number(d.dataset.k)); }); });
   $('lsP').disabled=LS.i===0; $('lsN').disabled=LS.i===LS.list.length-1;
