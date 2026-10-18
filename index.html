@@ -891,6 +891,74 @@
   .pstat.f{background:#eaf5ee;color:#1d6b42;}
   .pstat.k{background:#fdf3e6;color:#9a6f12;}
   .pnew{background:#e5484d;color:#fff;font-size:10px;font-weight:800;border-radius:8px;padding:1px 6px;}
+  /* 13차시 수업 화면 (TV) */
+  #lsv{position:fixed;inset:0;z-index:999;background:#0f1a27;display:none;flex-direction:column;color:#e6eef7;word-break:keep-all;}
+  #lsv.on{display:flex;}
+  #lsv .l-top{display:flex;align-items:center;gap:10px;padding:12px 18px;}
+  #lsv .l-stg{background:#d9a441;color:#12202f;font-size:clamp(15px,2.4vw,22px);font-weight:900;border-radius:10px;padding:5px 14px;}
+  #lsv .l-tm{background:#1d2b3d;border:1px solid #3a4c66;color:#fff;font-size:clamp(18px,3vw,32px);font-weight:900;border-radius:12px;padding:6px 16px;font-variant-numeric:tabular-nums;cursor:pointer;}
+  #lsv .l-tm.run{background:#1f4a37;border-color:#3f8f68;}
+  #lsv .l-tm.lowt{background:#7a1f1f;border-color:#a4271a;color:#ffd9d4;}
+  #lsv .l-tr{background:none;border:1px solid #3a4c66;color:#9fb3c8;border-radius:10px;padding:6px 10px;font-size:clamp(13px,1.8vw,18px);cursor:pointer;}
+  #lsv .l-x{margin-left:auto;background:none;border:1.5px solid #3a4c66;color:#cfdced;border-radius:10px;padding:6px 14px;font-size:clamp(13px,1.8vw,18px);font-weight:700;cursor:pointer;}
+  #lsv .l-body{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:safe center;padding:1vh 4vw 2vh;text-align:center;}
+  #lsv .l-foot{display:flex;align-items:center;gap:10px;padding:10px 18px;color:#6f8399;font-size:14px;}
+  #lsv .l-foot button{background:#1d2b3d;border:1px solid #3a4c66;color:#cfdced;border-radius:10px;padding:8px 18px;font-size:16px;font-weight:700;cursor:pointer;}
+  #lsv .l-foot .l-dots{flex:1;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
+  #lsv .l-foot .l-dots span{cursor:pointer;padding:4px 10px;border-radius:14px;background:#16263a;color:#7d93ab;font-size:13px;font-weight:700;}
+  #lsv .l-foot .l-dots span.on{background:#d9a441;color:#12202f;}
+  #lsv .l-k{color:#d9a441;font-size:clamp(16px,2.8vw,28px);font-weight:800;letter-spacing:.12em;margin-bottom:2vh;}
+  #lsv .l-h1{color:#fff;font-size:clamp(30px,6vw,72px);font-weight:900;line-height:1.25;letter-spacing:-.02em;}
+  #lsv .l-lead{color:#9fb3c8;font-size:clamp(15px,2.4vw,24px);line-height:1.5;margin-top:2vh;}
+  #lsv .l-paper{background:#fbf6ea;color:#1b2733;border-radius:14px;padding:3.2vh 3.4vw;max-width:1050px;width:100%;text-align:left;box-shadow:0 10px 40px rgba(0,0,0,.45);position:relative;}
+  #lsv .l-paper .l-pt{font-size:clamp(26px,4.6vw,52px);font-weight:900;text-align:center;letter-spacing:.3em;border-bottom:3px double #1b2733;padding-bottom:1.4vh;margin-bottom:2vh;}
+  #lsv .l-paper .l-row{display:flex;gap:1.2vw;font-size:clamp(15px,2.2vw,24px);margin:.6vh 0;}
+  #lsv .l-paper .l-row b{flex:0 0 5.5em;color:#8a5a12;}
+  #lsv .l-paper .l-msg{font-size:clamp(16px,2.5vw,28px);line-height:1.6;margin:2vh 0 1.6vh;font-weight:600;}
+  #lsv .l-paper .l-cases{display:grid;grid-template-columns:1fr 1fr;gap:.6vh 2vw;font-size:clamp(14px,1.9vw,21px);border-top:1px solid #d8ccb0;padding-top:1.4vh;}
+  #lsv .l-paper .l-cases span b{color:#8a5a12;margin-right:.4em;}
+  #lsv .l-paper .l-seal{position:absolute;right:3vw;bottom:2.4vh;border:3px solid #b23a2a;color:#b23a2a;border-radius:50%;width:clamp(70px,9vw,110px);height:clamp(70px,9vw,110px);display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:clamp(12px,1.6vw,18px);line-height:1.2;transform:rotate(-12deg);opacity:.85;}
+  #lsv .l-two{display:grid;grid-template-columns:1fr 1fr;gap:3vw;width:100%;max-width:1150px;margin-top:3vh;}
+  #lsv .l-scene{background:#16263a;border:1.5px solid #2d4260;border-radius:18px;padding:3.4vh 2.4vw;text-align:left;}
+  #lsv .l-scene .l-n{font-size:clamp(34px,6vw,70px);font-weight:900;color:#d9a441;line-height:1;}
+  #lsv .l-scene .l-t{font-size:clamp(22px,3.8vw,44px);font-weight:900;color:#fff;line-height:1.3;margin-top:1.4vh;}
+  #lsv .l-scene .l-d{font-size:clamp(14px,2vw,22px);color:#9fb3c8;line-height:1.5;margin-top:1.4vh;}
+  #lsv .l-vt{border-collapse:collapse;width:100%;max-width:1200px;font-size:clamp(14px,2vw,25px);}
+  #lsv .l-vt th{color:#9fb3c8;font-weight:700;padding:.8vh 1vw;border-bottom:2px solid #3a4c66;font-size:.8em;}
+  #lsv .l-vt td{padding:.7vh 1vw;border-bottom:1px solid #26364b;font-weight:700;text-align:left;}
+  #lsv .l-vt td.l-no{color:#d9a441;font-weight:900;text-align:center;white-space:nowrap;}
+  #lsv .l-vt td.l-go{color:#f6dc8c;font-weight:900;white-space:nowrap;}
+  #lsv .l-vt td.l-st{color:#9ec5ff;}
+  #lsv .l-rule{display:flex;gap:1.4vw;align-items:center;justify-content:center;margin-bottom:2vh;flex-wrap:wrap;}
+  #lsv .l-rule span{background:#16263a;border:1px solid #2d4260;border-radius:12px;padding:.8vh 1.2vw;font-size:clamp(14px,2vw,22px);font-weight:700;}
+  #lsv .l-rule span b{color:#f6dc8c;}
+  #lsv .l-ph3{display:flex;gap:1vw;justify-content:center;margin-top:2vh;flex-wrap:wrap;}
+  #lsv .l-ph3 span{padding:.7vh 1.4vw;border-radius:12px;background:#16263a;color:#7d93ab;font-size:clamp(14px,2vw,22px);font-weight:800;}
+  #lsv .l-ph3 span.on{background:#3f8f68;color:#fff;}
+  #lsv .l-ex{background:#16263a;border-radius:14px;padding:1.6vh 2vw;margin-top:3vh;font-size:clamp(15px,2.2vw,24px);color:#cfdced;max-width:1150px;}
+  #lsv .l-ex b{color:#f6dc8c;}
+  #lsv .l-steps{display:flex;gap:1.4vw;align-items:stretch;justify-content:center;width:100%;max-width:1200px;margin-top:3vh;}
+  #lsv .l-steps .l-s{flex:1;background:#16263a;border:1.5px solid #2d4260;border-radius:16px;padding:2.6vh 1.6vw;text-align:left;}
+  #lsv .l-steps .l-s .l-n{color:#d9a441;font-weight:900;font-size:clamp(16px,2.4vw,26px);}
+  #lsv .l-steps .l-s .l-t{color:#fff;font-weight:900;font-size:clamp(20px,3.2vw,38px);margin-top:.8vh;line-height:1.3;}
+  #lsv .l-steps .l-s .l-d{color:#9fb3c8;font-size:clamp(13px,1.8vw,20px);margin-top:.8vh;line-height:1.45;}
+  #lsv .l-steps .l-ar{align-self:center;color:#d9a441;font-size:clamp(22px,3.4vw,40px);font-weight:900;}
+  #lsv .l-cc{display:flex;gap:.8vw;flex-wrap:wrap;justify-content:center;margin-top:2.6vh;}
+  #lsv .l-cc span{background:#1d2b3d;border-radius:10px;padding:.6vh 1vw;font-size:clamp(13px,1.8vw,19px);color:#cfdced;}
+  #lsv .l-cc span b{color:#d9a441;}
+  #lsv .l-rl{display:flex;flex-direction:column;gap:.7vh;width:100%;max-width:1100px;margin-top:2vh;}
+  #lsv .l-rl div{display:flex;align-items:center;gap:1.4vw;background:#16263a;border:1.5px solid #2d4260;border-radius:12px;padding:.6vh 1.6vw;cursor:pointer;text-align:left;font-size:clamp(14px,2vw,23px);font-weight:700;color:#9fb3c8;}
+  #lsv .l-rl div b{color:#d9a441;min-width:3.6em;}
+  #lsv .l-rl div.on{background:#d9a441;border-color:#f6dc8c;color:#12202f;transform:scale(1.02);}
+  #lsv .l-rl div.on b{color:#12202f;}
+  #lsv .l-rl div.done{opacity:.45;}
+  #lsv .l-qs{display:flex;flex-direction:column;gap:2.4vh;width:100%;max-width:1150px;margin-top:2vh;}
+  #lsv .l-qs .l-q{background:#16263a;border-left:8px solid #d9a441;border-radius:12px;padding:2.4vh 2vw;text-align:left;font-size:clamp(20px,3.4vw,40px);font-weight:900;color:#fff;line-height:1.4;}
+  #lsv .l-qs .l-q small{display:block;color:#9fb3c8;font-size:.5em;font-weight:700;margin-top:.8vh;}
+  #lsv .l-nx{display:flex;gap:1.4vw;justify-content:center;margin-top:3.4vh;flex-wrap:wrap;}
+  #lsv .l-nx span{background:#1d2b3d;border-radius:12px;padding:1.2vh 1.6vw;font-size:clamp(15px,2.2vw,24px);font-weight:800;color:#cfdced;}
+  #lsv .l-nx span b{color:#f6dc8c;}
+  @media (max-width:700px){ #lsv .l-two,#lsv .l-steps{flex-direction:column;display:flex;} #lsv .l-steps .l-ar{transform:rotate(90deg);} #lsv .l-paper .l-cases{grid-template-columns:1fr;} }
   /* 발표 모드 */
   #slv{position:fixed;inset:0;z-index:998;background:#0f1a27;display:none;flex-direction:column;}
   #slv.on{display:flex;}
@@ -3631,6 +3699,197 @@ function rpSlTimer(){
 }
 function rpSlStop(){ SL.run=false; if(SL.tick){ clearInterval(SL.tick); SL.tick=null; } }
 
+/* 13차시 수업 화면 (TV) — 사건 의뢰서 · 오늘의 두 장면 · 방문 순서 · 교대 회의 · 원모둠 판단 · 30초 릴레이 · 배움 마무리
+   타이머는 화면마다 따로 돌고, 다른 화면으로 넘어가도 멈추지 않는다 */
+var LS_VISIT={'1':[
+  ['전제이 · 김은재','강서연 · 박성하'],['윤석찬 · 성현준','윤준원 · 지현준'],['정수빈 · 안소율','김태연'],
+  ['서주석 · 임태은','김나경 · 엄지윤'],['황지유 · 김도윤','이서연 · 이서진'],['정현아 · 신솔','김서윤 · 장준서'],
+  ['강연우 · 이지웅','이시환 · 이윤재']]};
+var LS={i:0,list:[],T:{},tick:null,cls:'1',items:[]};
+function lsFmt(s){ s=Math.max(0,s); return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2); }
+function lsBeep(n){
+  try{
+    var C=LS.ac||(LS.ac=new (window.AudioContext||window.webkitAudioContext)());
+    for(var k=0;k<(n||1);k++){
+      var o=C.createOscillator(), g=C.createGain(), t=C.currentTime+k*0.4;
+      o.frequency.value=880; o.connect(g); g.connect(C.destination);
+      g.gain.setValueAtTime(0.25,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.32);
+      o.start(t); o.stop(t+0.33);
+    }
+  }catch(e){}
+}
+function lsRot(r){
+  var ph=[];
+  [1,2].forEach(function(n){
+    ph.push({l:r+'라운드 '+n+'회전 · 발표',s:270});
+    ph.push({l:r+'라운드 '+n+'회전 · 질문과 카드',s:60});
+    if(n===1) ph.push({l:r+'라운드 · 다음 부스로 이동',s:30});
+  });
+  return {auto:true,ph:ph};
+}
+function lsTeams(){
+  var n=LS.items.length?LS.items.map(function(t){ return Number(t.team); }).sort(function(a,b){ return a-b; }):[1,2,3,4,5,6,7];
+  return n;
+}
+function lsTitle(no){
+  var t=LS.items.filter(function(x){ return Number(x.team)===no; })[0];
+  return t?(t.title||''):'';
+}
+function lsVisitHtml(r){
+  var V=LS_VISIT[LS.cls], T=lsTeams(), N=T.length;
+  var at=function(k,s){ return T[((k+s)%N+N)%N]; };
+  var h='<div class="l-k">'+r+'라운드 · 방문 순서</div>'+
+    '<div class="l-rule">'+(r===1?'<span><b>A팀</b> 우리 부스에서 발표</span><span><b>B팀</b> 다음 번호로 한 칸씩 →</span>'
+      :'<span><b>B팀</b> 우리 부스에서 발표</span><span><b>A팀</b> ← 앞 번호로 한 칸씩</span>')+'</div>'+
+    '<table class="l-vt"><tr><th>모둠</th><th>발표 (부스에 남기)</th><th>방문</th><th>첫 번째 → 두 번째</th></tr>';
+  T.forEach(function(no,k){
+    var p=V&&V[no-1]?V[no-1]:['A팀','B팀'];
+    var stay=r===1?p[0]:p[1], go=r===1?p[1]:p[0];
+    var g=r===1?(at(k,1)+'모둠 → '+at(k,2)+'모둠'):(at(k,-1)+'모둠 → '+at(k,-2)+'모둠');
+    h+='<tr><td class="l-no">'+no+'모둠</td><td class="l-st">'+esc(stay)+'</td><td>'+esc(go)+'</td><td class="l-go">'+g+'</td></tr>';
+  });
+  h+='</table><div class="l-ph3" data-ph="1"><span>발표 4분 30초</span><span>질문과 카드 1분</span><span>이동 30초</span></div>';
+  return h;
+}
+function lsBuild(){
+  var T=lsTeams();
+  var cases=T.map(function(no){ var t=lsTitle(no); return '<span><b>'+no+'모둠</b>'+esc(t||'—')+'</span>'; }).join('');
+  LS.list=[
+    {id:'req',lb:'사건 의뢰서',stage:'배움 열기',tm:{ph:[{l:'배움 열기',s:240}]},html:function(){
+      return '<div class="l-paper"><div class="l-pt">사건 의뢰서</div>'+
+        '<div class="l-row"><b>의뢰인</b><span>고천중학교</span></div>'+
+        '<div class="l-row"><b>받는 곳</b><span>힘 탐정 사무소 · 1학년 '+esc(LS.cls)+'반 탐정단</span></div>'+
+        '<div class="l-msg">우리 학교 곳곳에 미끄러지고 부딪힐 수 있는 장소가 있습니다. 탐정 여러분이 위험한 장소를 직접 찾아, 그곳에 작용하는 힘을 재어 보고, 측정한 숫자를 근거로 안전 제안을 보고해 주십시오.</div>'+
+        '<div class="l-cases">'+cases+'</div>'+
+        '<div class="l-seal">고천<br>중학교</div></div>';
+    }},
+    {id:'two',lb:'오늘의 두 장면',stage:'배움 열기',tm:null,html:function(){
+      return '<div class="l-k">13차시 · 수사 검증 회의</div><div class="l-h1">오늘의 두 장면</div>'+
+        '<div class="l-two"><div class="l-scene"><div class="l-n">①</div><div class="l-t">한 달의 수사를<br>4분 30초에 발표하기</div><div class="l-d">발견 장면 → 실험 질문 → 측정 → 결론 · 안전 제안</div></div>'+
+        '<div class="l-scene"><div class="l-n">②</div><div class="l-t">친구의 질문으로<br>보고서를 다시 보기</div><div class="l-d">들은 모둠에 질문 · 제안 카드 → 우리 결론을 고칠까, 지킬까?</div></div></div>'+
+        '<div class="l-lead">방문 순서표에서 내 이름과 1 · 2라운드 역할을 찾아 짝에게 말해 보세요.</div>';
+    }},
+    {id:'v1',lb:'1라운드',stage:'전개 1 · 1라운드',tm:lsRot(1),html:function(){ return lsVisitHtml(1); }},
+    {id:'swap',lb:'교대 회의',stage:'전개 2 · 교대 회의',tm:{ph:[{l:'교대 회의',s:120}]},html:function(){
+      return '<div class="l-k">원모둠으로 모이세요</div><div class="l-h1">교대 회의 2분</div>'+
+        '<div class="l-two"><div class="l-scene"><div class="l-n">B팀</div><div class="l-t">다른 모둠에서 가져온<br>수사 방법</div><div class="l-d">“이 모둠은 이렇게 쟀더라”</div></div>'+
+        '<div class="l-scene"><div class="l-n">A팀</div><div class="l-t">1라운드에<br>받은 질문</div><div class="l-d">“이런 질문이 나왔어, 2라운드에서는 이렇게 답하자”</div></div></div>'+
+        '<div class="l-ex"><b>사건이 달라도 옮길 수 있는 것</b> · 조건 맞추기 · 반복 측정 · 평균 구하기</div>'+
+        '<div class="l-lead">2라운드는 <b style="color:#f6dc8c">B팀이 발표</b>, A팀이 ← 앞 번호로 방문합니다.</div>';
+    }},
+    {id:'v2',lb:'2라운드',stage:'전개 3 · 2라운드',tm:lsRot(2),html:function(){ return lsVisitHtml(2); }},
+    {id:'judge',lb:'원모둠 판단',stage:'전개 4 · 원모둠 판단',tm:{ph:[{l:'원모둠 판단',s:300}]},html:function(){
+      var cc=LS.items.length?'<div class="l-cc">'+T.map(function(no){
+        var t=LS.items.filter(function(x){ return Number(x.team)===no; })[0];
+        return '<span>'+no+'모둠 받은 카드 <b>'+((t&&t.cards)||0)+'</b>장</span>'; }).join('')+'</div>':'';
+      return '<div class="l-k">원모둠으로 · 앱 보고서의 받은 카드</div><div class="l-h1">고칠까, 지킬까?</div>'+
+        '<div class="l-steps"><div class="l-s"><div class="l-n">1</div><div class="l-t">카드 읽기</div><div class="l-d">받은 질문과 제안을 함께 읽어요</div></div><div class="l-ar">→</div>'+
+        '<div class="l-s"><div class="l-n">2</div><div class="l-t">⭐ 고르기</div><div class="l-d">도움이 된 카드를 3개까지</div></div><div class="l-ar">→</div>'+
+        '<div class="l-s"><div class="l-n">3</div><div class="l-t">고침 또는 지킴</div><div class="l-d">가장 중요한 1건에 이유와 함께 기록</div></div></div>'+
+        '<div class="l-ex"><b>지킴도 좋은 결정입니다.</b> 이유만 있으면 됩니다.</div>'+cc;
+    }},
+    {id:'relay',lb:'30초 릴레이',stage:'전개 5 · 30초 릴레이',tm:{auto:false,ph:T.map(function(no){ return {l:no+'모둠',s:30,team:no}; })},html:function(){
+      var S=LS.T.relay||{}, pi=S.pi||0;
+      return '<div class="l-k">모둠당 30초</div><div class="l-h1" style="font-size:clamp(22px,3.6vw,44px)">“우리가 받은 제안 하나와 우리의 판단”</div>'+
+        '<div class="l-rl">'+T.map(function(no,k){ var t=lsTitle(no);
+          return '<div data-k="'+k+'" class="'+(k===pi?'on':(k<pi?'done':''))+'"><b>'+no+'모둠</b><span>'+esc(t)+'</span></div>'; }).join('')+'</div>';
+    }},
+    {id:'close',lb:'배움 마무리',stage:'정리 · 배움 마무리',tm:null,html:function(){
+      return '<div class="l-k">생각거리</div>'+
+        '<div class="l-qs"><div class="l-q">나무 도막을 끌 때와 사람이 걸어갈 때,<br>마찰력의 방향은 같을까?</div>'+
+        '<div class="l-q">많이 튀는 패드가 더 안전할까?<small>답은 다음 시간 최종 보고서에서</small></div></div>'+
+        '<div class="l-nx"><span>✍️ 앱에 <b>성찰</b> 쓰기 (50자 이상)</span><span>📝 다음 시간 · <b>14차시 최종 보고</b> (논술형)</span></div>';
+    }}
+  ];
+}
+function lsOpen(cls,items){
+  LS.cls=String(cls||'1'); LS.items=items||[];
+  lsBuild();
+  var v=$('lsv');
+  if(!v){
+    v=document.createElement('div'); v.id='lsv';
+    v.innerHTML='<div class="l-top"><span class="l-stg" id="lsStg"></span><button class="l-tm" id="lsTm" type="button"></button>'+
+      '<button class="l-tr" id="lsTr" type="button" title="처음부터">↺</button><button class="l-tr" id="lsTn" type="button" title="다음 구간">⏭</button>'+
+      '<button class="l-x" id="lsX" type="button">✕ 닫기</button></div>'+
+      '<div class="l-body" id="lsBody"></div>'+
+      '<div class="l-foot"><button type="button" id="lsP">◀ 이전</button><div class="l-dots" id="lsD"></div><button type="button" id="lsN">다음 ▶</button></div>';
+    document.body.appendChild(v);
+    $('lsX').addEventListener('click',function(){ v.classList.remove('on'); });
+    $('lsP').addEventListener('click',function(){ lsGo(LS.i-1); });
+    $('lsN').addEventListener('click',function(){ lsGo(LS.i+1); });
+    $('lsTm').addEventListener('click',lsToggle);
+    $('lsTr').addEventListener('click',function(){ var S=lsCur(); if(!S) return; S.run=false; S.pi=0; S.left=S.ph[0].s; S.end=false; lsDraw(); });
+    $('lsTn').addEventListener('click',function(){ var S=lsCur(); if(!S) return; lsNext(S,false); lsDraw(); });
+    document.addEventListener('keydown',function(e){
+      if(!v.classList.contains('on')) return;
+      if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); lsGo(LS.i+1); }
+      else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); lsGo(LS.i-1); }
+      else if(e.key===' '){ e.preventDefault(); lsToggle(); }
+      else if(e.key==='Escape'){ v.classList.remove('on'); }
+    });
+    $('lsBody').addEventListener('click',function(e){
+      var d=e.target.closest('.l-rl div'); if(!d) return;
+      var S=LS.T.relay; if(!S) return;
+      S.run=false; S.end=false; S.pi=Number(d.dataset.k); S.left=S.ph[S.pi].s; lsDraw();
+    });
+  }
+  LS.list.forEach(function(s){ if(s.tm&&!LS.T[s.id]) LS.T[s.id]={auto:s.tm.auto!==false,ph:s.tm.ph,pi:0,left:s.tm.ph[0].s,run:false}; });
+  if(LS.T.relay) LS.T.relay.ph=LS.list.filter(function(s){ return s.id==='relay'; })[0].tm.ph;
+  if(!LS.tick) LS.tick=setInterval(lsTick,1000);
+  v.classList.add('on');
+  lsDraw();
+}
+function lsCur(){ var s=LS.list[LS.i]; return s&&LS.T[s.id]; }
+function lsGo(n){ if(n<0||n>=LS.list.length) return; LS.i=n; lsDraw(); }
+function lsToggle(){
+  var S=lsCur(); if(!S) return;
+  if(S.end){ S.pi=0; S.left=S.ph[0].s; S.end=false; }
+  S.run=!S.run; if(S.run) lsBeep(1);
+  lsDraw();
+}
+function lsNext(S,beep){
+  if(S.pi+1<S.ph.length){
+    S.pi++; S.left=S.ph[S.pi].s;
+    if(!S.auto) S.run=false;
+    if(beep) lsBeep(2);
+  } else { S.run=false; S.end=true; S.left=0; if(beep) lsBeep(3); }
+}
+function lsTick(){
+  var any=false;
+  Object.keys(LS.T).forEach(function(id){
+    var S=LS.T[id]; if(!S.run) return; any=true;
+    S.left--;
+    if(S.left<=0) lsNext(S,true);
+  });
+  if(any && $('lsv') && $('lsv').classList.contains('on')) lsTimerDraw();
+}
+function lsTimerDraw(){
+  var s=LS.list[LS.i], S=lsCur(), b=$('lsTm');
+  $('lsTr').style.display=$('lsTn').style.display=b.style.display=S?'':'none';
+  if(!S) return;
+  var p=S.ph[S.pi];
+  b.textContent=S.end?'⏱ 끝!':((S.run?'⏸ ':'▶ ')+p.l+' '+lsFmt(S.left));
+  b.classList.toggle('run',!!S.run);
+  b.classList.toggle('lowt',!S.end && S.left<=(p.s>=120?30:10) && S.run);
+  /* 회전 구간 표시와 릴레이 강조를 함께 맞춤 */
+  var ph=$('lsBody').querySelector('.l-ph3');
+  if(ph){ var tag=/발표/.test(p.l)?0:/질문/.test(p.l)?1:/이동/.test(p.l)?2:-1;
+    Array.prototype.forEach.call(ph.children,function(x,k){ x.classList.toggle('on',k===tag && !S.end); }); }
+  if(s.id==='relay'){
+    Array.prototype.forEach.call($('lsBody').querySelectorAll('.l-rl div'),function(d,k){
+      d.classList.toggle('on',k===S.pi && !S.end); d.classList.toggle('done',k<S.pi||S.end); });
+  }
+}
+function lsDraw(){
+  var s=LS.list[LS.i];
+  $('lsStg').textContent=s.stage;
+  $('lsBody').innerHTML=s.html();
+  $('lsD').innerHTML=LS.list.map(function(x,k){ return '<span data-k="'+k+'" class="'+(k===LS.i?'on':'')+'">'+esc(x.lb)+'</span>'; }).join('');
+  Array.prototype.forEach.call($('lsD').children,function(d){ d.addEventListener('click',function(){ lsGo(Number(d.dataset.k)); }); });
+  $('lsP').disabled=LS.i===0; $('lsN').disabled=LS.i===LS.list.length-1;
+  lsTimerDraw();
+}
+
 /* 교사: 연결 점검 — 서버가 느린지, 와이파이가 느린지 가르기 */
 function netCheckEl(){
   var d=document.createElement('div'); d.className='matbox noprint';
@@ -3762,6 +4021,11 @@ function drawRepTeacher(r,cls){
   box.appendChild(eb);
   box.appendChild(netCheckEl());
   var items=visTeams(cls,r.items);
+  var lsb=document.createElement('button'); lsb.type='button'; lsb.className='cfedit-b noprint';
+  lsb.style.cssText='background:#14202c;color:#f6dc8c;border-color:#14202c;font-weight:800';
+  lsb.textContent='🎬 13차시 수업 화면 (TV) — 사건 의뢰서 · 두 장면 · 방문 순서 · 교대 회의 · 원모둠 판단 · 릴레이 · 마무리';
+  lsb.addEventListener('click',function(){ lsOpen(cls,items); });
+  box.insertBefore(lsb,box.firstChild);
   if(!items.length){ var em0=document.createElement('div'); em0.className='empty'; em0.textContent='아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.'; box.appendChild(em0); return; }
   var mb=document.createElement('div'); mb.className='matbox';
   var mh='<h3>🧰 재료 준비 목록 · '+cls+'반</h3>';
