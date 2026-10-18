@@ -3757,9 +3757,10 @@ function lsBuild(){
   LS.list=[
     {id:'req',lb:'사건 의뢰서',stage:'배움 열기',tm:{ph:[{l:'배움 열기',s:240}]},html:function(){
       return '<div class="l-paper"><div class="l-pt">사건 의뢰서</div>'+
-        '<div class="l-row"><b>의뢰인</b><span>고천중학교</span></div>'+
-        '<div class="l-row"><b>받는 곳</b><span>힘 탐정 사무소 · 1학년 '+esc(LS.cls)+'반 탐정단</span></div>'+
-        '<div class="l-msg">우리 학교 곳곳에 미끄러지고 부딪힐 수 있는 장소가 있습니다. 탐정 여러분이 위험한 장소를 직접 찾아, 그곳에 작용하는 힘을 재어 보고, 측정한 숫자를 근거로 안전 제안을 보고해 주십시오.</div>'+
+        '<div class="l-row"><b>의뢰 번호</b><span>F-2026-001 · 접수 2026년 9월 29일</span></div>'+
+        '<div class="l-row"><b>의뢰인</b><span>고천중학교 → 힘 탐정 사무소 '+esc(LS.cls)+'반 탐정 여러분께</span></div>'+
+        '<div class="l-msg">하나. 우리 학교에서 힘과 관련된 안전 단서를 찾아 주십시오.<br>둘. 그곳에 어떤 힘이 어떻게 작용하는지 밝혀 주십시오.<br>셋. 직접 잰 증거로, 더 안전하게 바꿀 방법을 제안해 주십시오.</div>'+
+        '<div style="font-size:clamp(13px,1.7vw,18px);color:#6b5a3a;margin-bottom:1.4vh">※ 추측만 담긴 보고서는 받지 않습니다. 증거가 있는 보고서만 받습니다. · 최종 보고서 제출 기한 10월 20일</div>'+
         '<div class="l-cases">'+cases+'</div>'+
         '<div class="l-seal">고천<br>중학교</div></div>';
     }},
