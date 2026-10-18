@@ -2492,6 +2492,9 @@ var CASES={
 };
 /* 막대그래프가 의미 없는 실험 — 측정표만 보이고 막대는 숨김 ('반|모둠': {실험:1}) */
 var NO_BAR={'1|4':{B:1}};
+/* 목록에서 숨길 모둠 ('반|모둠') — 시트에서 지웠지만 서버에 잠시 남은 테스트 모둠 */
+var HIDE_TEAMS={'1|8':1};
+function visTeams(cls,items){ return (items||[]).filter(function(t){ return !HIDE_TEAMS[String(cls)+'|'+String(t.team)]; }); }
 function rpNoBar(cls,team,X){ var o=NO_BAR[String(cls)+'|'+String(team)]; return !!(o&&o[X]); }
 var CASE_NUM=['','①','②','③','④','⑤','⑥','⑦','⑧'];
 /* 반마다 다르게 보일 사건 — 3반은 의자 패드를 고른 모둠이 있어 ① 사건을 넓혀서 */
@@ -2537,7 +2540,7 @@ function rpCasePick(keep){
   if(RP._taken&&RP._takenAt&&Date.now()-RP._takenAt<120000){ taken=RP._taken; draw(); return; }
   RP._taken=taken; RP._takenAt=Date.now();
   call({action:'repTeams',cls:me.cls,num:me.num},function(res){
-    var others=(res.items||[]).filter(function(t){ return String(t.team)!==String(RP.team); });
+    var others=visTeams(me.cls,res.items).filter(function(t){ return String(t.team)!==String(RP.team); });
     var left=others.length; if(!left){ draw(); return; }
     var q=others.slice();
     function one(){
@@ -2766,7 +2769,7 @@ function rpPeekBar(){
   bar.innerHTML='<div class="pk1">모둠 목록을 불러오는 중...</div>';
   call({action:'repTeams',cls:cls,num:me.num},function(res){
     if(String(me.cls)!==String(cls)) return;
-    var items=(res.items||[]).slice().sort(function(a,b){ return Number(a.team)-Number(b.team); });
+    var items=visTeams(cls,res.items).slice().sort(function(a,b){ return Number(a.team)-Number(b.team); });
     RP.peekCls=cls; RP.peekItems=items; draw(items);
   },function(){
     var items=[]; for(var i=1;i<=7;i++) items.push({team:i,title:''});
@@ -3317,7 +3320,7 @@ function rpVisit(isT){
     var two=!!res.two;
     if(two&&!isT){ var dsc=$('rpVDesc');
       if(dsc) dsc.innerHTML='발표를 듣고 모둠마다 <b>각자 제안 카드를 2장</b>까지 보낼 수 있어요. 발표 모둠이 내 카드를 ⭐로 고르면 카드마다 인정 점수 1점!'; }
-    var items=res.items||[];
+    var items=visTeams(me.cls,res.items);
     if(!items.length){ L.innerHTML='<div class="empty">아직 등록된 수사팀이 없습니다.</div>'; return; }
     items.forEach(function(t){
       if(!isT&&String(t.team)===String(RP.team)) return;
@@ -3758,7 +3761,7 @@ function drawRepTeacher(r,cls){
   eb.addEventListener('click',function(){ cfEditor(function(){ drawRepTeacher(r,cls); }); });
   box.appendChild(eb);
   box.appendChild(netCheckEl());
-  var items=r.items||[];
+  var items=visTeams(cls,r.items);
   if(!items.length){ var em0=document.createElement('div'); em0.className='empty'; em0.textContent='아직 등록된 수사팀이 없습니다. 학생들이 보고서 탭에서 모둠을 고르면 여기에 나타납니다.'; box.appendChild(em0); return; }
   var mb=document.createElement('div'); mb.className='matbox';
   var mh='<h3>🧰 재료 준비 목록 · '+cls+'반</h3>';
