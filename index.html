@@ -3479,8 +3479,10 @@ function rpSlides(pages,teamNo,props,memText,cls,short){
   };
   var grid=function(k,arr){ var L=rpPh(arr).slice(0,6); if(L.length) S.push({tp:'grid',k:k,items:L}); };
   if(short){
-    var sp=rpPh(pl.scenePh)[0];
-    if(sp) S.push({tp:'ph',k:'발견 장면',id:sp.id,cap:sp.cap||tx(pl.scene)}); else kb('발견 장면',pl.scene);
+    /* 4분 30초 판: 발견 장면 사진 2장까지 (사진 설명이 없으면 첫 장에 발견 장면 글) */
+    var sps=rpPh(pl.scenePh).slice(0,2);
+    if(sps.length) sps.forEach(function(sp,i,a){ S.push({tp:'ph',k:'발견 장면'+(a.length>1?' '+(i+1)+'/'+a.length:''),id:sp.id,cap:sp.cap||(i===0?tx(pl.scene):'')}); });
+    else kb('발견 장면',pl.scene);
     kb('궁금증',pl.wonder);
     kb('힘 분석',pl.forces);
     /* 4분 30초 판: 힘 화살표 사진 2장까지 */
