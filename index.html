@@ -59,6 +59,11 @@
   .prf .m{font-size:12px;color:var(--soft);font-weight:700;margin-bottom:4px;}
   .prf .m b{color:var(--ink);}
   .prf .g{font-size:14px;line-height:1.55;white-space:pre-line;}
+  .gref-ls{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px;}
+  .gref-ls button{border:1.5px solid var(--hair);background:#fff;border-radius:20px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .gref-ls button em{font-style:normal;color:var(--soft);font-weight:500;margin-left:3px;}
+  .gref-ls button.on{background:#1d4f86;border-color:#1d4f86;color:#fff;}
+  .gref-ls button.on em{color:#cfe0f3;}
   .rf .rfx{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:11.5px;color:var(--soft);}
   .rf .rfx button{font-size:12px;padding:3px 9px;border-radius:999px;}
   .rf .rfx button.on{background:#fff3d6;border-color:#d9a441;color:#8a5d0b;font-weight:800;}
@@ -1219,7 +1224,7 @@
 
     <div class="card hide" id="gLoginCard">
       <h2>참관 둘러보기</h2>
-      <div class="sub">쓰기는 되지 않는 <b>둘러보기 전용</b> 입장입니다.<br>자료, 사건함, 검증 회의 발표를 볼 수 있습니다.<br>오늘 공개수업 반인 <b>1반</b>으로 들어가세요.</div>
+      <div class="sub">쓰기는 되지 않는 <b>둘러보기 전용</b> 입장입니다.<br>자료, 사건함, 검증 회의 발표, 성찰을 볼 수 있습니다.<br>오늘 공개수업 반인 <b>1반</b>으로 들어가세요.</div>
       <div class="gcls" id="gCls"></div>
       <div style="height:10px"></div>
       <button class="ghost" id="gBack" style="width:100%">돌아가기</button>
@@ -1309,7 +1314,13 @@
     </div>
 
     <div id="paneRef" class="hide narrow">
-      <div class="card">
+      <div class="card hide" id="guestRefCard">
+        <h2>📝 탐정들의 성찰</h2>
+        <div class="sub">학생들이 차시마다 수업을 마치고 남긴 「오늘 알게 된 것」입니다. 탐정 이름으로만 보이고, ⭐는 소장(교사) 추천입니다.</div>
+        <div class="gref-ls" id="gRefLs"></div>
+        <div id="gRefBox"><div class="empty">불러오는 중...</div></div>
+      </div>
+      <div class="card" id="refFormCard">
         <h2>오늘의 성찰</h2>
         <div class="sub">수업이 끝나고 스스로에게 남기는 기록입니다. 「오늘 알게 된 것」을 <b>50자 이상</b> 쓰면 그 차시 인정 점수 1점을 받습니다.</div>
         <div class="msg" id="refMsg"></div>
@@ -1945,7 +1956,7 @@ $('tLoginBack').addEventListener('click', function(){
   msg($('tLoginMsg'),''); $('tLoginPin').value='';
   if(pick('name')){ show($('saved'),true); } else { show($('loginForm'),true); }
 });
-var GUEST=false, GUEST_OK={feed:1,materials:1,repTeams:1,report:1};
+var GUEST=false, GUEST_OK={feed:1,materials:1,repTeams:1,report:1,refGuest:1};
 /* 참관 입장을 허용할 반 — 공개수업 반만 열어 둠. 다시 모든 반을 열려면 ['1','2','3','4'] */
 var GUEST_CLS=['1'];
 $('gLoginOpen').addEventListener('click', function(){
@@ -1971,7 +1982,8 @@ $('gBack').addEventListener('click', function(){
       me={cls:String(c),num:'관전',name:'참관',det:'참관 교사'};
       show($('gLoginCard'),false);
       enter(me);
-      show($('tabWrite'),false); show($('tabRef'),false); show($('tabNote'),false); show($('tabTeach'),false);
+      show($('tabWrite'),false); show($('tabNote'),false); show($('tabTeach'),false);
+      GREF=null; GREF_L='';
       tab('List');
     });
     g.appendChild(b);
@@ -4560,7 +4572,11 @@ function tab(which){
   if(me&&!TEACHER&&!GUEST&&which!=='Teach') store('fd_lasttab',which);
   if(which==='Mat') loadMat();
   if(which==='List'){ if(me&&!ME) load(); else render(); }
-  if(which==='Ref'){ loadMyRefs(); loadPeerRefs(); if(!REFPICKS) loadRefPicks(); else drawRefPick(); }
+  if(which==='Ref'){
+    show($('guestRefCard'),GUEST); show($('refFormCard'),!GUEST); show($('myRefCard'),!GUEST);
+    if(GUEST){ show($('peerRefCard'),false); loadGuestRefs(); }
+    else { loadMyRefs(); loadPeerRefs(); if(!REFPICKS) loadRefPicks(); else drawRefPick(); }
+  }
   if(which==='Note'){ loadMyNotes(); }
   if(which==='Rep') repOpen();
   if(which==='Teach' && PIN){
@@ -5238,6 +5254,40 @@ Array.prototype.forEach.call($('refStarters').children, function(b){
     ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); refCount();
   });
 });
+
+/* 참관 둘러보기 — 참관 반의 성찰을 차시별로 (탐정 이름만, 「오늘 알게 된 것」만) */
+var GREF=null, GREF_L='';
+function loadGuestRefs(){
+  if(!GUEST||!me) return;
+  if(GREF){ drawGuestRefs(); return; }
+  $('gRefBox').innerHTML='<div class="empty">불러오는 중...</div>'; $('gRefLs').innerHTML='';
+  call({action:'refGuest',cls:me.cls},function(res){
+    GREF=res.items||[]; drawGuestRefs();
+  },function(err){
+    $('gRefBox').innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?'성찰 둘러보기는 곧 열립니다.':'불러오지 못했습니다. '+esc(err))+'</div>';
+  });
+}
+function drawGuestRefs(){
+  var by={}; (GREF||[]).forEach(function(x){ (by[x.lesson]=by[x.lesson]||[]).push(x); });
+  var Ls=Object.keys(by).sort(function(a,b){ return (Number(a)||99)-(Number(b)||99); });
+  var ls=$('gRefLs'), box=$('gRefBox'); ls.innerHTML='';
+  if(!Ls.length){ box.innerHTML='<div class="empty">아직 남긴 성찰이 없습니다.</div>'; return; }
+  if(Ls.indexOf(GREF_L)<0) GREF_L=Ls[Ls.length-1];
+  Ls.forEach(function(L){
+    var b=document.createElement('button'); b.type='button'; if(L===GREF_L) b.className='on';
+    b.innerHTML=esc(L)+'차시<em>'+by[L].length+'</em>';
+    b.addEventListener('click',function(){ GREF_L=L; drawGuestRefs(); });
+    ls.appendChild(b);
+  });
+  var it=by[GREF_L].slice().sort(function(a,b){ return (b.star?1:0)-(a.star?1:0); });
+  box.innerHTML='';
+  it.forEach(function(x){
+    var d=document.createElement('div'); d.className='prf'+(x.star?' star':'');
+    d.innerHTML='<div class="m">'+(x.star?'⭐ 소장 추천 · ':'')+'<b>'+esc(x.det)+'</b> · '+esc(x.time||'')+'</div>'+
+      '<div class="g">'+esc(x.got)+'</div>';
+    box.appendChild(d);
+  });
+}
 
 function loadMyNotes(){
   call({action:'mynotes',cls:me.cls,num:me.num}, function(res){
