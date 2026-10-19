@@ -953,6 +953,24 @@
   #lsv .l-rl div.on{background:#d9a441;border-color:#f6dc8c;color:#12202f;transform:scale(1.02);}
   #lsv .l-rl div.on b{color:#12202f;}
   #lsv .l-rl div.done{opacity:.45;}
+  #lsv .l-rwrap{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:2vw;width:100%;max-width:1300px;margin-top:2vh;align-items:start;}
+  #lsv .l-rwrap .l-rl{margin-top:0;}
+  #lsv .l-rl div i{margin-left:auto;font-style:normal;color:#f6dc8c;font-size:.85em;}
+  #lsv .l-rl div.on i{color:#12202f;}
+  #lsv .l-pick{background:#fbf6ea;color:#1b2733;border-radius:16px;padding:2vh 1.6vw;text-align:left;display:flex;flex-direction:column;gap:1.4vh;min-height:30vh;}
+  #lsv .l-pk-h{font-weight:900;font-size:clamp(16px,2.2vw,26px);color:#8a5a12;display:flex;flex-wrap:wrap;align-items:baseline;gap:.4em 1em;}
+  #lsv .l-pk-h span{font-size:.62em;color:#6b5a3a;font-weight:700;margin-left:auto;}
+  #lsv .l-pk-e{color:#6b5a3a;font-size:clamp(14px,1.9vw,22px);}
+  #lsv .l-pk-c{background:#fff;border:1.5px solid #e2d4b4;border-radius:12px;padding:1.4vh 1.2vw;display:flex;flex-direction:column;gap:.8vh;}
+  #lsv .l-pk-t{display:flex;gap:.6em;align-items:center;font-size:clamp(12px,1.5vw,17px);}
+  #lsv .l-pk-t .ty{background:#14202c;color:#f6dc8c;border-radius:8px;padding:.15em .6em;font-weight:800;}
+  #lsv .l-pk-t .fr{color:#6b5a3a;font-weight:700;}
+  #lsv .l-pk-x{font-size:clamp(17px,2.5vw,30px);font-weight:800;line-height:1.4;}
+  #lsv .l-pk-v{font-size:clamp(14px,1.9vw,22px);line-height:1.45;color:#36424e;}
+  #lsv .l-pk-v b{display:inline-block;border-radius:8px;padding:.1em .6em;margin-right:.5em;color:#fff;}
+  #lsv .l-pk-v b.fx{background:#1d6b42;} #lsv .l-pk-v b.kp{background:#9a6f12;}
+  #lsv .l-pk-v i{color:#8a95a1;}
+  #lsv .l-pk-f{font-size:clamp(11px,1.3vw,14px);color:#8a95a1;margin-top:auto;}
   #lsv .l-qs{display:flex;flex-direction:column;gap:2.4vh;width:100%;max-width:1150px;margin-top:2vh;}
   #lsv .l-qs .l-q{background:#16263a;border-left:8px solid #d9a441;border-radius:12px;padding:2.4vh 2vw;text-align:left;font-size:clamp(20px,3.4vw,40px);font-weight:900;color:#fff;line-height:1.4;}
   #lsv .l-qs .l-q small{display:block;color:#9fb3c8;font-size:.5em;font-weight:700;margin-top:.8vh;}
@@ -3800,9 +3818,11 @@ function lsBuild(){
     }},
     {id:'relay',lb:'30초 릴레이',stage:'전개 5 · 30초 릴레이',tm:{auto:false,ph:T.map(function(no){ return {l:no+'모둠',s:30,team:no}; })},html:function(){
       var S=LS.T.relay||{}, pi=S.pi||0;
+      var cur=T[Math.min(pi,T.length-1)];
       return '<div class="l-k">모둠당 30초</div><div class="l-h1" style="font-size:clamp(22px,3.6vw,44px)">“우리가 받은 제안 하나와 우리의 판단”</div>'+
-        '<div class="l-rl">'+T.map(function(no,k){ var t=lsTitle(no);
-          return '<div data-k="'+k+'" class="'+(k===pi?'on':(k<pi?'done':''))+'"><b>'+no+'모둠</b><span>'+esc(t)+'</span></div>'; }).join('')+'</div>';
+        '<div class="l-rwrap"><div class="l-rl">'+T.map(function(no,k){ var t=lsTitle(no);
+          return '<div data-k="'+k+'" class="'+(k===pi?'on':(k<pi?'done':''))+'"><b>'+no+'모둠</b><span>'+esc(t)+'</span><i>'+lsStarN(no)+'</i></div>'; }).join('')+'</div>'+
+        '<div class="l-pick" id="lsPick" data-team="'+cur+'">'+lsPickInner(cur)+'</div></div>';
     }},
     {id:'close',lb:'배움 마무리',stage:'정리 · 배움 마무리',tm:null,html:function(){
       return '<div class="l-k">생각거리</div>'+
@@ -3849,6 +3869,59 @@ function lsOpen(cls,items){
   v.classList.add('on');
   lsDraw();
 }
+
+/* 30초 릴레이: 모둠이 ⭐로 채택한 제안과 고침/지킴 판단을 실시간으로 (8초마다 다시 불러옴) */
+LS.P={};
+function lsLoadProps(no){
+  var P=LS.P[no]||(LS.P[no]={list:null,at:0});
+  if(P.loading) return; P.loading=true;
+  call({action:'report',cls:LS.cls,team:String(no)},function(res){
+    P.loading=false; P.err=''; P.list=res.props||[]; P.at=Date.now(); lsPickRefresh(no);
+  },function(err){ P.loading=false; P.err=String(err||'오류'); P.at=Date.now(); lsPickRefresh(no); });
+}
+function lsStarN(no){
+  var P=LS.P[no]; if(!P||!P.list) return '';
+  var n=P.list.filter(function(p){ return p.helpful==='Y'; }).length;
+  return n?('⭐'+n):'';
+}
+function lsPickInner(no){
+  var P=LS.P[no];
+  if(!P||!P.list) return '<div class="l-pk-h">'+no+'모둠이 고른 제안</div><div class="l-pk-e">'+(P&&P.err?'불러오지 못했어요 · '+esc(P.err):'불러오는 중...')+'</div>';
+  var L=P.list, star=L.filter(function(p){ return p.helpful==='Y'; }), done=L.filter(function(p){ return p.verdict; });
+  var show=star.length?star:done, lab=star.length?'⭐ 채택한 제안':(done.length?'판단한 카드 (⭐ 아직 없음)':'받은 제안');
+  var h='<div class="l-pk-h">'+no+'모둠 · '+lab+'<span>받은 카드 '+L.length+'장 · 판단 '+done.length+'장</span></div>';
+  if(!show.length) h+='<div class="l-pk-e">'+(L.length?'아직 ⭐로 고르거나 판단한 카드가 없어요':'아직 받은 카드가 없어요')+'</div>';
+  show.slice(0,3).forEach(function(c){
+    var v=c.verdict||'';
+    h+='<div class="l-pk-c"><div class="l-pk-t"><span class="ty">'+esc(c.type||'제안')+'</span>'+(c.from?'<span class="fr">'+esc(c.from)+'</span>':'')+'</div>'+
+      '<div class="l-pk-x">'+esc(c.text||'')+'</div>'+
+      (v?'<div class="l-pk-v"><b class="'+(v==='고침'?'fx':'kp')+'">'+esc(v)+'</b>'+(c.reason?esc(c.reason):'<i>이유를 아직 쓰지 않았어요</i>')+'</div>':'<div class="l-pk-v"><i>고침/지킴 판단 전</i></div>')+'</div>';
+  });
+  if(show.length>3) h+='<div class="l-pk-e">외 '+(show.length-3)+'장</div>';
+  var sec=Math.max(0,Math.round((Date.now()-P.at)/1000));
+  h+='<div class="l-pk-f">🔄 '+(sec<3?'방금':sec+'초 전')+' 불러옴 · 8초마다 새로 고침</div>';
+  return h;
+}
+function lsPickRefresh(no){
+  var v=$('lsv'); if(!v||!v.classList.contains('on')) return;
+  var s=LS.list[LS.i]; if(!s||s.id!=='relay') return;
+  var el=$('lsPick');
+  if(el&&String(el.dataset.team)===String(no)){ el.innerHTML=lsPickInner(no); lsFit(); }
+  var row=$('lsBody').querySelectorAll('.l-rl div i'), T=lsTeams();
+  T.forEach(function(t,k){ if(row[k]) row[k].textContent=lsStarN(t); });
+}
+function lsRelayTick(){
+  var v=$('lsv'); if(!v||!v.classList.contains('on')) return;
+  var s=LS.list[LS.i]; if(!s||s.id!=='relay') return;
+  var T=lsTeams(), S=LS.T.relay||{pi:0}, cur=T[Math.min(S.pi||0,T.length-1)], now=Date.now();
+  var el=$('lsPick');
+  if(el&&String(el.dataset.team)!==String(cur)){ el.dataset.team=cur; el.innerHTML=lsPickInner(cur); lsFit(); }
+  var P=LS.P[cur];
+  if(!P||(!P.loading&&now-P.at>8000)) lsLoadProps(cur);
+  else if(el) { var f=el.querySelector('.l-pk-f'); if(f&&P.at){ var sec=Math.round((now-P.at)/1000); f.textContent='🔄 '+(sec<3?'방금':sec+'초 전')+' 불러옴 · 8초마다 새로 고침'; } }
+  /* 다른 모둠도 30초마다 한 번씩 미리 */
+  T.forEach(function(t){ var Q=LS.P[t]; if(t!==cur&&(!Q||(!Q.loading&&now-Q.at>30000))) lsLoadProps(t); });
+}
 /* 화면 크기에 맞춰 한 번에 다 보이도록 줄이기 (스크롤 없이) */
 function lsFit(){
   var b=$('lsBody'), f=b&&b.firstChild; if(!f) return;
@@ -3874,6 +3947,7 @@ function lsNext(S,beep){
   } else { S.run=false; S.end=true; S.left=0; if(beep) lsBeep(3); }
 }
 function lsTick(){
+  try{ lsRelayTick(); }catch(e){}
   var any=false;
   Object.keys(LS.T).forEach(function(id){
     var S=LS.T[id]; if(!S.run) return; any=true;
