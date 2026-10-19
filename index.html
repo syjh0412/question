@@ -976,6 +976,21 @@
   #lsv .l-bd .btRow button{font-size:clamp(13px,1.6vw,18px);padding:8px 14px;}
   #lsv .l-bd .bstats th{font-size:clamp(13px,1.7vw,20px);padding:1vh 8px;}
   #lsv .l-bd .bstats td{font-size:clamp(16px,2.3vw,28px);padding:1vh 8px;font-weight:700;}
+  #lsv .l-st7{display:flex;flex-direction:column;gap:.9vh;width:100%;max-width:1200px;margin-top:2.4vh;text-align:left;}
+  #lsv .l-st7>div{display:grid;grid-template-columns:clamp(34px,4vw,56px) clamp(110px,14vw,190px) minmax(0,1fr) clamp(150px,19vw,260px);align-items:center;gap:1.2vw;background:#16263a;border:1.5px solid #2d4260;border-radius:12px;padding:.9vh 1.4vw;font-size:clamp(14px,1.9vw,22px);color:#cfdced;}
+  #lsv .l-st7 .no{width:1.9em;height:1.9em;border-radius:50%;background:#2d4260;color:#cfdced;display:flex;align-items:center;justify-content:center;font-weight:900;}
+  #lsv .l-st7 b{color:#fff;font-weight:900;}
+  #lsv .l-st7 .ev{color:#9fb3c8;font-size:.82em;text-align:right;}
+  #lsv .l-st7 em{font-style:normal;display:inline-block;background:#d9a441;color:#12202f;border-radius:8px;padding:.05em .55em;margin-right:.5em;font-weight:900;}
+  #lsv .l-st7 em.nx{background:none;border:1px dashed #7d93ab;color:#9fb3c8;}
+  #lsv .l-st7 .done{opacity:.55;}
+  #lsv .l-st7 .done .no{background:#3f8f68;color:#fff;}
+  #lsv .l-st7 .now{background:#fbf6ea;border:3px solid #d9a441;color:#1b2733;padding:2vh 1.4vw;font-size:clamp(17px,2.5vw,30px);transform:scale(1.02);box-shadow:0 8px 30px rgba(217,164,65,.25);}
+  #lsv .l-st7 .now .no{background:#d9a441;color:#12202f;}
+  #lsv .l-st7 .now b{color:#8a5a12;}
+  #lsv .l-st7 .now .do b{color:#b23a2a;}
+  #lsv .l-st7 .now .ev{color:#6b5a3a;}
+  #lsv .l-st7 .next{border-style:dashed;}
   #lsv .l-qs{display:flex;flex-direction:column;gap:2.4vh;width:100%;max-width:1150px;margin-top:2vh;}
   #lsv .l-qs .l-q{background:#16263a;border-left:8px solid #d9a441;border-radius:12px;padding:2.4vh 2vw;text-align:left;font-size:clamp(20px,3.4vw,40px);font-weight:900;color:#fff;line-height:1.4;}
   #lsv .l-qs .l-q small{display:block;color:#9fb3c8;font-size:.5em;font-weight:700;margin-top:.8vh;}
@@ -3798,6 +3813,18 @@ function lsBuild(){
         '<div class="l-msg">하나. 우리 학교에서 힘과 관련된 안전 단서를 찾아 주십시오.<br>둘. 그곳에 어떤 힘이 어떻게 작용하는지 밝혀 주십시오.<br>셋. 직접 잰 증거로, 더 안전하게 바꿀 방법을 제안해 주십시오.</div>'+
         '<div style="font-size:clamp(13px,1.7vw,18px);color:#6b5a3a;margin-bottom:1.4vh">※ 추측만 담긴 보고서는 받지 않습니다. 증거가 있는 보고서만 받습니다. · 최종 보고서 제출 기한 10월 20일</div>'+
         '<div class="l-seal">고천<br>중학교</div></div>';
+    }},
+    {id:'steps',lb:'수사 단계',stage:'배움 열기',tm:null,html:function(){
+      var R=[['1','의뢰 접수','의뢰서를 읽고 임무 확인',''],['2','현장 탐문','학교에서 힘과 관련된 안전 단서 찾기','현장 단서 카드'],
+        ['3','사건 배정','직접 재어 밝힐 수사 질문 정하기','수사 계획서 ①'],['4','증거 확보','변인을 정하고 측정해 숫자 증거 모으기','수사 계획서 ② · 측정 기록'],
+        ['5','1차 보고서','힘 분석 · 증거 · 안전 대책 정리','1차 보고서'],
+        ['6','수사 검증 회의','다른 수사팀 앞에서 보고하고 질문과 제안을 받는다.<br><b>증거에 비추어 고칠지, 지킬지</b> 결정한다.','제안 카드 · 수정한 보고서'],
+        ['7','최종 보고','의뢰인에게 보낼 최종 보고서(제안서) 쓰기','최종 보고서']];
+      return '<div class="l-k">힘 탐정 사무소 · 수사 지침</div><div class="l-h1" style="font-size:clamp(24px,4vw,48px)">사건 F-2026-001 수사 단계</div>'+
+        '<div class="l-st7">'+R.map(function(r){
+          var c=r[0]==='6'?'now':(Number(r[0])<6?'done':'next');
+          return '<div class="'+c+'"><span class="no">'+(c==='done'?'✓':r[0])+'</span><b>'+r[1]+'</b><span class="do">'+r[2]+'</span>'+
+            '<span class="ev">'+(c==='now'?'<em>오늘</em>':c==='next'?'<em class="nx">다음 시간</em>':'')+esc(r[3])+'</span></div>'; }).join('')+'</div>';
     }},
     {id:'two',lb:'오늘의 두 장면',stage:'배움 열기',tm:null,html:function(){
       return '<div class="l-k">13차시 · 수사 검증 회의</div><div class="l-h1">오늘의 두 장면</div>'+
