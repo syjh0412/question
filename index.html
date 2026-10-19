@@ -971,6 +971,11 @@
   #lsv .l-pk-v b.fx{background:#1d6b42;} #lsv .l-pk-v b.kp{background:#9a6f12;}
   #lsv .l-pk-v i{color:#8a95a1;}
   #lsv .l-pk-f{font-size:clamp(11px,1.3vw,14px);color:#8a95a1;margin-top:auto;}
+  #lsv .l-bd{width:100%;max-width:1200px;display:flex;flex-direction:column;gap:2vh;}
+  #lsv .l-bd .btimer .btTime{font-size:clamp(90px,15vw,210px);}
+  #lsv .l-bd .btRow button{font-size:clamp(13px,1.6vw,18px);padding:8px 14px;}
+  #lsv .l-bd .bstats th{font-size:clamp(13px,1.7vw,20px);padding:1vh 8px;}
+  #lsv .l-bd .bstats td{font-size:clamp(16px,2.3vw,28px);padding:1vh 8px;font-weight:700;}
   #lsv .l-qs{display:flex;flex-direction:column;gap:2.4vh;width:100%;max-width:1150px;margin-top:2vh;}
   #lsv .l-qs .l-q{background:#16263a;border-left:8px solid #d9a441;border-radius:12px;padding:2.4vh 2vw;text-align:left;font-size:clamp(20px,3.4vw,40px);font-weight:900;color:#fff;line-height:1.4;}
   #lsv .l-qs .l-q small{display:block;color:#9fb3c8;font-size:.5em;font-weight:700;margin-top:.8vh;}
@@ -3798,6 +3803,7 @@ function lsBuild(){
         '<div class="l-lead">방문 순서표에서 내 이름과 1 · 2라운드 역할을 찾아 짝에게 말해 보세요.</div>';
     }},
     {id:'v1',lb:'1라운드',stage:'전개 1 · 1라운드',tm:lsRot(1),html:function(){ return lsVisitHtml(1); }},
+    {id:'bd1',lb:'1R 현황판',stage:'전개 1 · 검증 현황판',tm:null,html:function(){ return lsBoardHtml(1); }},
     {id:'swap',lb:'교대 회의',stage:'전개 2 · 교대 회의',tm:{ph:[{l:'교대 회의',s:120}]},html:function(){
       return '<div class="l-k">원모둠으로 모이세요</div><div class="l-h1">교대 회의 2분</div>'+
         '<div class="l-two"><div class="l-scene"><div class="l-n">B팀</div><div class="l-t">다른 모둠에서 가져온<br>수사 방법</div><div class="l-d">“이 모둠은 이렇게 쟀더라”</div></div>'+
@@ -3806,6 +3812,7 @@ function lsBuild(){
         '<div class="l-lead">2라운드는 <b style="color:#f6dc8c">B팀이 발표</b>, A팀이 ← 앞 번호로 방문합니다.</div>';
     }},
     {id:'v2',lb:'2라운드',stage:'전개 3 · 2라운드',tm:lsRot(2),html:function(){ return lsVisitHtml(2); }},
+    {id:'bd2',lb:'2R 현황판',stage:'전개 3 · 검증 현황판',tm:null,html:function(){ return lsBoardHtml(2); }},
     {id:'judge',lb:'원모둠 판단',stage:'전개 4 · 원모둠 판단',tm:{ph:[{l:'원모둠 판단',s:300}]},html:function(){
       var cc=LS.items.length?'<div class="l-cc">'+T.map(function(no){
         var t=LS.items.filter(function(x){ return Number(x.team)===no; })[0];
@@ -3854,7 +3861,7 @@ function lsOpen(cls,items){
       if(!v.classList.contains('on')) return;
       if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); lsGo(LS.i+1); }
       else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); lsGo(LS.i-1); }
-      else if(e.key===' '){ e.preventDefault(); lsToggle(); }
+      else if(e.key===' '){ e.preventDefault(); if(lsIsBoard()) btCtl('go'); else lsToggle(); }
       else if(e.key==='Escape'){ v.classList.remove('on'); }
     });
     $('lsBody').addEventListener('click',function(e){
@@ -3922,6 +3929,38 @@ function lsRelayTick(){
   /* 다른 모둠도 30초마다 한 번씩 미리 */
   T.forEach(function(t){ var Q=LS.P[t]; if(t!==cur&&(!Q||(!Q.loading&&now-Q.at>30000))) lsLoadProps(t); });
 }
+
+/* 검증 현황판 (1·2라운드 다음 화면) — 큰 타이머(BT, 1분 전 음성 알림)와 모둠별 카드 현황. 이 화면이 보일 때만 15초마다 한 번 불러옴 */
+LS.BD=null;
+function lsBoardTable(){
+  var B=LS.BD;
+  if(!B) return '<div class="l-pk-e" style="color:#9fb3c8">현황 불러오는 중...</div>';
+  if(B.err&&!B.items) return '<div class="l-pk-e" style="color:#9fb3c8">불러오지 못했어요 · '+esc(B.err)+'</div>';
+  var h='<table class="bstats"><tr><th>모둠</th><th>받은 카드</th><th>고침</th><th>지킴</th><th>⭐</th><th>가장 많은 카드</th></tr>';
+  visTeams(LS.cls,B.items||[]).forEach(function(t){
+    h+='<tr><td class="l2">'+t.team+'모둠</td><td><b>'+t.cards+'</b></td><td>'+t.fix+'</td><td>'+t.keep+'</td><td>'+t.star+'</td><td>'+esc(t.top||'—')+'</td></tr>';
+  });
+  var d=new Date(B.at);
+  return h+'</table><div class="l-pk-f" style="color:#7d93ab;margin-top:.8vh">업데이트 '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2)+' · 15초마다 새로 고침</div>';
+}
+function lsBoardHtml(r){
+  return '<div class="l-k">'+r+'라운드 · 검증 현황판</div><div class="l-bd">'+btHTML()+'<div id="lsBdT">'+lsBoardTable()+'</div></div>';
+}
+function lsBoardLoad(){
+  if(LS.BDL) return; LS.BDL=true;
+  call({action:'board',pin:PIN,cls:LS.cls},function(r){
+    LS.BDL=false; LS.BD={items:r.items||[],at:Date.now()}; lsBoardPaint();
+  },function(err){ LS.BDL=false; LS.BD={items:(LS.BD&&LS.BD.items)||null,err:String(err||'오류'),at:Date.now()}; lsBoardPaint(); });
+}
+function lsBoardPaint(){
+  var el=$('lsBdT'); if(!el) return;
+  el.innerHTML=lsBoardTable(); lsFit();
+}
+function lsIsBoard(){ var v=$('lsv'), s=LS.list[LS.i]; return !!(v&&v.classList.contains('on')&&s&&/^bd/.test(s.id)); }
+function lsBoardTick(){
+  if(!lsIsBoard()) return;
+  if(!LS.BD||Date.now()-LS.BD.at>15000) lsBoardLoad();
+}
 /* 화면 크기에 맞춰 한 번에 다 보이도록 줄이기 (스크롤 없이) */
 function lsFit(){
   var b=$('lsBody'), f=b&&b.firstChild; if(!f) return;
@@ -3948,6 +3987,7 @@ function lsNext(S,beep){
 }
 function lsTick(){
   try{ lsRelayTick(); }catch(e){}
+  try{ lsBoardTick(); }catch(e){}
   var any=false;
   Object.keys(LS.T).forEach(function(id){
     var S=LS.T[id]; if(!S.run) return; any=true;
@@ -3976,7 +4016,9 @@ function lsTimerDraw(){
 function lsDraw(){
   var s=LS.list[LS.i];
   $('lsStg').textContent=s.stage;
+  if(/^bd/.test(s.id)){ var ob=document.querySelector('#tBody #btBox'); if(ob) ob.removeAttribute('id'); }
   $('lsBody').innerHTML='<div class="l-fit">'+s.html()+'</div>';
+  if(/^bd/.test(s.id)){ btWire(); lsBoardTick(); }
   lsFit();
   $('lsD').innerHTML=LS.list.map(function(x,k){ return '<span data-k="'+k+'" class="'+(k===LS.i?'on':'')+'">'+esc(x.lb)+'</span>'; }).join('');
   Array.prototype.forEach.call($('lsD').children,function(d){ d.addEventListener('click',function(){ lsGo(Number(d.dataset.k)); }); });
