@@ -3358,7 +3358,7 @@ function rpShrink(file,done){
 function rpRxForm(F){
   var j=RP._ed;
   var info=document.createElement('div'); info.className='sub';
-  info.innerHTML='카드마다 <b>고침 / 지킴</b>을 고르고 이유를 쓰세요. 두 길 모두 똑같이 인정됩니다.<br>가장 도움이 된 제안에는 <b>⭐</b>를 눌러 주세요. 그 카드를 쓴 탐정이 인정 점수 1점을 받습니다.';
+  info.innerHTML='가장 도움이 된 제안에 <b>⭐</b>를 눌러 주세요 (<b>2개까지</b>). 그 카드를 쓴 탐정이 인정 점수 1점을 받습니다.<br>가장 중요한 카드는 꼭 <b>고침 / 지킴</b>을 고르고 이유를 쓰세요. 두 길 모두 똑같이 인정됩니다.';
   F.appendChild(info);
   if(!RP.props.length){
     var em=document.createElement('div'); em.className='empty';
@@ -3392,7 +3392,10 @@ function rpCardEl(p){
     });
   });
   var st=d.querySelector('.star');
-  st.addEventListener('click',function(){ st.classList.toggle('on'); });
+  st.addEventListener('click',function(){
+    if(!st.classList.contains('on') && RP.props.filter(function(x){ return x!==p && x.helpful==='Y'; }).length>=2){
+      alert('⭐는 2개까지 고를 수 있어요. 다른 카드의 ⭐를 먼저 빼고 저장해 주세요.'); return; }
+    st.classList.toggle('on'); });
   d.querySelector('.jsave').addEventListener('click',function(){
     var btn=this, reason=d.querySelector('.jre input').value.trim();
     if(!v){ alert('고침 또는 지킴을 골라 주세요'); return; }
@@ -3802,7 +3805,7 @@ function lsBuild(){
         '<div class="l-scene"><div class="l-n">②</div><div class="l-t">탐정의 질문으로<br>보고서를 다시 보기</div><div class="l-d">들은 모둠에 질문 · 제안 카드 → 우리 결론을 고칠까, 지킬까?</div></div></div>'+
         '<div class="l-lead">방문 순서표에서 내 이름과 1 · 2라운드 역할을 찾아 짝에게 말해 보세요.</div>';
     }},
-    {id:'v1',lb:'1라운드',stage:'전개 1 · 1라운드',tm:lsRot(1),html:function(){ return lsVisitHtml(1); }},
+    {id:'v1',lb:'1라운드',stage:'전개 1 · 1라운드',tm:null,html:function(){ return lsVisitHtml(1); }},
     {id:'bd1',lb:'1R 현황판',stage:'전개 1 · 검증 현황판',tm:null,html:function(){ return lsBoardHtml(1); }},
     {id:'swap',lb:'교대 회의',stage:'전개 2 · 교대 회의',tm:{ph:[{l:'교대 회의',s:120}]},html:function(){
       return '<div class="l-k">원모둠으로 모이세요</div><div class="l-h1">교대 회의 2분</div>'+
@@ -3811,7 +3814,7 @@ function lsBuild(){
         '<div class="l-ex"><b>사건이 달라도 옮길 수 있는 것</b> · 조건 맞추기 · 반복 측정 · 평균 구하기</div>'+
         '<div class="l-lead">2라운드는 <b style="color:#f6dc8c">B팀이 발표</b>, A팀이 ← 앞 번호로 방문합니다.</div>';
     }},
-    {id:'v2',lb:'2라운드',stage:'전개 3 · 2라운드',tm:lsRot(2),html:function(){ return lsVisitHtml(2); }},
+    {id:'v2',lb:'2라운드',stage:'전개 3 · 2라운드',tm:null,html:function(){ return lsVisitHtml(2); }},
     {id:'bd2',lb:'2R 현황판',stage:'전개 3 · 검증 현황판',tm:null,html:function(){ return lsBoardHtml(2); }},
     {id:'judge',lb:'원모둠 판단',stage:'전개 4 · 원모둠 판단',tm:{ph:[{l:'원모둠 판단',s:300}]},html:function(){
       var cc=LS.items.length?'<div class="l-cc">'+T.map(function(no){
@@ -3819,7 +3822,7 @@ function lsBuild(){
         return '<span>'+no+'모둠 받은 카드 <b>'+((t&&t.cards)||0)+'</b>장</span>'; }).join('')+'</div>':'';
       return '<div class="l-k">원모둠으로 · 앱 보고서의 받은 카드</div><div class="l-h1">고칠까, 지킬까?</div>'+
         '<div class="l-steps"><div class="l-s"><div class="l-n">1</div><div class="l-t">카드 읽기</div><div class="l-d">받은 질문과 제안을 함께 읽어요</div></div><div class="l-ar">→</div>'+
-        '<div class="l-s"><div class="l-n">2</div><div class="l-t">⭐ 고르기</div><div class="l-d">도움이 된 카드를 3개까지</div></div><div class="l-ar">→</div>'+
+        '<div class="l-s"><div class="l-n">2</div><div class="l-t">⭐ 고르기</div><div class="l-d">도움이 된 카드를 2개까지</div></div><div class="l-ar">→</div>'+
         '<div class="l-s"><div class="l-n">3</div><div class="l-t">고침 또는 지킴</div><div class="l-d">가장 중요한 1건에 이유와 함께 기록</div></div></div>'+
         '<div class="l-ex"><b>지킴도 좋은 결정입니다.</b> 이유만 있으면 됩니다.</div>'+cc;
     }},
@@ -3898,13 +3901,13 @@ function lsPickInner(no){
   var show=star.length?star:done, lab=star.length?'⭐ 채택한 제안':(done.length?'판단한 카드 (⭐ 아직 없음)':'받은 제안');
   var h='<div class="l-pk-h">'+no+'모둠 · '+lab+'<span>받은 카드 '+L.length+'장 · 판단 '+done.length+'장</span></div>';
   if(!show.length) h+='<div class="l-pk-e">'+(L.length?'아직 ⭐로 고르거나 판단한 카드가 없어요':'아직 받은 카드가 없어요')+'</div>';
-  show.slice(0,3).forEach(function(c){
+  show.slice(0,2).forEach(function(c){
     var v=c.verdict||'';
     h+='<div class="l-pk-c"><div class="l-pk-t"><span class="ty">'+esc(c.type||'제안')+'</span>'+(c.from?'<span class="fr">'+esc(c.from)+'</span>':'')+'</div>'+
       '<div class="l-pk-x">'+esc(c.text||'')+'</div>'+
       (v?'<div class="l-pk-v"><b class="'+(v==='고침'?'fx':'kp')+'">'+esc(v)+'</b>'+(c.reason?esc(c.reason):'<i>이유를 아직 쓰지 않았어요</i>')+'</div>':'<div class="l-pk-v"><i>고침/지킴 판단 전</i></div>')+'</div>';
   });
-  if(show.length>3) h+='<div class="l-pk-e">외 '+(show.length-3)+'장</div>';
+  if(show.length>2) h+='<div class="l-pk-e">외 '+(show.length-2)+'장</div>';
   var sec=Math.max(0,Math.round((Date.now()-P.at)/1000));
   h+='<div class="l-pk-f">🔄 '+(sec<3?'방금':sec+'초 전')+' 불러옴 · 8초마다 새로 고침</div>';
   return h;
