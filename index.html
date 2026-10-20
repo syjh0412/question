@@ -6804,8 +6804,11 @@ function trnMyFb(C){
   else h+=ov?'<li>⚠ 두 조건의 측정값 범위가 <b>겹쳐요</b> ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이가 우연일 수 있어요 → 보고서 3번에서 다뤄요.</li>':'<li>✔ 측정값 범위가 겹치지 않아요 ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이를 믿을 만해요.</li>';
   if(!(A.one||B.one)&&Math.min(A.n,B.n)<3) h+='<li>⚠ 잰 횟수가 '+Math.min(A.n,B.n)+'번뿐인 조건이 있어요.</li>';
   h+='<li>🤔 이 두 조건이 <b>우리 사건의 위험</b>과 <b>우리가 제안할 대책</b>을 보여 주나요?</li></ul></div>';
+  var nu=function(c){ return String(c.u||'').replace(/\s/g,'').replace(/^.*\(|\)$/g,'').toLowerCase(); };
+  if(A.X!==B.X&&(nu(A)!==nu(B)||(A.dep&&B.dep&&A.dep!==B.dep&&nu(A)!=='n'))){
+    fb.innerHTML=h+'<div class="msg">⚠ 두 조건은 <b>서로 다른 것을 잰 값</b>이에요 (실험 '+A.X+': '+esc(A.dep||A.u)+' / 실험 '+B.X+': '+esc(B.dep||B.u)+'). 다른 것을 잰 값끼리는 화살표 길이로 비교할 수 없어요. 같은 실험 안에서 두 조건을 골라 보세요.</div>'; return; }
   if(!(A.a>0)){ fb.innerHTML=h+'<div class="msg">㉠의 평균이 0이라 기준으로 쓸 수 없어요. 0이 아닌 조건을 ㉠으로 먼저 골라 보세요.</div>'; return; }
-  var st=trnSt('my_'+me.cls+'_'+TM.team);
+  var st=trnSt('my_'+me.cls+'_'+TM.team), MK='mode'+A.X, GK='guess'+A.X;
   h+='<div class="lab">② 화살표가 나타내는 것</div><div class="row"><input class="objin" id="tmW" placeholder="예) 바닥의 마찰력 / 튀어 오른 높이로 본 탄성력" value="'+esc(st.w||'')+'"></div>'+
     '<div class="lab">③ 우리 실험 장면 고르기 — 화살표가 어느 쪽을 향해야 할까요?</div><div class="tmc" id="tmMode"></div>'+
     '<div class="lab" id="tmHow"></div>'+
@@ -6822,15 +6825,15 @@ function trnMyFb(C){
     {k:'down',n:'⬇ 눌린·처진 깊이 (찰흙·네트)',how:'표면에서 <b>아래쪽</b>으로 ㉡ 화살표를 끌어 그려요 (공·물체가 누르는 힘)',dir:'D',prop:'surf'},
     {k:'wide',n:'↔ 납작해진 지름 (찰흙)',how:'찰흙이 퍼진 폭만큼 ㉡ 막대를 <b>오른쪽</b>으로 끌어 그려요',dir:'R',prop:'clay'},
     {k:'scale',n:'⚖ 저울이 떠받친 값 (지붕)',how:'저울에서 <b>위쪽</b>으로 ㉡ 화살표를 끌어 그려요 (기둥이 떠받치는 힘)',dir:'U',prop:'scale'}];
-  if(!st.mode){
+  if(!st[MK]){
     var u=(A.u+' '+A.dep).toLowerCase();
-    st.mode=A.one||/\bg\b|저울/.test(u)?'scale':/N|마찰/.test(A.u+A.dep)?'pull':/깊이|처진|눌린/.test(u)?'down':/지름|납작/.test(u)?'wide':/거리/.test(u)?'side':/높이|튀/.test(u)?'up':'pull';
-    st.guess=1;
+    st[MK]=A.one||/\bg\b|저울/.test(u)?'scale':/N|마찰/.test(A.u+A.dep)?'pull':/깊이|처진|눌린/.test(u)?'down':/지름|납작/.test(u)?'wide':/거리/.test(u)?'side':/높이|튀/.test(u)?'up':'pull';
+    st[GK]=1;
   }
-  function M(){ return MODES.filter(function(m){return m.k===st.mode;})[0]||MODES[0]; }
+  function M(){ return MODES.filter(function(m){return m.k===st[MK];})[0]||MODES[0]; }
   function drawModes(){
-    $('tmMode').innerHTML=MODES.map(function(m){ return '<button data-m="'+m.k+'" class="'+(m.k===st.mode?'on':'')+'">'+m.n+'</button>'; }).join('');
-    Array.prototype.forEach.call($('tmMode').querySelectorAll('button'),function(bt){ bt.onclick=function(){ st.mode=bt.dataset.m; st.guess=0; trnSave(); TM.L=0; drawModes(); draw(); }; });
+    $('tmMode').innerHTML=MODES.map(function(m){ return '<button data-m="'+m.k+'" class="'+(m.k===st[MK]?'on':'')+'">'+m.n+'</button>'; }).join('');
+    Array.prototype.forEach.call($('tmMode').querySelectorAll('button'),function(bt){ bt.onclick=function(){ st[MK]=bt.dataset.m; st[GK]=0; trnSave(); TM.L=0; drawModes(); draw(); }; });
     $('tmHow').innerHTML=M().how;
   }
   var cv=$('tmCv'), ratio=B.a/A.a, drag=false;
@@ -6891,10 +6894,10 @@ function trnMyFb(C){
     var drawn=TM.L/g.base, ok=B.a===0?TM.L<8:Math.abs(drawn-ratio)/ratio<=0.12;
     $('tmAns').innerHTML='<div class="ans"><b>'+(ok?'✅ 길이가 맞아요!':'📏 길이를 다시 생각해 봐요')+'</b>'+
       '<p>㉡ ÷ ㉠ = '+B.a+' ÷ '+A.a+' = <b>'+(Math.round(ratio*100)/100)+'배</b> · 내가 그린 ㉡은 ㉠의 <b>'+(Math.round(drawn*100)/100)+'배</b></p>'+
-      (st.guess?'<p style="color:#fde68a">③ 장면은 앱이 단위를 보고 먼저 골라 둔 것이에요. 우리 실험과 맞는지 꼭 확인!</p>':'')+
+      (st[GK]?'<p style="color:#fde68a">③ 장면은 앱이 단위를 보고 먼저 골라 둔 것이에요. 우리 실험과 맞는지 꼭 확인!</p>':'')+
       '<ul><li>화살표가 <b>우리 실험에서 실제로 힘이 작용한 쪽</b>을 향하나요?</li><li>화살표 옆에 <b>평균값과 단위</b>를 꼭 적어요.</li><li>④ 한 줄 비교에 두 값과 “그래서”를 넣었나요?</li></ul></div>';
     st.done=true; trnSave();
-    trnPost('my',{t:TM.team,mo:st.mode,ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
+    trnPost('my',{t:TM.team,mo:st[MK],ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
   };
 }
 </script>
