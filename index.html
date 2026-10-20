@@ -5596,7 +5596,7 @@ function drawTrn(){
   var who=Object.keys(by).length;
   var h='<div class="count">참여 '+who+' / '+all+'명 · 장면을 누르면 반 전체 화살표를 겹쳐 봅니다. (정답 확인을 누른 것만 저장돼요)</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';
-  var TL=TRN.concat([{k:'myf',t:'🧩 우리 모둠 1번 그림'},{k:'my',t:'🧩 우리 모둠 2번 비교'}]);
+  var TL=TRN.concat([{k:'myf',t:'🧩 우리 모둠 1번 그림'},{k:'my',t:'🧩 우리 모둠 2번 비교'},{k:'myr',t:'🧩 우리 모둠 3번 믿을 수 있을까'}]);
   TL.forEach(function(s,i){
     var n=items.filter(function(x){return x.k===s.k;}).length;
     h+='<button class="ghost" style="padding:6px 10px;'+(s.k===TRK?'background:#16243a;color:#fff;':'')+'" onclick="TRK=\''+s.k+'\';drawTrn()">'+(i<TRN.length?(i+1)+'. ':'')+s.t.replace('도전! ','')+' <b>'+n+'</b></button>';
@@ -5611,6 +5611,11 @@ function drawTrn(){
       '<div><b>화살표 길이를 맞게 그린 학생</b> '+okn+' / '+rows.length+'명</div>'+
       '<div style="color:#c2410c">범위가 겹치는 두 조건을 고른 학생 '+ovn+'명 · 서로 다른 실험(A·B)에서 고른 학생 '+xab+'명</div>'+
       '<div style="color:#6b7280">모둠마다 고른 조건이 같은지, 사건의 위험·대책과 이어지는지 보세요.</div></div>';
+  } else if(TRK==='myr'){
+    var jk=0, jg=0, srcs=[];
+    rows.forEach(function(x){ var d=x.d||{}; if(d.j==='지킴') jk++; else if(d.j==='고침') jg++; srcs.push(d.src); });
+    h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px">'+
+      '<div><b>판단</b> 지킨다 '+jk+'명 · 고치거나 더 확인 '+jg+'명</div><div><b>약점을 찾은 곳</b> '+cnt(srcs)+'</div></div>';
   } else if(TRK==='myf'){
     var nm=[]; rows.forEach(function(x){ ((x.d||{}).a||[]).forEach(function(q){ nm.push((String(q[5]||'').trim()?String(q[5]).trim()+' ':'')+(q[4]||'')); }); });
     h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px"><div><b>붙인 힘 이름</b> '+cnt(nm)+'</div><div style="color:#6b7280">모둠마다 장면이 달라 화살표 겹쳐 보기는 없어요.</div></div>';
@@ -5638,7 +5643,8 @@ function drawTrn(){
     teams[t].forEach(function(m){
       var x=(by[m.num]||{})[TRK], done=TRN.filter(function(s){return (by[m.num]||{})[s.k];}).length, ans='<span style="color:#9ca3af">-</span>';
       if(x&&x.d){ var d=x.d;
-        ans=TRK==='my'?('('+esc(d.t)+'모둠) ㉠ '+esc(d.ca)+' '+esc(d.va)+' vs ㉡ '+esc(d.cb)+' '+esc(d.vb)+' · 실제 '+esc(d.ra)+'배 / 그림 '+esc(d.rd)+'배'+(d.ov?' · <span style="color:#c2410c">범위 겹침</span>':'')+'<br><span style="color:#6b7280">'+esc(d.w||'')+' — '+esc(d.s||'')+'</span>'):
+        ans=TRK==='myr'?('('+esc(d.t)+'모둠) ['+esc(d.src)+'] '+esc(d.w||'')+' → <b>'+esc(d.j||'')+'</b><br><span style="color:#6b7280">'+esc(d.r||'')+'</span>'):
+          TRK==='my'?('('+esc(d.t)+'모둠) ㉠ '+esc(d.ca)+' '+esc(d.va)+' vs ㉡ '+esc(d.cb)+' '+esc(d.vb)+' · 실제 '+esc(d.ra)+'배 / 그림 '+esc(d.rd)+'배'+(d.ov?' · <span style="color:#c2410c">범위 겹침</span>':'')+'<br><span style="color:#6b7280">'+esc(d.w||'')+' — '+esc(d.s||'')+'</span>'):
           TRK==='myf'?('('+esc(d.t)+'모둠) <b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')):
           TRK==='cmp'?('㉡='+esc(d.ratio)+'배 · '+esc(d.sl||'')+' · '+esc(d.why||'')):
           ('<b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')); }
@@ -6687,7 +6693,7 @@ function trnMyGo(){
   if(!TM.team){ TM.team=(RP&&RP.team&&!RP.peek)?String(RP.team):(me&&me.cls?(pick('fd_team_'+me.cls+'_'+me.num)||''):''); }
   bd.innerHTML='<h3>🧩 우리 모둠 보고서 그림 연습</h3><div class="hint">우리 모둠 보고서의 <b>측정표</b>로 보고서 1번·2번 그림을 연습해요. 다른 모둠을 골라 연습해도 좋아요.</div>'+
     '<div class="row"><select id="tmTeam" style="flex:1"><option value="">모둠 고르기</option></select></div>'+
-    '<div class="tb"><button data-t="1">1번 · 위험의 원인이 되는 힘</button><button data-t="2">2번 · 증거 비교 화살표</button></div><div id="tmBody"></div>';
+    '<div class="tb"><button data-t="1">1번 · 위험의 원인이 되는 힘</button><button data-t="2">2번 · 증거 비교 화살표</button><button data-t="3">3번 · 믿을 수 있을까</button></div><div id="tmBody"></div>';
   var sel=$('tmTeam');
   function fill(items){ sel.innerHTML='<option value="">모둠 고르기</option>'+items.map(function(t){ return '<option value="'+t.team+'"'+(String(t.team)===String(TM.team)?' selected':'')+'>'+t.team+'모둠 · '+esc(t.title||'')+'</option>'; }).join(''); }
   if(TM.teams) fill(TM.teams); else { var tmp=[]; for(var i=1;i<=7;i++) tmp.push({team:i}); fill(tmp);
@@ -6709,7 +6715,7 @@ function trnMyLoad(){
     if(TM.team!==want) return;
     var pg=res.pages||{}, o={};
     for(var k in pg){ try{ o[k]=JSON.parse(pg[k].j||'{}'); }catch(e){ o[k]={}; } }
-    TM.raw=o; TM.pages=rpNorm(o); TM.pagesTeam=want; trnMyDraw();
+    TM.raw=o; TM.pages=rpNorm(o); TM.props=res.props||[]; TM.pagesTeam=want; trnMyDraw();
   },function(err){ if($('tmBody')) $('tmBody').innerHTML='<div class="msg">불러오지 못했어요. '+esc(err)+'</div>'; });
 }
 function trnMyImg(){
@@ -6726,6 +6732,7 @@ function trnMyDraw(){
     trnScene(s,'<div class="hint">'+(c?'사건 '+CASE_NUM[c.no]+' '+esc(c.D.t)+' · ':'')+'우리 사건 장면에 <b>힘을 받는 물체</b>와 <b>위험의 원인이 되는 힘</b>을 그려요. 다 그리면 아래 점검표로 스스로 확인해요.</div>',box);
     return;
   }
+  if(TM.tab===3){ trnMy3(box); return; }
   trnMy2(box);
 }
 function trnMyAns1(s){
@@ -6924,6 +6931,85 @@ function trnMyFb(C){
       '<ul><li>화살표가 <b>우리 실험에서 실제로 힘이 작용한 쪽</b>을 향하나요?</li><li>화살표 옆에 <b>평균값과 단위</b>를 꼭 적어요.</li><li>④ 한 줄 비교에 두 값과 “그래서”를 넣었나요?</li></ul></div>';
     st.done=true; trnSave();
     trnPost('my',{t:TM.team,mo:st[MK],ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
+  };
+}
+
+/* ── 3번 · 우리 결과를 얼마나 믿을 수 있을까 ── */
+var TRN_CARDKIND={'증거가 부족해요':'증거','변인이 섞였어요':'변인','차이가 우연일 수도 있어요':'우연','모형과 실제가 달라요':'모형과 실제','제안의 부작용이 걱정돼요':'부작용','힘 분석이 달라요':'힘 분석'};
+function trnMyClues(){
+  var C=trnMyConds(), out=[];
+  if(C.length&&C[0].one) out.push('표의 값을 <b>한 번씩만</b> 쟀어요. 다시 재면 같은 값이 나올까요?');
+  ['A','B'].forEach(function(X){
+    var cs=C.filter(function(c){return c.X===X&&!c.one;});
+    for(var i=0;i<cs.length;i++) for(var j=i+1;j<cs.length;j++){
+      var a=cs[i], b=cs[j];
+      if(!(a.hi<b.lo||b.hi<a.lo)&&out.length<6) out.push('실험 '+X+'의 <b>'+esc(a.c)+'</b>('+a.lo+'~'+a.hi+')과 <b>'+esc(b.c)+'</b>('+b.lo+'~'+b.hi+')은 범위가 겹쳐요 → 차이가 우연일 수 있어요');
+    }
+    cs.forEach(function(c){
+      if(c.n<3) out.push('<b>'+esc(c.c)+'</b>은 '+c.n+'번만 쟀어요');
+      else if(c.a>0&&(c.hi-c.lo)/c.a>0.3) out.push('<b>'+esc(c.c)+'</b>은 값이 크게 흔들렸어요 ('+c.lo+'~'+c.hi+')');
+    });
+  });
+  out.push('실험에서 쓴 것(블록·찰흙·공·모형)이 <b>실제 사람이나 장소</b>와 어떻게 다를까요?');
+  out.push('같게 해야 할 것(물의 양, 끄는 속도, 떨어뜨리는 높이 …)을 정말 같게 했나요?');
+  return out;
+}
+function trnMy3(box){
+  var st=trnSt('myr_'+me.cls+'_'+TM.team), props=(TM.props||[]).filter(function(p){ return p.type!=='이 점이 좋아요'; });
+  var h='<div class="hint">검증 회의에서 <b>받은 카드</b>나 <b>스스로 찾은 약점</b> 하나를 골라, 결론을 <b>지킬지 고칠지</b> 판단하고 다음 수사 계획을 써요. 지키는 것과 고치는 것은 <b>똑같이 인정</b>돼요. 중요한 건 판단의 근거예요.</div>'+
+    '<div class="lab">① 약점 고르기</div><div id="tm3c"></div>'+
+    '<div class="lab">② 약점 — 내 말로 한 문장</div><div class="row"><textarea class="objin" id="tm3w" rows="2" style="width:100%;border-radius:8px;padding:8px;font-size:14px" placeholder="예) 블록을 천천히 끌어서, 빠르게 걷는 실제 신발과 다를 수 있다"></textarea></div>'+
+    '<div class="lab">③ 우리 판단</div><div class="tb"><button data-j="지킴">그래도 결론을 지킨다</button><button data-j="고침">결론을 고치거나 더 확인해야 한다</button></div>'+
+    '<div class="lab">④ 근거와 다음 계획</div><div class="hint">도움 문장 ▸ 이 약점 때문에 측정값이 (커졌을 / 작아졌을) 수 있다. 하지만 / 그래서 ~이므로 결론을 (지킨다 / 고친다). 다시 수사한다면 ~을 바꿔 ~번씩 재 보겠다.</div>'+
+    '<div class="row"><textarea class="objin" id="tm3r" rows="4" style="width:100%;border-radius:8px;padding:8px;font-size:14px"></textarea></div>'+
+    '<details style="margin:6px 0;font-size:13px;line-height:1.6"><summary style="cursor:pointer;color:#f6e7c1;font-weight:700">📖 예시 보기 (다른 실험)</summary>'+
+    '<div class="tmk"><b>지킨 예</b> · 약점: 고무 매트 위에서 세 번 잰 값이 2.4~3.6 N으로 크게 흔들렸다.<br>근거와 계획: 흔들려도 고무 매트의 가장 작은 값(2.4 N)이 마른 바닥의 가장 큰 값(2.2 N)보다 커서 범위가 겹치지 않는다. 그래서 “고무 매트가 마찰력을 키운다”는 결론을 <b>지킨다</b>. 다시 수사한다면 블록을 같은 속도로 끌도록 끈을 일정하게 당기고 5번씩 재 보겠다.</div>'+
+    '<div class="tmk"><b>고친 예</b> · 약점: 바닥에 붓는 물의 양을 같게 하지 못했다.<br>근거와 계획: 물이 많을 때와 적을 때 값이 1.2 N과 2.6 N으로 크게 달라서, 물 때문인지 물의 양 때문인지 알 수 없다. 그래서 “젖으면 미끄럽다”는 결론을 <b>더 확인해야 한다</b>. 다시 수사한다면 계량컵으로 물을 50 mL씩 똑같이 붓고 5번씩 재 보겠다.</div></details>'+
+    '<button class="chk" id="tm3k">점검하기</button><div class="msg" id="tm3m"></div><div id="tm3a"></div>';
+  box.innerHTML=h;
+  function drawC(){
+    var c='';
+    if(props.length){
+      c+='<div class="hint" style="margin-bottom:4px">우리 모둠이 받은 카드 '+props.length+'장 — 하나를 누르세요</div>';
+      props.forEach(function(p,i){
+        var on=st.src==='c'+i;
+        c+='<div class="tmk tm3card" data-s="c'+i+'" style="cursor:pointer;'+(on?'border-color:#d9a441;background:#2b2412':'')+'"><b style="color:#f6e7c1">'+(on?'✔ ':'')+esc(p.type)+'</b><br>'+esc(p.text)+
+          (p.verdict?'<br><span style="color:#9fb3c8;font-size:12px">모둠 판단: '+esc(p.verdict)+(p.reason?' — '+esc(p.reason):'')+'</span>':'')+'</div>';
+      });
+    } else c+='<div class="hint">우리 모둠이 받은 카드가 없어요. 아래에서 스스로 찾아보세요.</div>';
+    var on=st.src==='self';
+    c+='<div class="tmk tm3card" data-s="self" style="cursor:pointer;'+(on?'border-color:#d9a441;background:#2b2412':'')+'"><b style="color:#f6e7c1">'+(on?'✔ ':'')+'🔍 우리가 스스로 찾은 약점</b>'+
+      (on?'<div style="margin-top:4px">우리 측정표에서 찾은 단서</div><ul>'+trnMyClues().map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>':'<br><span style="color:#9fb3c8;font-size:12px">누르면 우리 측정표에서 찾은 단서가 보여요</span>')+'</div>';
+    $('tm3c').innerHTML=c;
+    Array.prototype.forEach.call($('tm3c').querySelectorAll('.tm3card'),function(d){ d.onclick=function(){ st.src=d.dataset.s; trnSave(); drawC(); }; });
+  }
+  drawC();
+  $('tm3w').value=st.w||''; $('tm3r').value=st.r||'';
+  $('tm3r').placeholder='이 약점 때문에 측정값이 … 수 있다. 하지만/그래서 … 이므로 결론을 … . 다시 수사한다면 …';
+  $('tm3w').oninput=function(){ st.w=this.value; trnSave(); };
+  $('tm3r').oninput=function(){ st.r=this.value; trnSave(); };
+  Array.prototype.forEach.call(box.querySelectorAll('[data-j]'),function(b){
+    b.classList.toggle('on',st.j===b.dataset.j);
+    b.onclick=function(){ st.j=b.dataset.j; trnSave(); Array.prototype.forEach.call(box.querySelectorAll('[data-j]'),function(x){x.classList.toggle('on',x===b);}); };
+  });
+  $('tm3k').onclick=function(){
+    var m=$('tm3m'), w=String(st.w||'').trim(), r=String(st.r||'').trim();
+    if(!st.src){ m.textContent='① 약점을 하나 골라 주세요.'; return; }
+    if(w.length<6){ m.textContent='② 약점을 내 말로 한 문장 써 주세요.'; return; }
+    if(!st.j){ m.textContent='③ 지킬지 고칠지 골라 주세요.'; return; }
+    if(r.length<15){ m.textContent='④ 근거와 다음 계획을 써 주세요.'; return; }
+    m.textContent='';
+    var num=/\d/.test(r), eff=/커졌|작아졌|커질|작아질|달라|흔들|겹|우연|다를/.test(r), why=/이므로|때문|그래서|하지만/.test(r), plan=/다시|다음|바꿔|바꾸|재 보|재보|번씩|번 /.test(r);
+    var ck=function(ok,t){ return '<li>'+(ok?'✅ ':'⬜ ')+t+'</li>'; };
+    $('tm3a').innerHTML='<div class="ans"><b>스스로 점검해 보세요</b><ul>'+
+      ck(!/발표|목소리|말하기|협동|떠들/.test(w),'약점이 <b>탐구(측정·변인·모형)</b>와 관계있나요? (발표·태도는 아니에요)')+
+      ck(eff,'이 약점이 <b>측정값에 어떤 영향</b>을 줄 수 있는지 썼나요? (커졌을/작아졌을/흔들렸을)')+
+      ck(why&&num,'판단의 <b>근거</b>를 우리 측정값(숫자)으로 댔나요?')+
+      ck(plan,'<b>다음 수사 계획</b>이 구체적인가요? (무엇을 어떻게 바꿔 몇 번)')+'</ul>'+
+      '<p style="color:#cfe9d8">⬜가 있으면 그 부분을 더 채워 보세요. 지킴과 고침은 점수가 같아요.</p></div>';
+    st.done=true; trnSave();
+    var p=st.src.charAt(0)==='c'?props[Number(st.src.slice(1))]:null;
+    trnPost('myr',{t:TM.team,src:p?(TRN_CARDKIND[p.type]||p.type):'스스로',ct:p?String(p.text||'').slice(0,60):'',w:w.slice(0,100),j:st.j,r:r.slice(0,200)});
   };
 }
 </script>
