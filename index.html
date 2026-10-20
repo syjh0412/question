@@ -1205,6 +1205,12 @@
   #trn .ans img{width:100%;border-radius:8px;display:block;margin-top:6px;}
   #trn .ans p{font-size:13.5px;line-height:1.6;margin:6px 0 0;}
   #trn .ans ul{margin:6px 0 0 18px;padding:0;font-size:13px;line-height:1.7;color:#cfe9d8;}
+  #trn .tmc{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;}
+  #trn .tmc button{border:1.5px solid #3b5372;background:#16263a;color:#e6eef7;border-radius:10px;padding:7px 10px;font-size:13.5px;text-align:left;line-height:1.3;}
+  #trn .tmc button b{margin-left:6px;color:#f6e7c1;} #trn .tmc button small{display:block;font-size:11px;color:#9fb3c8;}
+  #trn .tmc button.on{border-color:#d9a441;background:#2b2412;} #trn .tmc button em{font-style:normal;background:#d9a441;color:#1b1406;border-radius:50%;padding:0 5px;margin-right:5px;font-weight:800;}
+  #trn .tmk{background:#16263a;border:1px solid #3b5372;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13px;line-height:1.6;}
+  #trn .tmk ul{margin:4px 0 0 16px;padding:0;}
   #trn .nx{width:100%;margin-top:10px;background:none;border:1.5px solid #4ade80;color:#bbf7d0;border-radius:10px;padding:11px;font-weight:800;}
   .tool button.go{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#d9a441;color:#1b1406;border:0;border-radius:9px;padding:8px 13px;font-weight:800;font-size:13px;}
 </style>
@@ -5590,14 +5596,25 @@ function drawTrn(){
   var who=Object.keys(by).length;
   var h='<div class="count">참여 '+who+' / '+all+'명 · 장면을 누르면 반 전체 화살표를 겹쳐 봅니다. (정답 확인을 누른 것만 저장돼요)</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';
-  TRN.forEach(function(s,i){
+  var TL=TRN.concat([{k:'myf',t:'🧩 우리 모둠 1번 그림'},{k:'my',t:'🧩 우리 모둠 2번 비교'}]);
+  TL.forEach(function(s,i){
     var n=items.filter(function(x){return x.k===s.k;}).length;
-    h+='<button class="ghost" style="padding:6px 10px;'+(s.k===TRK?'background:#16243a;color:#fff;':'')+'" onclick="TRK=\''+s.k+'\';drawTrn()">'+(i+1)+'. '+s.t.replace('도전! ','')+' <b>'+n+'</b></button>';
+    h+='<button class="ghost" style="padding:6px 10px;'+(s.k===TRK?'background:#16243a;color:#fff;':'')+'" onclick="TRK=\''+s.k+'\';drawTrn()">'+(i<TRN.length?(i+1)+'. ':'')+s.t.replace('도전! ','')+' <b>'+n+'</b></button>';
   });
   h+='</div>';
-  var sc=TRN.filter(function(s){return s.k===TRK;})[0], rows=items.filter(function(x){return x.k===TRK;});
+  var sc=TL.filter(function(s){return s.k===TRK;})[0], rows=items.filter(function(x){return x.k===TRK;});
   var cnt=function(arr){ var m={}; arr.forEach(function(v){ if(v) m[v]=(m[v]||0)+1; }); return Object.keys(m).sort(function(a,b){return m[b]-m[a];}).map(function(k){return esc(k)+' <b>×'+m[k]+'</b>';}).join(' · ')||'-'; };
-  if(TRK!=='cmp'){
+  if(TRK==='my'){
+    var okn=0, ovn=0, xab=0;
+    rows.forEach(function(x){ var d=x.d||{}; if(d.ra&&Math.abs(d.rd-d.ra)/d.ra<=0.12) okn++; if(d.ov) ovn++; if(d.xa!==d.xb) xab++; });
+    h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px">'+
+      '<div><b>화살표 길이를 맞게 그린 학생</b> '+okn+' / '+rows.length+'명</div>'+
+      '<div style="color:#c2410c">범위가 겹치는 두 조건을 고른 학생 '+ovn+'명 · 서로 다른 실험(A·B)에서 고른 학생 '+xab+'명</div>'+
+      '<div style="color:#6b7280">모둠마다 고른 조건이 같은지, 사건의 위험·대책과 이어지는지 보세요.</div></div>';
+  } else if(TRK==='myf'){
+    var nm=[]; rows.forEach(function(x){ ((x.d||{}).a||[]).forEach(function(q){ nm.push((String(q[5]||'').trim()?String(q[5]).trim()+' ':'')+(q[4]||'')); }); });
+    h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px"><div><b>붙인 힘 이름</b> '+cnt(nm)+'</div><div style="color:#6b7280">모둠마다 장면이 달라 화살표 겹쳐 보기는 없어요.</div></div>';
+  } else if(TRK!=='cmp'){
     h+='<div style="position:relative;max-width:620px;background:#fff;border:1px solid #d8dee6;border-radius:10px;overflow:hidden"><img src="train/b_'+TRK+'.png" style="display:block;width:100%" onload="trnOverlay()"><canvas id="trnTv" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>';
     var names=[], objs=[], noWho=0, lack=0;
     rows.forEach(function(x){ var d=x.d||{}; objs.push(String(d.obj||'').trim());
@@ -5621,7 +5638,9 @@ function drawTrn(){
     teams[t].forEach(function(m){
       var x=(by[m.num]||{})[TRK], done=TRN.filter(function(s){return (by[m.num]||{})[s.k];}).length, ans='<span style="color:#9ca3af">-</span>';
       if(x&&x.d){ var d=x.d;
-        ans=TRK==='cmp'?('㉡='+esc(d.ratio)+'배 · '+esc(d.sl||'')+' · '+esc(d.why||'')):
+        ans=TRK==='my'?('('+esc(d.t)+'모둠) ㉠ '+esc(d.ca)+' '+esc(d.va)+' vs ㉡ '+esc(d.cb)+' '+esc(d.vb)+' · 실제 '+esc(d.ra)+'배 / 그림 '+esc(d.rd)+'배'+(d.ov?' · <span style="color:#c2410c">범위 겹침</span>':'')+'<br><span style="color:#6b7280">'+esc(d.w||'')+' — '+esc(d.s||'')+'</span>'):
+          TRK==='myf'?('('+esc(d.t)+'모둠) <b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')):
+          TRK==='cmp'?('㉡='+esc(d.ratio)+'배 · '+esc(d.sl||'')+' · '+esc(d.why||'')):
           ('<b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')); }
       h+='<tr style="border-bottom:1px solid #eef2f7"><td style="white-space:nowrap;padding:5px 4px">'+esc(m.num)+'번 '+esc(m.name)+'</td><td style="white-space:nowrap;color:#6b7280">'+done+'/'+TRN.length+'</td><td>'+ans+'</td></tr>';
     });
@@ -6502,11 +6521,13 @@ function trnKey(){ return 'fd_trn_'+(me&&me.cls?me.cls+'-'+me.num:'guest'); }
 function trnLoad(){ try{ trnS=JSON.parse(localStorage.getItem(trnKey())||'{}')||{}; }catch(e){ trnS={}; } }
 function trnSave(){ try{ localStorage.setItem(trnKey(),JSON.stringify(trnS)); }catch(e){} }
 function trnSt(k){ if(!trnS[k]) trnS[k]={o:null,a:[],obj:'',done:false}; return trnS[k]; }
-function trnOpen(){ trnLoad(); $('trn').classList.add('on'); document.body.style.overflow='hidden'; trnGo(trnI); }
+function trnOpen(){ trnLoad(); $('trn').classList.add('on'); document.body.style.overflow='hidden'; if(trnI==='my') trnMyGo(); else trnGo(trnI); }
 function trnClose(){ $('trn').classList.remove('on'); document.body.style.overflow=''; }
 $('trnX').addEventListener('click',trnClose);
 function trnNav(){
   var nav=$('trnNav'); nav.innerHTML=''; var n=0;
+  var mb=document.createElement('button'); mb.textContent='🧩 우리 모둠'; mb.style.cssText='width:auto;border-radius:19px;padding:0 12px;font-size:13px';
+  if(trnI==='my') mb.classList.add('on'); mb.onclick=function(){ trnMyGo(); }; nav.appendChild(mb);
   TRN.forEach(function(s,i){
     var b=document.createElement('button'); b.textContent=i+1;
     if(i===trnI) b.classList.add('on');
@@ -6518,11 +6539,14 @@ function trnNav(){
 function trnGo(i){
   trnI=i; trnNav(); var s=TRN[i], bd=$('trnBd'); bd.scrollTop=0;
   if(s.k==='cmp'){ trnCmp(s); return; }
-  var st=trnSt(s.k); if(s.obj) st.obj=s.obj;
-  bd.innerHTML='<h3>'+(i+1)+'. '+s.t+'</h3><div class="hint">'+s.h+' <br>꼭 그릴 힘: <b>'+s.n+'개</b>'+(s.x?' (더 찾을 수 있으면 더 그려도 좋아요)':'')+'</div>'+
+  trnScene(s,'<h3>'+(i+1)+'. '+s.t+'</h3><div class="hint">'+s.h+' <br>꼭 그릴 힘: <b>'+s.n+'개</b>'+(s.x?' (더 찾을 수 있으면 더 그려도 좋아요)':'')+'</div>',bd);
+}
+function trnScene(s,head,bd){
+  var st=trnSt(s.sk||s.k); if(s.obj) st.obj=s.obj;
+  bd.innerHTML=head+
     '<div class="tb"><button data-m="obj">○ 물체 표시</button><button data-m="arr">↗ 화살표 그리기</button>'+
     '<button id="trnUndo">↶ 되돌리기</button><button id="trnClr">지우기</button></div>'+
-    '<div class="fig"><img src="train/b_'+s.k+'.png" alt="'+s.t+'"><canvas id="trnCv"></canvas></div>'+
+    '<div class="fig"><img src="train/b_'+(s.img||s.k)+'.png" alt="'+(s.t||'')+'"><canvas id="trnCv"></canvas></div>'+
     '<div class="lab">힘을 받는 물체</div><div class="row"><input class="objin" id="trnObj" placeholder="예) 신발"'+(s.obj?' readonly':'')+'></div>'+
     '<div class="lab">내가 그린 힘 — 왼쪽 칸에 <b style="color:#f6e7c1">그 힘을 주는 물체</b>를 적어요 (예: 바닥의 마찰력, 지구의 중력, 패드의 탄성력)</div><div id="trnRows"></div>'+
     '<button class="chk" id="trnChk">정답 확인하기</button><div class="msg" id="trnMsg"></div><div id="trnAns"></div>';
@@ -6596,9 +6620,10 @@ function trnCheck(s,st){
   if(!st.a.length){ m.textContent='화살표를 하나 이상 그려 주세요.'; return; }
   if(st.a.some(function(r){return !r.t;})){ m.textContent='화살표마다 힘의 종류를 골라 주세요.'; return; }
   m.textContent=''; st.done=true; trnSave(); trnNav(); trnShowAns(s);
-  trnPost(s.k,{obj:String(st.obj||'').slice(0,40),o:st.o.map(trnR3),a:st.a.map(function(r){return [trnR3(r.x1),trnR3(r.y1),trnR3(r.x2),trnR3(r.y2),r.t,String(r.w||'').slice(0,20)];})});
+  trnPost(s.post||s.k,{t:s.team||undefined,img:s.img||undefined,obj:String(st.obj||'').slice(0,40),o:st.o.map(trnR3),a:st.a.map(function(r){return [trnR3(r.x1),trnR3(r.y1),trnR3(r.x2),trnR3(r.y2),r.t,String(r.w||'').slice(0,20)];})});
 }
 function trnShowAns(s){
+  if(s.mine){ trnMyAns1(s); return; }
   var st=trnSt(s.k), mine=st.a.map(function(r,i){return (i+1)+'. '+(r.w?r.w+' ':'')+r.t;}).join(' · ');
   $('trnAns').innerHTML='<div class="ans"><b>✅ 정답과 비교해 보세요</b><img src="train/a_'+s.k+'.png" alt="정답 그림"><p>'+s.a+'</p>'+
     '<p style="color:#cfe9d8">내 답: '+(st.obj||'')+' — '+(mine||'')+'</p>'+
@@ -6650,6 +6675,154 @@ function trnCmp(s){
   }
   $('trnChk').onclick=function(){ chk(false); };
   draw(); if(st.done) chk(true);
+}
+
+/* ── 우리 모둠 보고서 그림 연습 ── */
+var TRN_CASEIMG={1:'door',2:'stair',3:'floor',4:'floor',5:'floor',6:'pad',7:'roof',8:'net'};
+var TRN_IMGFIX={'1|2':'slope','3|6':'slope','2|3':'glass','4|1':'fence'};
+var TRN_IMGN={floor:1,stair:2,slope:3,pad:4,net:5,glass:6,door:7,roof:8};
+var TM={team:'',pages:null,tab:1,teams:null,sel:{a:null,b:null},L:0};
+function trnMyGo(){
+  trnI='my'; trnNav(); var bd=$('trnBd'); bd.scrollTop=0;
+  if(!TM.team){ TM.team=(RP&&RP.team&&!RP.peek)?String(RP.team):(me&&me.cls?(pick('fd_team_'+me.cls+'_'+me.num)||''):''); }
+  bd.innerHTML='<h3>🧩 우리 모둠 보고서 그림 연습</h3><div class="hint">우리 모둠 보고서의 <b>측정표</b>로 보고서 1번·2번 그림을 연습해요. 다른 모둠을 골라 연습해도 좋아요.</div>'+
+    '<div class="row"><select id="tmTeam" style="flex:1"><option value="">모둠 고르기</option></select></div>'+
+    '<div class="tb"><button data-t="1">1번 · 위험의 원인이 되는 힘</button><button data-t="2">2번 · 증거 비교 화살표</button></div><div id="tmBody"></div>';
+  var sel=$('tmTeam');
+  function fill(items){ sel.innerHTML='<option value="">모둠 고르기</option>'+items.map(function(t){ return '<option value="'+t.team+'"'+(String(t.team)===String(TM.team)?' selected':'')+'>'+t.team+'모둠 · '+esc(t.title||'')+'</option>'; }).join(''); }
+  if(TM.teams) fill(TM.teams); else { var tmp=[]; for(var i=1;i<=7;i++) tmp.push({team:i}); fill(tmp);
+    call({action:'repTeams',cls:me.cls,num:me.num},function(res){ TM.teams=visTeams(me.cls,res.items).slice().sort(function(a,b){return Number(a.team)-Number(b.team);}); if(trnI==='my') fill(TM.teams); },function(){}); }
+  sel.onchange=function(){ TM.team=this.value; TM.pages=null; TM.sel={a:null,b:null}; TM.L=0; trnMyLoad(); };
+  Array.prototype.forEach.call(bd.querySelectorAll('[data-t]'),function(b){
+    b.classList.toggle('on',String(TM.tab)===b.dataset.t);
+    b.onclick=function(){ TM.tab=Number(b.dataset.t); Array.prototype.forEach.call(bd.querySelectorAll('[data-t]'),function(x){x.classList.toggle('on',x===b);}); trnMyDraw(); };
+  });
+  trnMyLoad();
+}
+function trnMyLoad(){
+  var box=$('tmBody'); if(!box) return;
+  if(!TM.team){ box.innerHTML='<div class="hint">위에서 모둠을 골라 주세요.</div>'; return; }
+  if(TM.pages&&TM.pagesTeam===TM.team){ trnMyDraw(); return; }
+  box.innerHTML='<div class="hint">측정표를 불러오는 중...</div>';
+  var want=TM.team;
+  call({action:'report',cls:me.cls,team:want},function(res){
+    if(TM.team!==want) return;
+    var pg=res.pages||{}, o={};
+    for(var k in pg){ try{ o[k]=JSON.parse(pg[k].j||'{}'); }catch(e){ o[k]={}; } }
+    TM.raw=o; TM.pages=rpNorm(o); TM.pagesTeam=want; trnMyDraw();
+  },function(err){ if($('tmBody')) $('tmBody').innerHTML='<div class="msg">불러오지 못했어요. '+esc(err)+'</div>'; });
+}
+function trnMyImg(){
+  var key=String(me.cls)+'|'+String(TM.team);
+  if(TRN_IMGFIX[key]) return TRN_IMGFIX[key];
+  var c=rpCaseOf(TM.raw||{},me.cls,TM.team);
+  return (c&&TRN_CASEIMG[c.no])||'floor';
+}
+function trnMyDraw(){
+  var box=$('tmBody'); if(!box||!TM.pages) return;
+  if(TM.tab===1){
+    var img=trnMyImg(), c=rpCaseOf(TM.raw||{},me.cls,TM.team);
+    var s={k:'myf',sk:'myf_'+me.cls+'_'+TM.team,img:img,post:'myf',team:TM.team,mine:1,t:''};
+    trnScene(s,'<div class="hint">'+(c?'사건 '+CASE_NUM[c.no]+' '+esc(c.D.t)+' · ':'')+'우리 사건 장면에 <b>힘을 받는 물체</b>와 <b>위험의 원인이 되는 힘</b>을 그려요. 다 그리면 아래 점검표로 스스로 확인해요.</div>',box);
+    return;
+  }
+  trnMy2(box);
+}
+function trnMyAns1(s){
+  var st=trnSt(s.sk), n=TRN_IMGN[s.img];
+  var mine=st.a.map(function(r,i){return (i+1)+'. '+(r.w?r.w+' ':'')+r.t;}).join(' · ');
+  $('trnAns').innerHTML='<div class="ans"><b>✅ 스스로 점검해 보세요</b><p>내 답: '+esc(st.obj||'')+' — '+esc(mine)+'</p>'+
+    '<ul><li>힘을 받는 물체가 <b>우리 사건에서 다치거나 망가지는 쪽</b>인가요?</li><li>화살표가 <b>물체에서</b> 시작했나요?</li>'+
+    '<li>방향이 맞나요? (마찰력: 미끄러지려는 쪽의 반대 / 탄성력: 눌린 물체가 원래 모양으로 돌아가려는 쪽 / 중력: 아래)</li>'+
+    '<li>이름에 <b>그 힘을 주는 물체</b>를 넣었나요? (예: 바닥의 마찰력)</li>'+
+    '<li>그 힘이 <b>왜 위험해지는지</b> 한 문장으로 말할 수 있나요?</li></ul>'+
+    (n?'<button class="nx" onclick="trnGo('+(n-1)+')">비슷한 훈련 장면 '+n+'번에서 정답 그림 보기 →</button>':'')+'</div>';
+}
+function trnMyConds(){
+  var pl=TM.pages.plan||{}, ev=TM.pages.evid||{}, out=[];
+  ['A','B'].forEach(function(X){
+    (ev['rows'+X]||[]).forEach(function(r,i){
+      if(!r||!String(r.c||'').trim()) return; var a=rpAvg(r); if(a==null) return;
+      var vs=rpVals(r);
+      out.push({X:X,i:i,c:String(r.c).trim(),a:a,lo:Math.min.apply(null,vs),hi:Math.max.apply(null,vs),n:vs.length,u:String(ev['unit'+X]||'').trim(),dep:String(pl['dep'+X]||'').trim()});
+    });
+  });
+  return out;
+}
+function trnMy2(box){
+  var C=trnMyConds(), S=TM.sel;
+  if(!C.length){ box.innerHTML='<div class="hint">이 모둠 보고서에 아직 측정값이 없어요.</div>'; return; }
+  var h='<div class="hint"><b>① 비교할 두 조건을 고르세요.</b> 처음 누른 것이 ㉠, 다음이 ㉡이에요. 다시 누르면 처음부터.</div>';
+  ['A','B'].forEach(function(X){
+    var cs=C.filter(function(c){return c.X===X;}); if(!cs.length) return;
+    h+='<div class="lab">실험 '+X+(cs[0].dep?' · 잰 것: '+esc(cs[0].dep):'')+(cs[0].u?' · '+esc(cs[0].u):'')+'</div><div class="tmc">';
+    cs.forEach(function(c){
+      var tag=(S.a&&S.a.X===c.X&&S.a.i===c.i)?'㉠':(S.b&&S.b.X===c.X&&S.b.i===c.i)?'㉡':'';
+      h+='<button data-x="'+c.X+'" data-i="'+c.i+'" class="'+(tag?'on':'')+'">'+(tag?'<em>'+tag+'</em>':'')+esc(c.c)+'<b>'+c.a+'</b><small>'+c.n+'회 · '+c.lo+'~'+c.hi+'</small></button>';
+    });
+    h+='</div>';
+  });
+  h+='<div id="tmFb"></div>';
+  box.innerHTML=h;
+  Array.prototype.forEach.call(box.querySelectorAll('.tmc button'),function(b){
+    b.onclick=function(){
+      var c=C.filter(function(x){return x.X===b.dataset.x&&String(x.i)===b.dataset.i;})[0];
+      if(!S.a||(S.a&&S.b)){ S.a=c; S.b=null; }
+      else if(S.a.X===c.X&&S.a.i===c.i){ S.a=null; }
+      else S.b=c;
+      TM.L=0; trnMy2(box);
+    };
+  });
+  if(S.a&&S.b) trnMyFb(C);
+}
+function trnMyFb(C){
+  var S=TM.sel, A=S.a, B=S.b, fb=$('tmFb'), h='';
+  var ov=!(A.hi<B.lo||B.hi<A.lo);
+  h+='<div class="tmk"><b>🔎 이 비교, 증거로 괜찮을까?</b><ul>';
+  h+=A.X!==B.X?'<li>⚠ 두 조건이 <b>다른 실험</b>(A·B)에서 나왔어요. 바꾼 것이 정말 하나뿐인지 확인!</li>':'<li>✔ 같은 실험 '+A.X+' 안의 두 조건이에요.</li>';
+  h+=ov?'<li>⚠ 두 조건의 측정값 범위가 <b>겹쳐요</b> ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이가 우연일 수 있어요 → 보고서 3번에서 다뤄요.</li>':'<li>✔ 측정값 범위가 겹치지 않아요 ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이를 믿을 만해요.</li>';
+  if(Math.min(A.n,B.n)<3) h+='<li>⚠ 잰 횟수가 '+Math.min(A.n,B.n)+'번뿐인 조건이 있어요.</li>';
+  h+='<li>🤔 이 두 조건이 <b>우리 사건의 위험</b>과 <b>우리가 제안할 대책</b>을 보여 주나요?</li></ul></div>';
+  if(!(A.a>0)){ fb.innerHTML=h+'<div class="msg">㉠의 평균이 0이라 기준으로 쓸 수 없어요. 0이 아닌 조건을 ㉠으로 먼저 골라 보세요.</div>'; return; }
+  var st=trnSt('my_'+me.cls+'_'+TM.team);
+  h+='<div class="lab">② 화살표가 나타내는 것</div><div class="row"><input class="objin" id="tmW" placeholder="예) 바닥의 마찰력 / 튀어 오른 높이로 본 탄성력" value="'+esc(st.w||'')+'"></div>'+
+    '<div class="lab">③ ㉠ 화살표에 맞춰 ㉡ 화살표를 알맞은 길이로 그려 보세요 (오른쪽 블록에서 왼쪽으로 끌기)</div>'+
+    '<div class="fig" style="height:210px"><canvas id="tmCv"></canvas></div>'+
+    '<div class="lab">④ 한 줄 비교</div><div class="row"><input class="objin" id="tmS" placeholder="㉠은 ○○, ㉡은 ○○이므로 …" value="'+esc(st.s||'')+'"></div>'+
+    '<button class="chk" id="tmChk">확인하기</button><div class="msg" id="tmMsg"></div><div id="tmAns"></div>';
+  fb.innerHTML=h;
+  $('tmW').oninput=function(){ st.w=this.value; trnSave(); };
+  $('tmS').oninput=function(){ st.s=this.value; trnSave(); };
+  var cv=$('tmCv'), ratio=B.a/A.a, drag=false;
+  function geo(){ var r=cv.getBoundingClientRect(); var x0=r.width-80; var base=Math.min(140,(x0-20)/Math.max(1,ratio*1.25)); return {W:r.width,H:r.height,x0:x0,base:base}; }
+  function draw(){
+    var d=window.devicePixelRatio||1, r=cv.getBoundingClientRect(); cv.width=r.width*d; cv.height=r.height*d;
+    var c=cv.getContext('2d'); c.scale(d,d); var g=geo(), y1=62, y2=152;
+    c.fillStyle='#fff'; c.fillRect(0,0,g.W,g.H);
+    c.font='bold 13px sans-serif'; c.fillStyle='#1F3A5F'; c.textAlign='left';
+    c.fillText('㉠ '+A.c+'  '+A.a,10,y1-30); c.fillText('㉡ '+B.c+'  '+B.a,10,y2-30);
+    [y1,y2].forEach(function(y){ c.fillStyle='#D6C3A5'; c.strokeStyle='#8B6F47'; c.lineWidth=2; c.fillRect(g.x0,y-15,56,30); c.strokeRect(g.x0,y-15,56,30); });
+    trnArrow(c,g.x0,y1,g.x0-g.base,y1,'#C2410C',6);
+    if(TM.L>2) trnArrow(c,g.x0,y2,g.x0-TM.L,y2,'#C2410C',6);
+    else { c.fillStyle='#9CA3AF'; c.font='12px sans-serif'; c.textAlign='right'; c.fillText('← 여기서 왼쪽으로 끌기',g.x0-6,y2+4); }
+  }
+  function move(e){ if(!drag) return; var r=cv.getBoundingClientRect(), g=geo(); TM.L=Math.max(0,Math.min(g.x0-6,g.x0-(e.clientX-r.left))); draw(); }
+  cv.style.touchAction='none';
+  cv.onpointerdown=function(e){ drag=true; try{cv.setPointerCapture(e.pointerId);}catch(x){} move(e); };
+  cv.onpointermove=move; cv.onpointerup=function(){ drag=false; };
+  draw();
+  $('tmChk').onclick=function(){
+    var m=$('tmMsg'), g=geo();
+    if(!String(st.w||'').trim()){ m.textContent='화살표가 나타내는 것을 적어 주세요.'; return; }
+    if(TM.L<=2&&B.a>0){ m.textContent='㉡ 화살표를 그려 주세요.'; return; }
+    m.textContent='';
+    var drawn=TM.L/g.base, ok=B.a===0?TM.L<8:Math.abs(drawn-ratio)/ratio<=0.12;
+    $('tmAns').innerHTML='<div class="ans"><b>'+(ok?'✅ 길이가 맞아요!':'📏 길이를 다시 생각해 봐요')+'</b>'+
+      '<p>㉡ ÷ ㉠ = '+B.a+' ÷ '+A.a+' = <b>'+(Math.round(ratio*100)/100)+'배</b> · 내가 그린 ㉡은 ㉠의 <b>'+(Math.round(drawn*100)/100)+'배</b></p>'+
+      '<ul><li>보고서에는 화살표 방향을 <b>실제 힘의 방향</b>으로 그려요. (튀어 오른 높이라면 위쪽)</li><li>화살표 옆에 <b>평균값과 단위</b>를 꼭 적어요.</li><li>④ 한 줄 비교에 두 값과 “그래서”를 넣었나요?</li></ul></div>';
+    st.done=true; trnSave();
+    trnPost('my',{t:TM.team,ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
+  };
 }
 </script>
 </body>
