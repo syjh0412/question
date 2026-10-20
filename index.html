@@ -1306,7 +1306,7 @@
         </div>
         <div class="tool">
           <h3>🎯 힘 그리기 훈련소</h3>
-          <div class="d">장면 8개와 도전 1개. 힘을 받는 물체에 ○를 치고, 화살표를 그리고, 이름을 붙여 보세요. 다 그린 뒤에 정답을 확인할 수 있어요.</div>
+          <div class="d">장면 9개와 도전 1개. 힘을 받는 물체에 ○를 치고, 화살표를 그리고, 이름을 붙여 보세요. 다 그린 뒤에 정답을 확인할 수 있어요.</div>
           <button class="go" type="button" onclick="trnOpen()">훈련 시작 →</button>
         </div>
       </div>
@@ -5623,7 +5623,7 @@ function drawTrn(){
       if(x&&x.d){ var d=x.d;
         ans=TRK==='cmp'?('㉡='+esc(d.ratio)+'배 · '+esc(d.sl||'')+' · '+esc(d.why||'')):
           ('<b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')); }
-      h+='<tr style="border-bottom:1px solid #eef2f7"><td style="white-space:nowrap;padding:5px 4px">'+esc(m.num)+'번 '+esc(m.name)+'</td><td style="white-space:nowrap;color:#6b7280">'+done+'/9</td><td>'+ans+'</td></tr>';
+      h+='<tr style="border-bottom:1px solid #eef2f7"><td style="white-space:nowrap;padding:5px 4px">'+esc(m.num)+'번 '+esc(m.name)+'</td><td style="white-space:nowrap;color:#6b7280">'+done+'/'+TRN.length+'</td><td>'+ans+'</td></tr>';
     });
   });
   h+='</table>';
@@ -6470,12 +6470,12 @@ function drawStats(items){
 
 /* ===== 힘 그리기 훈련소 ===== */
 var TRN=[
- {k:'floor',t:'바닥을 딛는 신발',h:'발을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:3,
-  a:'힘을 받는 물체: <b>신발</b><br><b>바닥의 마찰력</b>(미끄러지려는 쪽의 반대 = 뒤쪽), <b>지구의 중력</b>(아래), <b>바닥의 수직항력</b>(위, 바닥이 떠받치는 힘)'},
- {k:'stair',t:'계단을 내려가는 신발',h:'계단 끝을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:2,
-  a:'힘을 받는 물체: <b>신발</b><br><b>계단의 마찰력</b>(미끄러지려는 쪽의 반대), <b>지구의 중력</b>(아래)'},
- {k:'slope',t:'경사로를 내려가는 신발',h:'중력은 경사면을 따라가지 않아요. 언제나 어느 쪽일까요?',n:2,
-  a:'힘을 받는 물체: <b>신발</b><br><b>경사로의 마찰력</b>(경사 위쪽), <b>지구의 중력</b>(바로 아래 — 경사면에 비스듬히 그리지 않기)'},
+ {k:'floor',t:'바닥을 딛는 신발',h:'발을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:2,x:1,
+  a:'힘을 받는 물체: <b>신발</b><br><b>바닥의 마찰력</b>(미끄러지려는 쪽의 반대 = 뒤쪽), <b>지구의 중력</b>(아래)<br>더 찾았다면 👍 <b>바닥의 수직항력</b>(위, 바닥이 신발을 떠받치는 힘)'},
+ {k:'stair',t:'계단을 내려가는 신발',h:'계단 끝을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:2,x:1,
+  a:'힘을 받는 물체: <b>신발</b><br><b>계단의 마찰력</b>(미끄러지려는 쪽의 반대), <b>지구의 중력</b>(아래)<br>더 찾았다면 👍 <b>계단의 수직항력</b>(위)'},
+ {k:'slope',t:'경사로를 내려가는 신발',h:'중력은 경사면을 따라가지 않아요. 언제나 어느 쪽일까요?',n:2,x:1,
+  a:'힘을 받는 물체: <b>신발</b><br><b>경사로의 마찰력</b>(경사 위쪽), <b>지구의 중력</b>(바로 아래 — 경사면에 비스듬히 그리지 않기)<br>더 찾았다면 👍 <b>경사로의 수직항력</b> — 바로 위가 아니라 <b>경사면에 수직</b>(비스듬히 위)이에요.'},
  {k:'pad',t:'골대 패드에 부딪힌 몸',h:'눌린 패드는 원래 모양으로 돌아가려고 해요.',n:1,
   a:'힘을 받는 물체: <b>몸</b><br><b>패드의 탄성력</b>(부딪힌 방향의 반대)'},
  {k:'net',t:'네트에 부딪힌 공',h:'공에 눌려 늘어난 네트는 어떻게 하려고 할까요?',n:1,
@@ -6486,6 +6486,8 @@ var TRN=[
   a:'힘을 받는 물체: <b>손가락</b><br><b>완충재의 탄성력</b>(문틀 쪽), <b>문틀이 반대로 미는 힘</b>'},
  {k:'roof',t:'눈이 한쪽에 쌓인 지붕',h:'지붕은 <b>아래로</b> 당겨지고, 기둥이 <b>위로</b> 떠받쳐요. 어느 기둥이 더 힘들까요?',n:3,obj:'지붕',
   a:'힘을 받는 물체: <b>지붕</b><br><b>지구의 중력</b>(아래), <b>기둥 1·기둥 2가 떠받치는 힘</b>(위). 눈이 쌓인 쪽 기둥의 화살표가 더 길어요.'},
+ {k:'walk',t:'걸을 때 신발',h:'한 걸음을 세 순간으로 나눴어요. 순간마다 <b>바닥이 신발에 주는 마찰력</b>을 그려 보세요. 마찰력이 거의 없다고 생각되는 순간은 그리지 않아도 돼요.',n:2,obj:'신발',
+  a:'① 뒤꿈치가 닿을 때: 발이 <b>앞으로</b> 미끄러지려 함 → <b>바닥의 마찰력은 뒤쪽</b> (브레이크)<br>② 발바닥 전체가 닿을 때: 거의 미끄러지려 하지 않음 → 마찰력 거의 없음<br>③ 앞꿈치로 찰 때: 발이 바닥을 뒤로 밀어 <b>뒤로</b> 미끄러지려 함 → <b>바닥의 마찰력은 앞쪽</b> (몸을 앞으로 밀어 줌)<br>🤔 사람은 앞으로 가는데 ③의 마찰력도 앞쪽! 마찰력은 몸이 가는 방향이 아니라 <b>발이 미끄러지려는 쪽의 반대</b>예요.<br>젖은 바닥에서 엉덩방아는 대개 ①에서, 빙판에서 헛발질은 ③에서 일어나요.'},
  {k:'cmp',t:'도전! 비교 화살표',h:'같은 블록을 두 바닥에서 끌었어요. ㉠ 평균 <b>2.0 N</b>, ㉡ 평균 <b>3.0 N</b>.<br>㉠ 마찰력 화살표가 그려져 있어요. ㉡ 마찰력 화살표를 알맞은 길이로 그려 보세요.'}
 ];
 var TRN_TYPES=['마찰력','탄성력','중력','수직항력','미는 힘','떠받치는 힘'];
@@ -6517,7 +6519,7 @@ function trnGo(i){
   trnI=i; trnNav(); var s=TRN[i], bd=$('trnBd'); bd.scrollTop=0;
   if(s.k==='cmp'){ trnCmp(s); return; }
   var st=trnSt(s.k); if(s.obj) st.obj=s.obj;
-  bd.innerHTML='<h3>'+(i+1)+'. '+s.t+'</h3><div class="hint">'+s.h+' <br>그릴 힘: <b>'+s.n+'개</b></div>'+
+  bd.innerHTML='<h3>'+(i+1)+'. '+s.t+'</h3><div class="hint">'+s.h+' <br>꼭 그릴 힘: <b>'+s.n+'개</b>'+(s.x?' (더 찾을 수 있으면 더 그려도 좋아요)':'')+'</div>'+
     '<div class="tb"><button data-m="obj">○ 물체 표시</button><button data-m="arr">↗ 화살표 그리기</button>'+
     '<button id="trnUndo">↶ 되돌리기</button><button id="trnClr">지우기</button></div>'+
     '<div class="fig"><img src="train/b_'+s.k+'.png" alt="'+s.t+'"><canvas id="trnCv"></canvas></div>'+
@@ -6600,7 +6602,7 @@ function trnShowAns(s){
   var st=trnSt(s.k), mine=st.a.map(function(r,i){return (i+1)+'. '+(r.w?r.w+' ':'')+r.t;}).join(' · ');
   $('trnAns').innerHTML='<div class="ans"><b>✅ 정답과 비교해 보세요</b><img src="train/a_'+s.k+'.png" alt="정답 그림"><p>'+s.a+'</p>'+
     '<p style="color:#cfe9d8">내 답: '+(st.obj||'')+' — '+(mine||'')+'</p>'+
-    '<ul><li>화살표가 <b>물체에서</b> 시작했나요?</li><li>방향이 맞나요? (마찰력은 미끄러지려는 쪽의 반대)</li><li>이름에 <b>누가 미는 힘인지</b> 넣었나요?</li>'+(st.a.length<s.n?'<li>빠진 힘이 있어요. 정답에는 '+s.n+'개!</li>':'')+'</ul></div>'+
+    '<ul><li>화살표가 <b>물체에서</b> 시작했나요?</li><li>방향이 맞나요? (마찰력은 미끄러지려는 쪽의 반대)</li><li>이름에 <b>누가 미는 힘인지</b> 넣었나요?</li>'+(st.a.length<s.n?'<li>빠진 힘이 있어요. 꼭 그릴 힘은 '+s.n+'개!</li>':'')+'</ul></div>'+
     (trnI<TRN.length-1?'<button class="nx" onclick="trnGo('+(trnI+1)+')">다음 장면 →</button>':'');
 }
 function trnCmp(s){
