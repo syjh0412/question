@@ -6807,31 +6807,82 @@ function trnMyFb(C){
   if(!(A.a>0)){ fb.innerHTML=h+'<div class="msg">㉠의 평균이 0이라 기준으로 쓸 수 없어요. 0이 아닌 조건을 ㉠으로 먼저 골라 보세요.</div>'; return; }
   var st=trnSt('my_'+me.cls+'_'+TM.team);
   h+='<div class="lab">② 화살표가 나타내는 것</div><div class="row"><input class="objin" id="tmW" placeholder="예) 바닥의 마찰력 / 튀어 오른 높이로 본 탄성력" value="'+esc(st.w||'')+'"></div>'+
-    '<div class="lab">③ ㉠ 화살표에 맞춰 ㉡ 화살표를 알맞은 길이로 그려 보세요 (오른쪽 블록에서 왼쪽으로 끌기)</div>'+
-    '<div class="fig" style="height:210px"><canvas id="tmCv"></canvas></div>'+
+    '<div class="lab">③ 우리 실험 장면 고르기 — 화살표가 어느 쪽을 향해야 할까요?</div><div class="tmc" id="tmMode"></div>'+
+    '<div class="lab" id="tmHow"></div>'+
+    '<div class="fig" id="tmFig" style="height:260px"><canvas id="tmCv"></canvas></div>'+
     '<div class="lab">④ 한 줄 비교</div><div class="row"><input class="objin" id="tmS" placeholder="㉠은 ○○, ㉡은 ○○이므로 …" value="'+esc(st.s||'')+'"></div>'+
     '<button class="chk" id="tmChk">확인하기</button><div class="msg" id="tmMsg"></div><div id="tmAns"></div>';
   fb.innerHTML=h;
   $('tmW').oninput=function(){ st.w=this.value; trnSave(); };
   $('tmS').oninput=function(){ st.s=this.value; trnSave(); };
+  var MODES=[
+    {k:'pull',n:'🧱 블록을 끌 때 (마찰력)',how:'블록에서 <b>왼쪽(끄는 쪽의 반대)</b>으로 ㉡ 화살표를 끌어 그려요',dir:'L',prop:'block'},
+    {k:'up',n:'⚽ 떨어뜨린 공이 튀어 오른 높이',how:'재료판에서 <b>위쪽</b>으로 ㉡ 화살표를 끌어 그려요 (재료가 공을 튕겨 낸 탄성력)',dir:'U',prop:'slab'},
+    {k:'side',n:'↩ 벽·골대에 맞고 튕겨 나간 거리',how:'벽에서 <b>공이 튕겨 나간 쪽</b>으로 ㉡ 화살표를 끌어 그려요',dir:'L',prop:'wall'},
+    {k:'down',n:'⬇ 눌린·처진 깊이 (찰흙·네트)',how:'표면에서 <b>아래쪽</b>으로 ㉡ 화살표를 끌어 그려요 (공·물체가 누르는 힘)',dir:'D',prop:'surf'},
+    {k:'wide',n:'↔ 납작해진 지름 (찰흙)',how:'찰흙이 퍼진 폭만큼 ㉡ 막대를 <b>오른쪽</b>으로 끌어 그려요',dir:'R',prop:'clay'},
+    {k:'scale',n:'⚖ 저울이 떠받친 값 (지붕)',how:'저울에서 <b>위쪽</b>으로 ㉡ 화살표를 끌어 그려요 (기둥이 떠받치는 힘)',dir:'U',prop:'scale'}];
+  if(!st.mode){
+    var u=(A.u+' '+A.dep).toLowerCase();
+    st.mode=A.one||/\bg\b|저울/.test(u)?'scale':/N|마찰/.test(A.u+A.dep)?'pull':/깊이|처진|눌린/.test(u)?'down':/지름|납작/.test(u)?'wide':/거리/.test(u)?'side':/높이|튀/.test(u)?'up':'pull';
+    st.guess=1;
+  }
+  function M(){ return MODES.filter(function(m){return m.k===st.mode;})[0]||MODES[0]; }
+  function drawModes(){
+    $('tmMode').innerHTML=MODES.map(function(m){ return '<button data-m="'+m.k+'" class="'+(m.k===st.mode?'on':'')+'">'+m.n+'</button>'; }).join('');
+    Array.prototype.forEach.call($('tmMode').querySelectorAll('button'),function(bt){ bt.onclick=function(){ st.mode=bt.dataset.m; st.guess=0; trnSave(); TM.L=0; drawModes(); draw(); }; });
+    $('tmHow').innerHTML=M().how;
+  }
   var cv=$('tmCv'), ratio=B.a/A.a, drag=false;
-  function geo(){ var r=cv.getBoundingClientRect(); var x0=r.width-80; var base=Math.min(140,(x0-20)/Math.max(1,ratio*1.25)); return {W:r.width,H:r.height,x0:x0,base:base}; }
+  function geo(){
+    var r=cv.getBoundingClientRect(), m=M(), W=r.width, H=r.height, g={W:W,H:H,m:m};
+    if(m.dir==='U'||m.dir==='D'){
+      g.cx=[W*0.27,W*0.73]; g.y0=m.dir==='U'?H-42:58; g.avail=H-100;
+    } else { g.x0=m.dir==='L'?W-80:30; g.ys=[78,190]; g.avail=W-120; }
+    g.base=Math.min(m.dir==='U'||m.dir==='D'?120:140,g.avail/Math.max(1,ratio*1.2));
+    return g;
+  }
+  function tip(g,i,L){ var m=g.m;
+    if(m.dir==='U') return [g.cx[i],g.y0,g.cx[i],g.y0-L];
+    if(m.dir==='D') return [g.cx[i],g.y0,g.cx[i],g.y0+L];
+    if(m.dir==='L') return [g.x0,g.ys[i],g.x0-L,g.ys[i]];
+    return [g.x0,g.ys[i],g.x0+L,g.ys[i]]; }
   function draw(){
     var d=window.devicePixelRatio||1, r=cv.getBoundingClientRect(); cv.width=r.width*d; cv.height=r.height*d;
-    var c=cv.getContext('2d'); c.scale(d,d); var g=geo(), y1=62, y2=152;
+    var c=cv.getContext('2d'); c.scale(d,d); var g=geo(), m=g.m, col=m.k==='scale'?'#1D4F86':(m.k==='up'||m.k==='side')?'#1D4F86':'#C2410C';
     c.fillStyle='#fff'; c.fillRect(0,0,g.W,g.H);
-    c.font='bold 13px sans-serif'; c.fillStyle='#1F3A5F'; c.textAlign='left';
-    c.fillText('㉠ '+A.c+'  '+A.a,10,y1-30); c.fillText('㉡ '+B.c+'  '+B.a,10,y2-30);
-    [y1,y2].forEach(function(y){ c.fillStyle='#D6C3A5'; c.strokeStyle='#8B6F47'; c.lineWidth=2; c.fillRect(g.x0,y-15,56,30); c.strokeRect(g.x0,y-15,56,30); });
-    trnArrow(c,g.x0,y1,g.x0-g.base,y1,'#C2410C',6);
-    if(TM.L>2) trnArrow(c,g.x0,y2,g.x0-TM.L,y2,'#C2410C',6);
-    else { c.fillStyle='#9CA3AF'; c.font='12px sans-serif'; c.textAlign='right'; c.fillText('← 여기서 왼쪽으로 끌기',g.x0-6,y2+4); }
+    var labs=['㉠ '+A.c+'  '+A.a+(A.u?' '+A.u.replace(/^.*\(|\)$/g,''):''),'㉡ '+B.c+'  '+B.a+(B.u?' '+B.u.replace(/^.*\(|\)$/g,''):'')];
+    c.font='bold 12.5px sans-serif'; c.fillStyle='#1F3A5F';
+    [0,1].forEach(function(i){
+      var L=i===0?g.base:TM.L, t=tip(g,i,L);
+      if(m.dir==='U'||m.dir==='D'){ c.textAlign='center'; c.fillStyle='#1F3A5F'; c.fillText(labs[i].length>22?labs[i].slice(0,22)+'…':labs[i],g.cx[i],m.dir==='U'?18:g.H-10); }
+      else { c.textAlign='left'; c.fillStyle='#1F3A5F'; c.fillText(labs[i],10,g.ys[i]-40); }
+      /* 장면 소품 */
+      c.lineWidth=2;
+      if(m.prop==='block'){ c.fillStyle='#E7E5E4'; c.fillRect(8,g.ys[i]+16,g.W-16,8); c.fillStyle='#D6C3A5'; c.strokeStyle='#8B6F47'; c.fillRect(g.x0,g.ys[i]-15,56,30); c.strokeRect(g.x0,g.ys[i]-15,56,30); }
+      if(m.prop==='wall'){ c.fillStyle='#9CA3AF'; c.fillRect(g.x0+18,g.ys[i]-34,16,68); c.beginPath(); c.fillStyle='#FDE68A'; c.strokeStyle='#92400E'; c.arc(g.x0+4,g.ys[i],12,0,7); c.fill(); c.stroke(); }
+      if(m.prop==='slab'||m.prop==='scale'){ c.fillStyle=m.prop==='scale'?'#94A3B8':'#CBD5E1'; c.strokeStyle='#374151'; c.fillRect(g.cx[i]-60,g.y0,120,16); c.strokeRect(g.cx[i]-60,g.y0,120,16);
+        c.fillStyle='#374151'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText(m.prop==='scale'?'저울':'재료판',g.cx[i],g.y0+12); c.font='bold 12.5px sans-serif'; }
+      if(m.prop==='surf'){ c.strokeStyle='#374151'; c.setLineDash([5,4]); c.beginPath(); c.moveTo(g.cx[i]-70,g.y0); c.lineTo(g.cx[i]+70,g.y0); c.stroke(); c.setLineDash([]); }
+      if(m.prop==='clay'){ c.fillStyle='#CBD5E1'; c.fillRect(8,g.ys[i]+14,g.W-16,10); }
+      if(L>2){
+        if(m.prop==='clay'){ c.fillStyle='rgba(217,119,6,.75)'; c.fillRect(g.x0,g.ys[i]-8,L,22); c.strokeStyle='#A86F12'; c.strokeRect(g.x0,g.ys[i]-8,L,22); }
+        else trnArrow(c,t[0],t[1],t[2],t[3],col,6);
+        if(m.prop==='slab'&&L>2){ c.beginPath(); c.fillStyle='#fff'; c.strokeStyle='#374151'; c.arc(t[2]+18,t[3]+8,8,0,7); c.fill(); c.stroke(); }
+      } else if(i===1){ c.fillStyle='#9CA3AF'; c.font='12px sans-serif';
+        var hint={L:'← 여기서 끌기',R:'여기서 끌기 →',U:'↑ 여기서 위로 끌기',D:'↓ 여기서 아래로 끌기'}[m.dir];
+        if(m.dir==='U'||m.dir==='D'){ c.textAlign='center'; c.fillText(hint,g.cx[1],m.dir==='U'?g.y0-12:g.y0+22); }
+        else { c.textAlign=m.dir==='L'?'right':'left'; c.fillText(hint,m.dir==='L'?g.x0-6:g.x0+6,g.ys[1]+4); }
+        c.font='bold 12.5px sans-serif'; }
+    });
   }
-  function move(e){ if(!drag) return; var r=cv.getBoundingClientRect(), g=geo(); TM.L=Math.max(0,Math.min(g.x0-6,g.x0-(e.clientX-r.left))); draw(); }
+  function move(e){ if(!drag) return; var r=cv.getBoundingClientRect(), g=geo(), m=g.m, x=e.clientX-r.left, y=e.clientY-r.top, L;
+    if(m.dir==='U') L=g.y0-y; else if(m.dir==='D') L=y-g.y0; else if(m.dir==='L') L=g.x0-x; else L=x-g.x0;
+    TM.L=Math.max(0,Math.min(g.avail+10,L)); draw(); }
   cv.style.touchAction='none';
   cv.onpointerdown=function(e){ drag=true; try{cv.setPointerCapture(e.pointerId);}catch(x){} move(e); };
   cv.onpointermove=move; cv.onpointerup=function(){ drag=false; };
-  draw();
+  drawModes(); draw();
   $('tmChk').onclick=function(){
     var m=$('tmMsg'), g=geo();
     if(!String(st.w||'').trim()){ m.textContent='화살표가 나타내는 것을 적어 주세요.'; return; }
@@ -6840,9 +6891,10 @@ function trnMyFb(C){
     var drawn=TM.L/g.base, ok=B.a===0?TM.L<8:Math.abs(drawn-ratio)/ratio<=0.12;
     $('tmAns').innerHTML='<div class="ans"><b>'+(ok?'✅ 길이가 맞아요!':'📏 길이를 다시 생각해 봐요')+'</b>'+
       '<p>㉡ ÷ ㉠ = '+B.a+' ÷ '+A.a+' = <b>'+(Math.round(ratio*100)/100)+'배</b> · 내가 그린 ㉡은 ㉠의 <b>'+(Math.round(drawn*100)/100)+'배</b></p>'+
-      '<ul><li>보고서에는 화살표 방향을 <b>실제 힘의 방향</b>으로 그려요. (튀어 오른 높이라면 위쪽)</li><li>화살표 옆에 <b>평균값과 단위</b>를 꼭 적어요.</li><li>④ 한 줄 비교에 두 값과 “그래서”를 넣었나요?</li></ul></div>';
+      (st.guess?'<p style="color:#fde68a">③ 장면은 앱이 단위를 보고 먼저 골라 둔 것이에요. 우리 실험과 맞는지 꼭 확인!</p>':'')+
+      '<ul><li>화살표가 <b>우리 실험에서 실제로 힘이 작용한 쪽</b>을 향하나요?</li><li>화살표 옆에 <b>평균값과 단위</b>를 꼭 적어요.</li><li>④ 한 줄 비교에 두 값과 “그래서”를 넣었나요?</li></ul></div>';
     st.done=true; trnSave();
-    trnPost('my',{t:TM.team,ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
+    trnPost('my',{t:TM.team,mo:st.mode,ca:A.c,cb:B.c,va:A.a,vb:B.a,xa:A.X,xb:B.X,ov:ov?1:0,ra:Math.round(ratio*100)/100,rd:Math.round(drawn*100)/100,w:String(st.w||'').slice(0,40),s:String(st.s||'').slice(0,100)});
   };
 }
 </script>
