@@ -1462,6 +1462,7 @@
             <option value="board">검증 현황판</option>
             <option value="cp">🍬 쿠폰 지급</option>
             <option value="ct">🤝 기여 돌아보기</option>
+            <option value="tr">🎯 힘 그리기 훈련</option>
           </select>
           <button class="ghost" id="tReload">새로고침</button>
           <button class="ghost" id="tPrint">인쇄</button>
@@ -5554,6 +5555,12 @@ function tLoad(){
         '소장님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
     return;
   }
+  if(v==='tr'){
+    if(!$('tCls').value){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
+    call({action:'trnList',pin:PIN,cls:$('tCls').value},function(r){ TRD=r; drawTrn(); },
+      function(err){ box.innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?'소장님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
+    return;
+  }
   if(v==='ct'){
     if(!$('tCls').value){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
     call({action:'contribList',pin:PIN,cls:$('tCls').value},function(r){ drawContrib(r); },
@@ -5570,6 +5577,66 @@ function tLoad(){
       function(r){ drawNotes(r.items||[]); }, fail);
   else call({action:'teacher',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
       function(r){ tBoard(r.items||[], tCard); }, fail);
+}
+
+/* ───────── 힘 그리기 훈련 (교사) ───────── */
+var TRD=null, TRK='floor';
+function drawTrn(){
+  var box=$('tBody'), r=TRD||{}, items=r.items||[], teams=r.teams||{}, by={};
+  items.forEach(function(x){ (by[x.num]=by[x.num]||{})[x.k]=x; });
+  var tk=Object.keys(teams).sort(function(a,b){return Number(a)-Number(b);}), all=0;
+  tk.forEach(function(t){ all+=teams[t].length; });
+  var who=Object.keys(by).length;
+  var h='<div class="count">참여 '+who+' / '+all+'명 · 장면을 누르면 반 전체 화살표를 겹쳐 봅니다. (정답 확인을 누른 것만 저장돼요)</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">';
+  TRN.forEach(function(s,i){
+    var n=items.filter(function(x){return x.k===s.k;}).length;
+    h+='<button class="ghost" style="padding:6px 10px;'+(s.k===TRK?'background:#16243a;color:#fff;':'')+'" onclick="TRK=\''+s.k+'\';drawTrn()">'+(i+1)+'. '+s.t.replace('도전! ','')+' <b>'+n+'</b></button>';
+  });
+  h+='</div>';
+  var sc=TRN.filter(function(s){return s.k===TRK;})[0], rows=items.filter(function(x){return x.k===TRK;});
+  var cnt=function(arr){ var m={}; arr.forEach(function(v){ if(v) m[v]=(m[v]||0)+1; }); return Object.keys(m).sort(function(a,b){return m[b]-m[a];}).map(function(k){return esc(k)+' <b>×'+m[k]+'</b>';}).join(' · ')||'-'; };
+  if(TRK!=='cmp'){
+    h+='<div style="position:relative;max-width:620px;background:#fff;border:1px solid #d8dee6;border-radius:10px;overflow:hidden"><img src="train/b_'+TRK+'.png" style="display:block;width:100%" onload="trnOverlay()"><canvas id="trnTv" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>';
+    var names=[], objs=[], noWho=0, lack=0;
+    rows.forEach(function(x){ var d=x.d||{}; objs.push(String(d.obj||'').trim());
+      var a=d.a||[]; if(a.length<sc.n) lack++;
+      a.forEach(function(q){ if(!String(q[5]||'').trim()) noWho++; names.push((String(q[5]||'').trim()?String(q[5]).trim()+' ':'')+(q[4]||'')); }); });
+    h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px">'+
+      '<div><b>정답</b> '+sc.a+'</div>'+
+      '<div><b>힘을 받는 물체</b> '+cnt(objs)+'</div><div><b>붙인 힘 이름</b> '+cnt(names)+'</div>'+
+      '<div style="color:#c2410c">“누가” 빠진 화살표 '+noWho+'개 · 힘을 '+sc.n+'개보다 적게 그린 학생 '+lack+'명</div></div>';
+  } else {
+    var ok=0, rs=[];
+    rows.forEach(function(x){ var q=Number((x.d||{}).ratio)||0; rs.push(q); if(q>=1.35&&q<=1.65) ok++; });
+    h+='<div style="font-size:13px;line-height:1.7;margin:8px 0;background:#f8fafc;border-radius:8px;padding:8px 10px">'+
+      '<div><b>길이 정답(1.35~1.65배)</b> '+ok+' / '+rows.length+'명</div>'+
+      '<div><b>그린 배율</b> '+rs.sort(function(a,b){return a-b;}).map(function(q){return q.toFixed(1);}).join(', ')+'</div>'+
+      '<div><b>더 미끄러운 바닥</b> '+cnt(rows.map(function(x){return (x.d||{}).sl;}))+' (정답 ㉠)</div></div>';
+  }
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px">';
+  tk.forEach(function(t){
+    h+='<tr><td colspan="3" style="font-weight:800;padding:8px 4px 3px;border-bottom:2px solid #d8dee6">'+esc(t)+'모둠</td></tr>';
+    teams[t].forEach(function(m){
+      var x=(by[m.num]||{})[TRK], done=TRN.filter(function(s){return (by[m.num]||{})[s.k];}).length, ans='<span style="color:#9ca3af">-</span>';
+      if(x&&x.d){ var d=x.d;
+        ans=TRK==='cmp'?('㉡='+esc(d.ratio)+'배 · '+esc(d.sl||'')+' · '+esc(d.why||'')):
+          ('<b>'+esc(d.obj||'')+'</b> — '+(d.a||[]).map(function(q,i){return (i+1)+'. '+esc(q[5]?q[5]+' ':'')+esc(q[4]||'');}).join(' / ')); }
+      h+='<tr style="border-bottom:1px solid #eef2f7"><td style="white-space:nowrap;padding:5px 4px">'+esc(m.num)+'번 '+esc(m.name)+'</td><td style="white-space:nowrap;color:#6b7280">'+done+'/9</td><td>'+ans+'</td></tr>';
+    });
+  });
+  h+='</table>';
+  box.innerHTML=h;
+}
+function trnOverlay(){
+  var cv=$('trnTv'); if(!cv||!TRD) return;
+  var r=cv.getBoundingClientRect(), d=window.devicePixelRatio||1; cv.width=r.width*d; cv.height=r.height*d;
+  var c=cv.getContext('2d'), W=cv.width, H=cv.height;
+  c.globalAlpha=.45;
+  (TRD.items||[]).filter(function(x){return x.k===TRK&&x.d;}).forEach(function(x){
+    var o=x.d.o; if(o){ c.fillStyle='#A86F12'; c.beginPath(); c.arc(o[0]*W,o[1]*H,5*d,0,Math.PI*2); c.fill(); }
+    (x.d.a||[]).forEach(function(q){ trnArrow(c,q[0]*W,q[1]*H,q[2]*W,q[3]*H,TRN_COL[q[4]]||'#C2410C',4*d); });
+  });
 }
 
 /* ───────── 기여 돌아보기 (교사) ───────── */
@@ -6423,6 +6490,11 @@ var TRN=[
 var TRN_TYPES=['마찰력','탄성력','중력','수직항력','미는 힘','떠받치는 힘'];
 var TRN_COL={'마찰력':'#C2410C','탄성력':'#1D4F86','중력':'#374151','수직항력':'#2563EB','미는 힘':'#7C3AED','떠받치는 힘':'#0E7490'};
 var trnI=0, trnS={}, trnMode='obj', trnDrag=null;
+function trnPost(k,d){
+  if(!me||!me.cls||GUEST||TEACHER) return;
+  call({action:'trnSave',cls:me.cls,num:me.num,name:me.name||'',det:me.det||'',k:k,json:JSON.stringify(d)},function(){},function(){});
+}
+function trnR3(v){ return Math.round(v*1000)/1000; }
 function trnKey(){ return 'fd_trn_'+(me&&me.cls?me.cls+'-'+me.num:'guest'); }
 function trnLoad(){ try{ trnS=JSON.parse(localStorage.getItem(trnKey())||'{}')||{}; }catch(e){ trnS={}; } }
 function trnSave(){ try{ localStorage.setItem(trnKey(),JSON.stringify(trnS)); }catch(e){} }
@@ -6519,6 +6591,7 @@ function trnCheck(s,st){
   if(!st.a.length){ m.textContent='화살표를 하나 이상 그려 주세요.'; return; }
   if(st.a.some(function(r){return !r.t;})){ m.textContent='화살표마다 힘의 종류를 골라 주세요.'; return; }
   m.textContent=''; st.done=true; trnSave(); trnNav(); trnShowAns(s);
+  trnPost(s.k,{obj:String(st.obj||'').slice(0,40),o:st.o.map(trnR3),a:st.a.map(function(r){return [trnR3(r.x1),trnR3(r.y1),trnR3(r.x2),trnR3(r.y2),r.t,String(r.w||'').slice(0,20)];})});
 }
 function trnShowAns(s){
   var st=trnSt(s.k), mine=st.a.map(function(r,i){return (i+1)+'. '+(r.w?r.w+' ':'')+r.t;}).join(' · ');
@@ -6558,7 +6631,7 @@ function trnCmp(s){
   cv.onpointermove=move;
   cv.onpointerup=function(){ drag=false; trnSave(); };
   $('trnClr').onclick=function(){ st.L=0; st.done=false; trnSave(); draw(); $('trnAns').innerHTML=''; trnNav(); };
-  $('trnChk').onclick=function(){
+  function chk(silent){
     var m=$('trnMsg');
     if(!st.L){ m.textContent='㉡ 화살표를 먼저 그려 주세요.'; return; }
     if(!st.sl){ m.textContent='더 미끄러운 바닥을 골라 주세요.'; return; }
@@ -6568,8 +6641,10 @@ function trnCmp(s){
       '<p>내가 그린 ㉡은 ㉠의 <b>'+ratio.toFixed(1)+'배</b>예요. 정답은 3.0 ÷ 2.0 = <b>1.5배</b>.</p>'+
       '<p>더 미끄러운 바닥은 <b>㉠</b> — 같은 블록을 움직이는 데 필요한 힘(마찰력)이 더 작기 때문이에요.'+(st.sl==='㉠'?' (맞았어요!)':' (다시 생각해 봐요)')+'</p>'+
       '<ul><li>내 모둠 보고서의 비교 화살표도 이렇게 평균값의 비율대로 그려요.</li></ul></div>';
-  };
-  draw(); if(st.done) $('trnChk').onclick();
+    if(!silent) trnPost('cmp',{ratio:Math.round(ratio*100)/100,r:String(st.r||'').slice(0,8),sl:st.sl,why:String(st.why||'').slice(0,80)});
+  }
+  $('trnChk').onclick=function(){ chk(false); };
+  draw(); if(st.done) chk(true);
 }
 </script>
 </body>
