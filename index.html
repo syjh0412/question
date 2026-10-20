@@ -6827,7 +6827,8 @@ function trnMyFb(C){
     '<div class="lab">③ 우리 실험 장면 고르기 — 화살표가 어느 쪽을 향해야 할까요?</div><div class="tmc" id="tmMode"></div>'+
     '<div class="lab" id="tmHow"></div>'+
     '<div class="fig" id="tmFig" style="height:260px"><canvas id="tmCv"></canvas></div>'+
-    '<div class="lab">④ 한 줄 비교</div><div class="row"><input class="objin" id="tmS" placeholder="㉠은 ○○, ㉡은 ○○이므로 …" value="'+esc(st.s||'')+'"></div>'+
+    '<div class="lab">④ 한 줄 비교 — 두 값 + 그래서 무엇을 알 수 있는지 + 안전과 연결</div><div class="hint" id="tmEx"></div>'+
+    '<div class="row"><textarea class="objin" id="tmS" rows="3" style="width:100%;border-radius:8px;padding:8px;font-size:14px" placeholder="">'+esc(st.s||'')+'</textarea></div>'+
     '<button class="chk" id="tmChk">확인하기</button><div class="msg" id="tmMsg"></div><div id="tmAns"></div>';
   fb.innerHTML=h;
   $('tmW').oninput=function(){ st.w=this.value; trnSave(); };
@@ -6848,6 +6849,18 @@ function trnMyFb(C){
     $('tmMode').innerHTML=MODES.map(function(m){ return '<button data-m="'+m.k+'" class="'+(m.k===st[MK]?'on':'')+'">'+m.n+'</button>'; }).join('');
     Array.prototype.forEach.call($('tmMode').querySelectorAll('button'),function(bt){ bt.onclick=function(){ st[MK]=bt.dataset.m; st[GK]=0; trnSave(); TM.L=0; drawModes(); draw(); }; });
     $('tmHow').innerHTML=M().how;
+    var ux=function(c){ var m=(String(c.u||'')+' '+String(c.dep||'')).match(/(^|[^a-zA-Z])(mm|cm|N|g)(?![a-zA-Z])/); return m?' '+m[2]:''; };
+    var EX={
+      pull:'㉠ 마른 바닥에서는 블록을 끄는 데 평균 2.0 N, ㉡ 고무 매트 위에서는 평균 3.0 N이 필요했으므로, 고무 매트를 깔면 마찰력이 1.5배 커진다. 그래서 고무 매트를 깔면 발이 덜 미끄러진다.',
+      up:'㉠ 나무판에서는 공이 평균 60 cm, ㉡ 두꺼운 매트에서는 평균 20 cm 튀어 올랐으므로, 두꺼운 매트가 공을 훨씬 덜 튕겨 낸다(탄성력으로 충격을 천천히 받아 준다). 그래서 부딪히는 곳에 두꺼운 매트를 대면 몸이 덜 세게 튕겨 나간다.',
+      side:'㉠ 맨 벽에서는 공이 평균 80 cm, ㉡ 쿠션을 댄 벽에서는 평균 40 cm 튕겨 나갔으므로, 쿠션이 공을 절반만큼만 튕겨 낸다. 그래서 벽에 쿠션을 대면 부딪힌 사람이 덜 세게 튕겨 나간다.',
+      down:'㉠ 맨바닥에서는 찰흙이 평균 6 mm, ㉡ 고무판 위에서는 평균 2 mm 눌렸으므로, 고무판이 찰흙을 누르는 힘을 줄여 준다. 그래서 고무판을 대면 부딪히는 물체가 덜 다친다.',
+      wide:'㉠ 맨바닥에서는 찰흙이 평균 60 mm, ㉡ 매트 위에서는 평균 45 mm로 납작해졌으므로, 매트가 찰흙에 작용한 힘을 줄여 준다. 그래서 매트를 깔면 떨어지는 물체가 덜 망가진다.',
+      scale:'㉠ 짐을 가운데 두었을 때 두 저울은 500 g, 500 g이었지만, ㉡ 한쪽 끝에 두었을 때는 800 g, 200 g이었으므로, 짐이 쏠린 쪽 기둥이 4배 큰 힘으로 떠받쳐야 한다. 그래서 한쪽에 쌓인 짐부터 치우면 기둥이 안전하다.'};
+    var mine='㉠ '+A.c+'에서는 평균 '+A.a+ux(A)+', ㉡ '+B.c+'에서는 평균 '+B.a+ux(B)+'이므로, ';
+    $('tmEx').innerHTML='<b>쓰는 순서</b> ① ㉠과 ㉡의 값을 단위와 함께 → ② “이므로” 그래서 어떤 힘이 커지거나 작아지는지(몇 배인지) → ③ “그래서” 우리 대책을 쓰면 왜 안전한지<br>'+
+      '<b>예시</b> <span style="color:#cfdbe7">(다른 실험)</span> '+EX[M().k]+'<br><b>이렇게 시작해 보세요</b> '+esc(mine)+'…';
+    $('tmS').placeholder=mine+'(어떤 힘이 어떻게 달라졌는지). 그래서 (우리 대책)하면 (왜 안전한지).';
   }
   var cv=$('tmCv'), ratio=B.a/A.a, drag=false;
   function geo(){
