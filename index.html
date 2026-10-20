@@ -1196,7 +1196,8 @@
   #trn .row{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap;font-size:13.5px;}
   #trn .row .no{width:24px;height:24px;border-radius:50%;color:#fff;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;flex:none;}
   #trn input,#trn select{background:#fff;color:#16243a;border:1.5px solid #3b5372;border-radius:8px;padding:7px 9px;font-size:14px;}
-  #trn input.who{width:120px;} #trn input.objin{flex:1;min-width:140px;}
+  #trn input.who{flex:1;min-width:150px;}
+  #trn .pv{width:100%;font-size:12.5px;color:#f6e7c1;margin:-2px 0 4px 30px;} #trn input.objin{flex:1;min-width:140px;}
   #trn .lab{font-size:12.5px;color:#9fb3c8;font-weight:700;margin-top:10px;}
   #trn .chk{width:100%;margin-top:12px;background:#d9a441;color:#1b1406;border:0;border-radius:10px;padding:13px;font-weight:800;font-size:15px;}
   #trn .msg{font-size:13px;color:#fca5a5;margin-top:6px;min-height:18px;}
@@ -6470,11 +6471,11 @@ function drawStats(items){
 /* ===== 힘 그리기 훈련소 ===== */
 var TRN=[
  {k:'floor',t:'바닥을 딛는 신발',h:'발을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:3,
-  a:'힘을 받는 물체: <b>신발</b><br>마찰력(미끄러지려는 쪽의 반대 = 뒤쪽), 중력(아래), 수직항력(위)'},
+  a:'힘을 받는 물체: <b>신발</b><br><b>바닥의 마찰력</b>(미끄러지려는 쪽의 반대 = 뒤쪽), <b>지구의 중력</b>(아래), <b>바닥의 수직항력</b>(위, 바닥이 떠받치는 힘)'},
  {k:'stair',t:'계단을 내려가는 신발',h:'계단 끝을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:2,
-  a:'힘을 받는 물체: <b>신발</b><br>마찰력(미끄러지려는 쪽의 반대), 중력(아래)'},
+  a:'힘을 받는 물체: <b>신발</b><br><b>계단의 마찰력</b>(미끄러지려는 쪽의 반대), <b>지구의 중력</b>(아래)'},
  {k:'slope',t:'경사로를 내려가는 신발',h:'중력은 경사면을 따라가지 않아요. 언제나 어느 쪽일까요?',n:2,
-  a:'힘을 받는 물체: <b>신발</b><br>마찰력(경사 위쪽), 중력(바로 아래 — 경사면에 비스듬히 그리지 않기)'},
+  a:'힘을 받는 물체: <b>신발</b><br><b>경사로의 마찰력</b>(경사 위쪽), <b>지구의 중력</b>(바로 아래 — 경사면에 비스듬히 그리지 않기)'},
  {k:'pad',t:'골대 패드에 부딪힌 몸',h:'눌린 패드는 원래 모양으로 돌아가려고 해요.',n:1,
   a:'힘을 받는 물체: <b>몸</b><br><b>패드의 탄성력</b>(부딪힌 방향의 반대)'},
  {k:'net',t:'네트에 부딪힌 공',h:'공에 눌려 늘어난 네트는 어떻게 하려고 할까요?',n:1,
@@ -6484,7 +6485,7 @@ var TRN=[
  {k:'door',t:'문에 끼인 손가락',h:'손가락은 양쪽에서 눌려요. 누가누가 밀까요?',n:2,
   a:'힘을 받는 물체: <b>손가락</b><br><b>완충재의 탄성력</b>(문틀 쪽), <b>문틀이 반대로 미는 힘</b>'},
  {k:'roof',t:'눈이 한쪽에 쌓인 지붕',h:'지붕은 <b>아래로</b> 당겨지고, 기둥이 <b>위로</b> 떠받쳐요. 어느 기둥이 더 힘들까요?',n:3,obj:'지붕',
-  a:'힘을 받는 물체: <b>지붕</b><br>중력(아래), 두 기둥이 떠받치는 힘(위). 눈이 쌓인 쪽 기둥의 화살표가 더 길어요.'},
+  a:'힘을 받는 물체: <b>지붕</b><br><b>지구의 중력</b>(아래), <b>기둥 1·기둥 2가 떠받치는 힘</b>(위). 눈이 쌓인 쪽 기둥의 화살표가 더 길어요.'},
  {k:'cmp',t:'도전! 비교 화살표',h:'같은 블록을 두 바닥에서 끌었어요. ㉠ 평균 <b>2.0 N</b>, ㉡ 평균 <b>3.0 N</b>.<br>㉠ 마찰력 화살표가 그려져 있어요. ㉡ 마찰력 화살표를 알맞은 길이로 그려 보세요.'}
 ];
 var TRN_TYPES=['마찰력','탄성력','중력','수직항력','미는 힘','떠받치는 힘'];
@@ -6521,7 +6522,7 @@ function trnGo(i){
     '<button id="trnUndo">↶ 되돌리기</button><button id="trnClr">지우기</button></div>'+
     '<div class="fig"><img src="train/b_'+s.k+'.png" alt="'+s.t+'"><canvas id="trnCv"></canvas></div>'+
     '<div class="lab">힘을 받는 물체</div><div class="row"><input class="objin" id="trnObj" placeholder="예) 신발"'+(s.obj?' readonly':'')+'></div>'+
-    '<div class="lab">내가 그린 힘 — 이름에 “누가 미는지”를 넣어요</div><div id="trnRows"></div>'+
+    '<div class="lab">내가 그린 힘 — 왼쪽 칸에 <b style="color:#f6e7c1">그 힘을 주는 물체</b>를 적어요 (예: 바닥의 마찰력, 지구의 중력, 패드의 탄성력)</div><div id="trnRows"></div>'+
     '<button class="chk" id="trnChk">정답 확인하기</button><div class="msg" id="trnMsg"></div><div id="trnAns"></div>';
   $('trnObj').value=st.obj||'';
   $('trnObj').oninput=function(){ st.obj=this.value; trnSave(); };
@@ -6578,10 +6579,12 @@ function trnRows(st){
     var row=document.createElement('div'); row.className='row';
     var sel='<select><option value="">힘의 종류</option>'+TRN_TYPES.map(function(t){return '<option'+(r.t===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select>';
     row.innerHTML='<span class="no" style="background:'+(TRN_COL[r.t]||'#C2410C')+'">'+(i+1)+'</span>'+
-      '<input class="who" placeholder="누가? 예) 패드의" value="'+String(r.w||'').replace(/"/g,'&quot;')+'">'+sel;
-    row.querySelector('input').oninput=function(){ r.w=this.value; trnSave(); };
-    row.querySelector('select').onchange=function(){ r.t=this.value; trnSave(); row.querySelector('.no').style.background=TRN_COL[r.t]||'#C2410C'; trnDraw(st); };
-    box.appendChild(row);
+      '<input class="who" placeholder="무엇이 주는 힘? 예) 바닥의" value="'+String(r.w||'').replace(/"/g,'&quot;')+'">'+sel;
+    var pv=document.createElement('div'); pv.className='pv';
+    function upv(){ var w=String(r.w||'').trim(); pv.textContent=r.t?('→ '+(w?w+' ':'(무엇이?) ')+r.t):''; }
+    row.querySelector('input').oninput=function(){ r.w=this.value; trnSave(); upv(); };
+    row.querySelector('select').onchange=function(){ r.t=this.value; trnSave(); row.querySelector('.no').style.background=TRN_COL[r.t]||'#C2410C'; trnDraw(st); upv(); };
+    upv(); row.appendChild(pv); box.appendChild(row);
   });
 }
 function trnCheck(s,st){
