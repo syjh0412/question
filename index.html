@@ -2676,7 +2676,7 @@ var CASES={
     keep:['실제 안전망에 매달리거나 공을 세게 차지 않는다']}
 };
 /* 막대그래프가 의미 없는 실험 — 측정표만 보이고 막대는 숨김 ('반|모둠': {실험:1}) */
-var NO_BAR={'1|4':{B:1}};
+var NO_BAR={'1|4':{A:1,B:1}};
 /* 목록에서 숨길 모둠 ('반|모둠') — 시트에서 지웠지만 서버에 잠시 남은 테스트 모둠 */
 var HIDE_TEAMS={'1|8':1};
 function visTeams(cls,items){ return (items||[]).filter(function(t){ return !HIDE_TEAMS[String(cls)+'|'+String(t.team)]; }); }
@@ -6738,7 +6738,26 @@ function trnMyAns1(s){
     '<li>그 힘이 <b>왜 위험해지는지</b> 한 문장으로 말할 수 있나요?</li></ul>'+
     (n?'<button class="nx" onclick="trnGo('+(n-1)+')">비슷한 훈련 장면 '+n+'번에서 정답 그림 보기 →</button>':'')+'</div>';
 }
+/* 줄이 아니라 '칸'이 조건인 모둠 (한 칸 = 한 조건, 한 번씩 잰 값) — 평균을 내면 안 됨 */
+var TRN_COLCOND={'1|4':1};
+function trnMyCondsCol(){
+  var ev=TM.pages.evid||{}, out=[];
+  ['A','B'].forEach(function(X){
+    var rows=(ev['rows'+X]||[]).filter(function(r){return r&&String(r.c||'').trim();});
+    var s1=rows.filter(function(r){return /저울\s*1/.test(r.c);})[0], s2=rows.filter(function(r){return /저울\s*2/.test(r.c);})[0];
+    var cnt=rows.filter(function(r){return /개수/.test(r.c);})[0];
+    if(!s1||!s2) return;
+    for(var k=1;k<=RP_NV;k++){
+      var a=parseFloat(s1['v'+k]), b=parseFloat(s2['v'+k]); if(!isFinite(a)&&!isFinite(b)) continue;
+      var lab=X==='A'?('물병 '+(cnt&&cnt['v'+k]!==undefined&&cnt['v'+k]!==''?cnt['v'+k]:'?')+'개'):('물병 위치 '+k);
+      [[a,'저울 1'],[b,'저울 2']].forEach(function(q,j){ if(!isFinite(q[0])) return;
+        out.push({X:X,i:k*10+j,c:lab+' · '+q[1],a:q[0],lo:q[0],hi:q[0],n:1,one:1,u:'g',dep:X==='A'?'물병 개수를 바꿀 때 두 저울 값':'물병 위치를 바꿀 때 두 저울 값'}); });
+    }
+  });
+  return out;
+}
 function trnMyConds(){
+  if(TRN_COLCOND[String(me.cls)+'|'+String(TM.team)]) return trnMyCondsCol();
   var pl=TM.pages.plan||{}, ev=TM.pages.evid||{}, out=[];
   ['A','B'].forEach(function(X){
     (ev['rows'+X]||[]).forEach(function(r,i){
@@ -6752,13 +6771,14 @@ function trnMyConds(){
 function trnMy2(box){
   var C=trnMyConds(), S=TM.sel;
   if(!C.length){ box.innerHTML='<div class="hint">이 모둠 보고서에 아직 측정값이 없어요.</div>'; return; }
-  var h='<div class="hint"><b>① 비교할 두 조건을 고르세요.</b> 처음 누른 것이 ㉠, 다음이 ㉡이에요. 다시 누르면 처음부터.</div>';
+  var h='<div class="hint"><b>① 비교할 두 조건을 고르세요.</b> 처음 누른 것이 ㉠, 다음이 ㉡이에요. 다시 누르면 처음부터.</div>'+
+    (C[0].one?'<div class="hint">📌 이 모둠은 표의 <b>칸 하나가 조건 하나</b>예요 (물병 개수·위치). 그래서 평균이 아니라 <b>한 번 잰 저울 값</b>으로 비교해요. 같은 조건의 저울 1과 저울 2를 비교해도 좋아요.</div>':'');
   ['A','B'].forEach(function(X){
     var cs=C.filter(function(c){return c.X===X;}); if(!cs.length) return;
     h+='<div class="lab">실험 '+X+(cs[0].dep?' · 잰 것: '+esc(cs[0].dep):'')+(cs[0].u?' · '+esc(cs[0].u):'')+'</div><div class="tmc">';
     cs.forEach(function(c){
       var tag=(S.a&&S.a.X===c.X&&S.a.i===c.i)?'㉠':(S.b&&S.b.X===c.X&&S.b.i===c.i)?'㉡':'';
-      h+='<button data-x="'+c.X+'" data-i="'+c.i+'" class="'+(tag?'on':'')+'">'+(tag?'<em>'+tag+'</em>':'')+esc(c.c)+'<b>'+c.a+'</b><small>'+c.n+'회 · '+c.lo+'~'+c.hi+'</small></button>';
+      h+='<button data-x="'+c.X+'" data-i="'+c.i+'" class="'+(tag?'on':'')+'">'+(tag?'<em>'+tag+'</em>':'')+esc(c.c)+'<b>'+c.a+'</b><small>'+(c.one?'한 번 잰 값':c.n+'회 · '+c.lo+'~'+c.hi)+'</small></button>';
     });
     h+='</div>';
   });
@@ -6780,8 +6800,9 @@ function trnMyFb(C){
   var ov=!(A.hi<B.lo||B.hi<A.lo);
   h+='<div class="tmk"><b>🔎 이 비교, 증거로 괜찮을까?</b><ul>';
   h+=A.X!==B.X?'<li>⚠ 두 조건이 <b>다른 실험</b>(A·B)에서 나왔어요. 바꾼 것이 정말 하나뿐인지 확인!</li>':'<li>✔ 같은 실험 '+A.X+' 안의 두 조건이에요.</li>';
-  h+=ov?'<li>⚠ 두 조건의 측정값 범위가 <b>겹쳐요</b> ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이가 우연일 수 있어요 → 보고서 3번에서 다뤄요.</li>':'<li>✔ 측정값 범위가 겹치지 않아요 ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이를 믿을 만해요.</li>';
-  if(Math.min(A.n,B.n)<3) h+='<li>⚠ 잰 횟수가 '+Math.min(A.n,B.n)+'번뿐인 조건이 있어요.</li>';
+  if(A.one||B.one) h+='<li>ℹ 한 번씩 잰 값이라 범위가 겹치는지는 볼 수 없어요. 다시 재면 같은 값이 나올지 생각해 보세요.</li>';
+  else h+=ov?'<li>⚠ 두 조건의 측정값 범위가 <b>겹쳐요</b> ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이가 우연일 수 있어요 → 보고서 3번에서 다뤄요.</li>':'<li>✔ 측정값 범위가 겹치지 않아요 ('+A.lo+'~'+A.hi+' / '+B.lo+'~'+B.hi+'). 차이를 믿을 만해요.</li>';
+  if(!(A.one||B.one)&&Math.min(A.n,B.n)<3) h+='<li>⚠ 잰 횟수가 '+Math.min(A.n,B.n)+'번뿐인 조건이 있어요.</li>';
   h+='<li>🤔 이 두 조건이 <b>우리 사건의 위험</b>과 <b>우리가 제안할 대책</b>을 보여 주나요?</li></ul></div>';
   if(!(A.a>0)){ fb.innerHTML=h+'<div class="msg">㉠의 평균이 0이라 기준으로 쓸 수 없어요. 0이 아닌 조건을 ㉠으로 먼저 골라 보세요.</div>'; return; }
   var st=trnSt('my_'+me.cls+'_'+TM.team);
