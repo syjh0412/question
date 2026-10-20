@@ -1172,6 +1172,40 @@
   .cmate{border-top:1px dashed #2c4058;padding-top:10px;margin-top:10px;}
   .cmate:first-of-type{border-top:0;margin-top:4px;padding-top:0;}
   .cmate>b{font-size:14px;}
+  /* 힘 그리기 훈련소 */
+  #trn{position:fixed;inset:0;z-index:997;background:#0f1a27;display:none;flex-direction:column;color:#e6eef7;word-break:keep-all;}
+  #trn.on{display:flex;}
+  #trn .th{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #2a3d55;}
+  #trn .th b{font-size:16px;} #trn .th .pg{font-size:12.5px;color:#9fb3c8;margin-left:4px;}
+  #trn .th button{margin-left:auto;background:none;border:1px solid #5b7390;color:#cfdbe7;border-radius:8px;padding:6px 12px;font-weight:700;}
+  #trn .nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 4px;}
+  #trn .nav button{flex:none;width:38px;height:38px;border-radius:50%;border:1.5px solid #3b5372;background:#16263a;color:#cfdbe7;font-weight:800;font-size:15px;}
+  #trn .nav button.on{background:#d9a441;color:#1b1406;border-color:#d9a441;}
+  #trn .nav button.ok{border-color:#4ade80;}
+  #trn .nav button.ok:after{content:'✓';font-size:10px;color:#4ade80;position:relative;top:-12px;left:1px;}
+  #trn .bd{flex:1;overflow-y:auto;padding:8px 14px 40px;max-width:760px;width:100%;margin:0 auto;box-sizing:border-box;}
+  #trn h3{font-size:17px;margin:6px 0 4px;}
+  #trn .hint{font-size:13px;color:#9fb3c8;line-height:1.5;margin-bottom:8px;}
+  #trn .hint b{color:#f6e7c1;}
+  #trn .fig{position:relative;background:#fff;border-radius:10px;overflow:hidden;}
+  #trn .fig img{display:block;width:100%;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+  #trn .fig canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;}
+  #trn .tb{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;}
+  #trn .tb button{border:1.5px solid #3b5372;background:#16263a;color:#e6eef7;border-radius:9px;padding:8px 12px;font-weight:700;font-size:13.5px;}
+  #trn .tb button.on{background:#f6e7c1;color:#1b1406;border-color:#f6e7c1;}
+  #trn .row{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap;font-size:13.5px;}
+  #trn .row .no{width:24px;height:24px;border-radius:50%;color:#fff;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;flex:none;}
+  #trn input,#trn select{background:#fff;color:#16243a;border:1.5px solid #3b5372;border-radius:8px;padding:7px 9px;font-size:14px;}
+  #trn input.who{width:120px;} #trn input.objin{flex:1;min-width:140px;}
+  #trn .lab{font-size:12.5px;color:#9fb3c8;font-weight:700;margin-top:10px;}
+  #trn .chk{width:100%;margin-top:12px;background:#d9a441;color:#1b1406;border:0;border-radius:10px;padding:13px;font-weight:800;font-size:15px;}
+  #trn .msg{font-size:13px;color:#fca5a5;margin-top:6px;min-height:18px;}
+  #trn .ans{margin-top:14px;border:1px solid #4ade80;border-radius:12px;padding:10px;background:#122a1d;}
+  #trn .ans img{width:100%;border-radius:8px;display:block;margin-top:6px;}
+  #trn .ans p{font-size:13.5px;line-height:1.6;margin:6px 0 0;}
+  #trn .ans ul{margin:6px 0 0 18px;padding:0;font-size:13px;line-height:1.7;color:#cfe9d8;}
+  #trn .nx{width:100%;margin-top:10px;background:none;border:1.5px solid #4ade80;color:#bbf7d0;border-radius:10px;padding:11px;font-weight:800;}
+  .tool button.go{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#d9a441;color:#1b1406;border:0;border-radius:9px;padding:8px 13px;font-weight:800;font-size:13px;}
 </style>
 </head>
 <body>
@@ -1268,6 +1302,11 @@
           <div class="d">학교에서 찍은 사진과 발견한 단서를 모둠별로 올리는 곳입니다.</div>
           <a class="go plain" href="https://padlet.com/syjh0412/padlet-s0240qto84x8l7ywu15w"
              target="_blank" rel="noopener noreferrer">패들렛 열기 ↗</a>
+        </div>
+        <div class="tool">
+          <h3>🎯 힘 그리기 훈련소</h3>
+          <div class="d">장면 8개와 도전 1개. 힘을 받는 물체에 ○를 치고, 화살표를 그리고, 이름을 붙여 보세요. 다 그린 뒤에 정답을 확인할 수 있어요.</div>
+          <button class="go" type="button" onclick="trnOpen()">훈련 시작 →</button>
         </div>
       </div>
       <div class="ttl" style="font-size:12px;font-weight:800;color:#8fa4ba;letter-spacing:.06em;margin:0 2px 8px">차시 자료</div>
@@ -1452,6 +1491,11 @@
   </div>
 </div>
 
+<div id="trn">
+  <div class="th"><b>🎯 힘 그리기 훈련소</b><span class="pg" id="trnPg"></span><button id="trnX">닫기</button></div>
+  <div class="nav" id="trnNav"></div>
+  <div class="bd" id="trnBd"></div>
+</div>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxQGxoSxJeBCEWVAxGRJUKEWDiDum-gH7JuPihPRthqczKvfDmAS70VkS7QkfQCurA/exec';
 
@@ -6354,6 +6398,178 @@ function drawStats(items){
   note.className='count'; note.style.marginTop='10px';
   note.textContent='분홍 줄은 질문이나 답변이 하나도 없는 학생입니다. 인정 점수 = 도장 + 받은 제보 + 채택 + 채택해줌 + 추가 답변 + 성찰 + 도움 제안(⭐)';
   box.appendChild(note);
+}
+
+/* ===== 힘 그리기 훈련소 ===== */
+var TRN=[
+ {k:'floor',t:'바닥을 딛는 신발',h:'발을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:3,
+  a:'힘을 받는 물체: <b>신발</b><br>마찰력(미끄러지려는 쪽의 반대 = 뒤쪽), 중력(아래), 수직항력(위)'},
+ {k:'stair',t:'계단을 내려가는 신발',h:'계단 끝을 디딜 때 신발은 어느 쪽으로 미끄러지려 할까요?',n:2,
+  a:'힘을 받는 물체: <b>신발</b><br>마찰력(미끄러지려는 쪽의 반대), 중력(아래)'},
+ {k:'slope',t:'경사로를 내려가는 신발',h:'중력은 경사면을 따라가지 않아요. 언제나 어느 쪽일까요?',n:2,
+  a:'힘을 받는 물체: <b>신발</b><br>마찰력(경사 위쪽), 중력(바로 아래 — 경사면에 비스듬히 그리지 않기)'},
+ {k:'pad',t:'골대 패드에 부딪힌 몸',h:'눌린 패드는 원래 모양으로 돌아가려고 해요.',n:1,
+  a:'힘을 받는 물체: <b>몸</b><br><b>패드의 탄성력</b>(부딪힌 방향의 반대)'},
+ {k:'net',t:'네트에 부딪힌 공',h:'공에 눌려 늘어난 네트는 어떻게 하려고 할까요?',n:1,
+  a:'힘을 받는 물체: <b>공</b><br><b>네트의 탄성력</b>(공이 날아온 방향의 반대)'},
+ {k:'glass',t:'유리창에 부딪힌 공',h:'이번에는 힘을 받는 물체가 <b>유리창</b>이에요. 누가 유리창을 밀까요?',n:1,obj:'유리창',
+  a:'힘을 받는 물체: <b>유리창</b><br><b>공이 유리창을 미는 힘</b>(공이 날아온 방향). 물체가 바뀌면 화살표 방향도 바뀌어요.'},
+ {k:'door',t:'문에 끼인 손가락',h:'손가락은 양쪽에서 눌려요. 누가누가 밀까요?',n:2,
+  a:'힘을 받는 물체: <b>손가락</b><br><b>완충재의 탄성력</b>(문틀 쪽), <b>문틀이 반대로 미는 힘</b>'},
+ {k:'roof',t:'눈이 한쪽에 쌓인 지붕',h:'지붕은 <b>아래로</b> 당겨지고, 기둥이 <b>위로</b> 떠받쳐요. 어느 기둥이 더 힘들까요?',n:3,obj:'지붕',
+  a:'힘을 받는 물체: <b>지붕</b><br>중력(아래), 두 기둥이 떠받치는 힘(위). 눈이 쌓인 쪽 기둥의 화살표가 더 길어요.'},
+ {k:'cmp',t:'도전! 비교 화살표',h:'같은 블록을 두 바닥에서 끌었어요. ㉠ 평균 <b>2.0 N</b>, ㉡ 평균 <b>3.0 N</b>.<br>㉠ 마찰력 화살표가 그려져 있어요. ㉡ 마찰력 화살표를 알맞은 길이로 그려 보세요.'}
+];
+var TRN_TYPES=['마찰력','탄성력','중력','수직항력','미는 힘','떠받치는 힘'];
+var TRN_COL={'마찰력':'#C2410C','탄성력':'#1D4F86','중력':'#374151','수직항력':'#2563EB','미는 힘':'#7C3AED','떠받치는 힘':'#0E7490'};
+var trnI=0, trnS={}, trnMode='obj', trnDrag=null;
+function trnKey(){ return 'fd_trn_'+(me&&me.cls?me.cls+'-'+me.num:'guest'); }
+function trnLoad(){ try{ trnS=JSON.parse(localStorage.getItem(trnKey())||'{}')||{}; }catch(e){ trnS={}; } }
+function trnSave(){ try{ localStorage.setItem(trnKey(),JSON.stringify(trnS)); }catch(e){} }
+function trnSt(k){ if(!trnS[k]) trnS[k]={o:null,a:[],obj:'',done:false}; return trnS[k]; }
+function trnOpen(){ trnLoad(); $('trn').classList.add('on'); document.body.style.overflow='hidden'; trnGo(trnI); }
+function trnClose(){ $('trn').classList.remove('on'); document.body.style.overflow=''; }
+$('trnX').addEventListener('click',trnClose);
+function trnNav(){
+  var nav=$('trnNav'); nav.innerHTML=''; var n=0;
+  TRN.forEach(function(s,i){
+    var b=document.createElement('button'); b.textContent=i+1;
+    if(i===trnI) b.classList.add('on');
+    if(trnS[s.k]&&trnS[s.k].done){ b.classList.add('ok'); n++; }
+    b.onclick=function(){ trnGo(i); }; nav.appendChild(b);
+  });
+  $('trnPg').textContent=n+' / '+TRN.length+' 완료';
+}
+function trnGo(i){
+  trnI=i; trnNav(); var s=TRN[i], bd=$('trnBd'); bd.scrollTop=0;
+  if(s.k==='cmp'){ trnCmp(s); return; }
+  var st=trnSt(s.k); if(s.obj) st.obj=s.obj;
+  bd.innerHTML='<h3>'+(i+1)+'. '+s.t+'</h3><div class="hint">'+s.h+' <br>그릴 힘: <b>'+s.n+'개</b></div>'+
+    '<div class="tb"><button data-m="obj">○ 물체 표시</button><button data-m="arr">↗ 화살표 그리기</button>'+
+    '<button id="trnUndo">↶ 되돌리기</button><button id="trnClr">지우기</button></div>'+
+    '<div class="fig"><img src="train/b_'+s.k+'.png" alt="'+s.t+'"><canvas id="trnCv"></canvas></div>'+
+    '<div class="lab">힘을 받는 물체</div><div class="row"><input class="objin" id="trnObj" placeholder="예) 신발"'+(s.obj?' readonly':'')+'></div>'+
+    '<div class="lab">내가 그린 힘 — 이름에 “누가 미는지”를 넣어요</div><div id="trnRows"></div>'+
+    '<button class="chk" id="trnChk">정답 확인하기</button><div class="msg" id="trnMsg"></div><div id="trnAns"></div>';
+  $('trnObj').value=st.obj||'';
+  $('trnObj').oninput=function(){ st.obj=this.value; trnSave(); };
+  Array.prototype.forEach.call(bd.querySelectorAll('[data-m]'),function(b){
+    b.classList.toggle('on',b.dataset.m===trnMode);
+    b.onclick=function(){ trnMode=b.dataset.m; Array.prototype.forEach.call(bd.querySelectorAll('[data-m]'),function(x){x.classList.toggle('on',x===b);}); };
+  });
+  $('trnUndo').onclick=function(){ if(st.a.length) st.a.pop(); else st.o=null; trnSave(); trnRows(st); trnDraw(st); };
+  $('trnClr').onclick=function(){ st.a=[]; st.o=null; trnSave(); trnRows(st); trnDraw(st); };
+  $('trnChk').onclick=function(){ trnCheck(s,st); };
+  var cv=$('trnCv'), img=bd.querySelector('.fig img');
+  function fit(){ var r=cv.getBoundingClientRect(), d=window.devicePixelRatio||1; cv.width=r.width*d; cv.height=r.height*d; trnDraw(st); }
+  if(img.complete) fit(); else img.onload=fit;
+  window.onresize=function(){ if($('trnCv')) fit(); };
+  trnPtr(cv,st); trnRows(st); if(st.done) trnShowAns(s);
+}
+function trnXY(cv,e){ var r=cv.getBoundingClientRect(); return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]; }
+function trnPtr(cv,st){
+  cv.onpointerdown=function(e){
+    e.preventDefault(); var p=trnXY(cv,e);
+    if(trnMode==='obj'){ st.o=p; trnSave(); trnDraw(st); return; }
+    trnDrag={x1:p[0],y1:p[1],x2:p[0],y2:p[1]}; try{cv.setPointerCapture(e.pointerId);}catch(x){}
+  };
+  cv.onpointermove=function(e){ if(!trnDrag) return; var p=trnXY(cv,e); trnDrag.x2=p[0]; trnDrag.y2=p[1]; trnDraw(st); };
+  cv.onpointerup=function(){
+    if(!trnDrag) return; var d=trnDrag; trnDrag=null;
+    var r=cv.getBoundingClientRect(), L=Math.hypot((d.x2-d.x1)*r.width,(d.y2-d.y1)*r.height);
+    if(L>14){ st.a.push({x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,t:'',w:''}); trnSave(); trnRows(st); }
+    trnDraw(st);
+  };
+}
+function trnArrow(c,x1,y1,x2,y2,col,lw){
+  var a=Math.atan2(y2-y1,x2-x1), h=lw*3.2;
+  c.strokeStyle=col; c.fillStyle=col; c.lineWidth=lw; c.lineCap='round';
+  c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2-Math.cos(a)*h*.8,y2-Math.sin(a)*h*.8); c.stroke();
+  c.beginPath(); c.moveTo(x2,y2); c.lineTo(x2-h*Math.cos(a-.45),y2-h*Math.sin(a-.45)); c.lineTo(x2-h*Math.cos(a+.45),y2-h*Math.sin(a+.45)); c.closePath(); c.fill();
+}
+function trnDraw(st){
+  var cv=$('trnCv'); if(!cv) return; var c=cv.getContext('2d'), W=cv.width, H=cv.height, d=window.devicePixelRatio||1;
+  c.clearRect(0,0,W,H);
+  if(st.o){ c.save(); c.setLineDash([8*d,6*d]); c.strokeStyle='#A86F12'; c.lineWidth=3*d; c.beginPath(); c.ellipse(st.o[0]*W,st.o[1]*H,W*.1,H*.17,0,0,Math.PI*2); c.stroke(); c.restore(); }
+  var all=st.a.slice(); if(trnDrag) all.push(trnDrag);
+  all.forEach(function(r,i){
+    var col=TRN_COL[r.t]||'#C2410C';
+    trnArrow(c,r.x1*W,r.y1*H,r.x2*W,r.y2*H,col,5*d);
+    if(i<st.a.length){ c.beginPath(); c.fillStyle=col; c.arc(r.x1*W,r.y1*H,10*d,0,Math.PI*2); c.fill();
+      c.fillStyle='#fff'; c.font='bold '+(12*d)+'px sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(i+1,r.x1*W,r.y1*H); }
+  });
+}
+function trnRows(st){
+  var box=$('trnRows'); if(!box) return; box.innerHTML='';
+  if(!st.a.length){ box.innerHTML='<div class="hint">‘↗ 화살표 그리기’를 누르고, 그림 위에서 <b>물체에서 시작해</b> 힘의 방향으로 끌어 보세요.</div>'; return; }
+  st.a.forEach(function(r,i){
+    var row=document.createElement('div'); row.className='row';
+    var sel='<select><option value="">힘의 종류</option>'+TRN_TYPES.map(function(t){return '<option'+(r.t===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select>';
+    row.innerHTML='<span class="no" style="background:'+(TRN_COL[r.t]||'#C2410C')+'">'+(i+1)+'</span>'+
+      '<input class="who" placeholder="누가? 예) 패드의" value="'+String(r.w||'').replace(/"/g,'&quot;')+'">'+sel;
+    row.querySelector('input').oninput=function(){ r.w=this.value; trnSave(); };
+    row.querySelector('select').onchange=function(){ r.t=this.value; trnSave(); row.querySelector('.no').style.background=TRN_COL[r.t]||'#C2410C'; trnDraw(st); };
+    box.appendChild(row);
+  });
+}
+function trnCheck(s,st){
+  var m=$('trnMsg');
+  if(!st.o){ m.textContent='먼저 힘을 받는 물체에 ○를 쳐 주세요.'; return; }
+  if(!String(st.obj||'').trim()){ m.textContent='힘을 받는 물체의 이름을 적어 주세요.'; return; }
+  if(!st.a.length){ m.textContent='화살표를 하나 이상 그려 주세요.'; return; }
+  if(st.a.some(function(r){return !r.t;})){ m.textContent='화살표마다 힘의 종류를 골라 주세요.'; return; }
+  m.textContent=''; st.done=true; trnSave(); trnNav(); trnShowAns(s);
+}
+function trnShowAns(s){
+  var st=trnSt(s.k), mine=st.a.map(function(r,i){return (i+1)+'. '+(r.w?r.w+' ':'')+r.t;}).join(' · ');
+  $('trnAns').innerHTML='<div class="ans"><b>✅ 정답과 비교해 보세요</b><img src="train/a_'+s.k+'.png" alt="정답 그림"><p>'+s.a+'</p>'+
+    '<p style="color:#cfe9d8">내 답: '+(st.obj||'')+' — '+(mine||'')+'</p>'+
+    '<ul><li>화살표가 <b>물체에서</b> 시작했나요?</li><li>방향이 맞나요? (마찰력은 미끄러지려는 쪽의 반대)</li><li>이름에 <b>누가 미는 힘인지</b> 넣었나요?</li>'+(st.a.length<s.n?'<li>빠진 힘이 있어요. 정답에는 '+s.n+'개!</li>':'')+'</ul></div>'+
+    (trnI<TRN.length-1?'<button class="nx" onclick="trnGo('+(trnI+1)+')">다음 장면 →</button>':'');
+}
+function trnCmp(s){
+  var st=trnSt('cmp'), bd=$('trnBd');
+  bd.innerHTML='<h3>'+TRN.length+'. '+s.t+'</h3><div class="hint">'+s.h+'</div>'+
+    '<div class="fig" style="height:230px"><canvas id="trnCv"></canvas></div>'+
+    '<div class="tb"><button id="trnClr">다시 그리기</button></div>'+
+    '<div class="lab">㉡은 ㉠의 몇 배 길이로 그렸나요?</div><div class="row"><input id="trnR" style="width:90px" placeholder="예) 2"> 배</div>'+
+    '<div class="lab">더 미끄러운 바닥은?</div><div class="row"><select id="trnSl"><option value="">고르기</option><option>㉠</option><option>㉡</option></select>'+
+    '<input class="objin" id="trnWhy" placeholder="왜냐하면…"></div>'+
+    '<button class="chk" id="trnChk">정답 확인하기</button><div class="msg" id="trnMsg"></div><div id="trnAns"></div>';
+  var cv=$('trnCv');
+  $('trnR').value=st.r||''; $('trnSl').value=st.sl||''; $('trnWhy').value=st.why||'';
+  $('trnR').oninput=function(){st.r=this.value;trnSave();}; $('trnSl').onchange=function(){st.sl=this.value;trnSave();}; $('trnWhy').oninput=function(){st.why=this.value;trnSave();};
+  function geo(){ var r=cv.getBoundingClientRect(); return {W:r.width,H:r.height,base:Math.min(150,r.width*.28),x0:r.width*.8}; }
+  function draw(tmp){
+    var d=window.devicePixelRatio||1, r=cv.getBoundingClientRect(); cv.width=r.width*d; cv.height=r.height*d;
+    var c=cv.getContext('2d'); c.scale(d,d); var g=geo(), y1=70, y2=170;
+    c.fillStyle='#fff'; c.fillRect(0,0,g.W,g.H);
+    c.font='bold 14px sans-serif'; c.fillStyle='#1F3A5F'; c.textAlign='left';
+    c.fillText('㉠ 2.0 N',12,y1-28); c.fillText('㉡ 3.0 N',12,y2-28);
+    [y1,y2].forEach(function(y){ c.fillStyle='#E7E5E4'; c.fillRect(8,y+18,g.W-16,10); c.fillStyle='#D6C3A5'; c.strokeStyle='#8B6F47'; c.lineWidth=2; c.fillRect(g.x0,y-16,60,34); c.strokeRect(g.x0,y-16,60,34); });
+    trnArrow(c,g.x0,y1,g.x0-g.base,y1,'#C2410C',6);
+    c.fillStyle='#C2410C'; c.font='12px sans-serif'; c.fillText('마찰력',g.x0-g.base,y1-14);
+    var L=tmp!=null?tmp:st.L; if(L){ trnArrow(c,g.x0,y2,g.x0-L,y2,'#C2410C',6); }
+    else{ c.fillStyle='#9CA3AF'; c.font='12px sans-serif'; c.textAlign='right'; c.fillText('블록 왼쪽 끝에서 왼쪽으로 끌어 보세요 ←',g.x0-6,y2+4); }
+  }
+  var drag=false;
+  cv.onpointerdown=function(e){ drag=true; try{cv.setPointerCapture(e.pointerId);}catch(x){} move(e); };
+  function move(e){ if(!drag) return; var r=cv.getBoundingClientRect(), g=geo(); var L=Math.max(0,Math.min(g.x0-8,g.x0-(e.clientX-r.left))); st.L=L; draw(L); }
+  cv.onpointermove=move;
+  cv.onpointerup=function(){ drag=false; trnSave(); };
+  $('trnClr').onclick=function(){ st.L=0; st.done=false; trnSave(); draw(); $('trnAns').innerHTML=''; trnNav(); };
+  $('trnChk').onclick=function(){
+    var m=$('trnMsg');
+    if(!st.L){ m.textContent='㉡ 화살표를 먼저 그려 주세요.'; return; }
+    if(!st.sl){ m.textContent='더 미끄러운 바닥을 골라 주세요.'; return; }
+    m.textContent=''; st.done=true; trnSave(); trnNav();
+    var ratio=st.L/geo().base, ok=ratio>=1.35&&ratio<=1.65;
+    $('trnAns').innerHTML='<div class="ans"><b>'+(ok?'✅ 길이 정확해요!':'📏 길이를 다시 생각해 봐요')+'</b>'+
+      '<p>내가 그린 ㉡은 ㉠의 <b>'+ratio.toFixed(1)+'배</b>예요. 정답은 3.0 ÷ 2.0 = <b>1.5배</b>.</p>'+
+      '<p>더 미끄러운 바닥은 <b>㉠</b> — 같은 블록을 움직이는 데 필요한 힘(마찰력)이 더 작기 때문이에요.'+(st.sl==='㉠'?' (맞았어요!)':' (다시 생각해 봐요)')+'</p>'+
+      '<ul><li>내 모둠 보고서의 비교 화살표도 이렇게 평균값의 비율대로 그려요.</li></ul></div>';
+  };
+  draw(); if(st.done) $('trnChk').onclick();
 }
 </script>
 </body>
