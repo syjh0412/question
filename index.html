@@ -1161,6 +1161,17 @@
     border:1px solid #3a4c66;border-radius:12px;padding:10px 18px;font-size:13.5px;font-weight:700;
     z-index:999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4);}
   @media print{ #slv,#rpToast{display:none !important;} }
+  /* 모둠 기여 돌아보기 */
+  .cbx{background:#16263a;border:1px solid #2c4058;border-radius:12px;padding:12px;margin-bottom:10px;color:#e6edf5;}
+  .cbx h4{margin:0 0 4px;font-size:14.5px;}
+  .cbx .cs{font-size:12px;color:#9fb3c8;margin-bottom:8px;}
+  .cchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;}
+  .cchips button{background:#0f1c2b;border:1px solid #3a4c66;color:#cfd9e5;border-radius:16px;padding:6px 10px;font-size:13px;cursor:pointer;}
+  .cchips button.on{background:#2f6fb0;border-color:#2f6fb0;color:#fff;font-weight:700;}
+  .cbx textarea{width:100%;box-sizing:border-box;min-height:58px;background:#0f1c2b;color:#fff;border:1px solid #3a4c66;border-radius:8px;padding:8px;font-size:14px;margin-top:6px;font-family:inherit;}
+  .cmate{border-top:1px dashed #2c4058;padding-top:10px;margin-top:10px;}
+  .cmate:first-of-type{border-top:0;margin-top:4px;padding-top:0;}
+  .cmate>b{font-size:14px;}
 </style>
 </head>
 <body>
@@ -3019,6 +3030,12 @@ function rpHome(){
     h+='<div class="editbadge" id="rpOff" style="cursor:pointer">📴 서버가 느려서 이 태블릿에 저장된 보고서('+(od.getMonth()+1)+'/'+od.getDate()+' '+od.getHours()+':'+('0'+od.getMinutes()).slice(-2)+')를 보여 주고 있어요. 발표 모드는 그대로 쓸 수 있어요. <u>다시 연결해 보기</u></div>';
   }
   box.innerHTML=h;
+  if(!TEACHER&&!GUEST&&!RP.peek){
+    var cb=document.createElement('div'); cb.className='casecard';
+    cb.innerHTML='<span class="ic">🤝</span><div class="tx"><b>우리 모둠 기여 돌아보기</b><span>내가 한 일, 친구 덕분에 된 일을 남겨요 · 소장님만 봅니다</span></div><span class="go">쓰기</span>';
+    cb.addEventListener('click',rpContrib);
+    box.appendChild(cb);
+  }
   if($('rpOff')) $('rpOff').addEventListener('click',function(){ this.textContent='연결하는 중...'; rpLoad(); });
   if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint2_'+me.cls+'_'+RP.team,'1'); this.remove(); });
   $('rpS3').addEventListener('click',function(){
@@ -3060,6 +3077,55 @@ function rpHome(){
     G.parts.forEach(function(P){ box.appendChild(rpPartCard(P,roles)); });
   });
   box.appendChild(rpPartCard(RPARTS.rx,roles));
+}
+var CROLES=['실험 설계','준비물','실험·측정','기록·평균 계산','사진·영상','보고서 쓰기','발표 대본·준비','발표하기','카드 판단·고치기'];
+function rpContrib(){
+  RP.view='contrib';
+  var box=$('repBody');
+  var mates=RP.members.filter(function(m){ return String(m.num)!==String(me.num); });
+  var chips=function(k){ return '<div class="cchips" data-k="'+k+'">'+CROLES.map(function(x){ return '<button type="button">'+esc(x)+'</button>'; }).join('')+'</div>'; };
+  var h='<div class="rpbar"><button class="back" id="rpBkC">← 보고서</button><b>🤝 우리 모둠 기여 돌아보기</b></div>'+
+    '<div class="sub" style="color:#9fb3c8;margin:-2px 2px 10px">점수를 매기는 곳이 아니에요. 내가 한 일과 친구 덕분에 된 일을 기록으로 남깁니다. 여기 쓴 글은 <b>소장님만</b> 봐요.</div>'+
+    '<div class="cbx"><h4>1. 내가 맡아서 한 일</h4><div class="cs">여러 개 골라도 돼요.</div>'+chips('me')+'</div>'+
+    '<div class="cbx"><h4>2. 내가 한 일 가운데 꼭 남기고 싶은 두 가지</h4><div class="cs">무엇을 했는지 + 증거(보고서의 어느 칸, 어떤 사진, 몇 번 측정)를 함께 써요.</div>'+
+      '<textarea id="cD1" placeholder="예) 실험 B에서 공을 5번씩 떨어뜨려 높이를 재고 측정표에 적었다"></textarea>'+
+      '<textarea id="cD2" placeholder="예) 발표 대본의 결론 부분을 쓰고, 카드를 받은 뒤 평균값을 넣어 고쳤다"></textarea></div>'+
+    '<div class="cbx"><h4>3. 모둠 친구가 한 일과 고마운 점</h4><div class="cs">친구가 맡은 일을 고르고, "○○ 덕분에 ~할 수 있었다"를 한 줄 써요.</div>'+
+      (mates.length?mates.map(function(m){ return '<div class="cmate" data-n="'+esc(m.num)+'" data-nm="'+esc(m.name||'')+'"><b>'+esc(m.det||m.name)+'</b>'+chips('m'+m.num)+'<textarea placeholder="'+esc(m.det||m.name)+' 덕분에 "></textarea></div>'; }).join(''):'<div class="cs">모둠원 정보를 불러오지 못했어요.</div>')+'</div>'+
+    '<div class="cbx"><h4>4. 소장님께만 (쓰지 않아도 돼요)</h4><textarea id="cT" placeholder="모둠 활동에서 힘들었던 점, 소장님이 알아 주었으면 하는 점"></textarea></div>'+
+    '<div class="msg" id="cMsg"></div><button class="primary" id="cSave" type="button">기록 남기기</button><div style="height:20px"></div>';
+  box.innerHTML=h;
+  $('rpBkC').addEventListener('click',rpHome);
+  Array.prototype.forEach.call(box.querySelectorAll('.cchips button'),function(b){ b.addEventListener('click',function(){ b.classList.toggle('on'); }); });
+  var setChips=function(k,arr){ var c=box.querySelector('.cchips[data-k="'+k+'"]'); if(!c) return; Array.prototype.forEach.call(c.children,function(b){ b.classList.toggle('on',(arr||[]).indexOf(b.textContent)>=0); }); };
+  var getChips=function(k){ var c=box.querySelector('.cchips[data-k="'+k+'"]'); return c?Array.prototype.filter.call(c.children,function(b){ return b.classList.contains('on'); }).map(function(b){ return b.textContent; }):[]; };
+  call({action:'contribGet',cls:me.cls,num:me.num},function(res){
+    var d=res.item; if(!d||RP.view!=='contrib') return;
+    setChips('me',d.roles); $('cD1').value=(d.did||[])[0]||''; $('cD2').value=(d.did||[])[1]||''; $('cT').value=d.toT||'';
+    (d.mates||[]).forEach(function(m){ setChips('m'+m.num,m.roles); var el=box.querySelector('.cmate[data-n="'+m.num+'"] textarea'); if(el) el.value=m.thanks||''; });
+    msg($('cMsg'),'전에 남긴 기록을 불러왔어요. 고친 뒤 다시 남기면 바뀝니다.','ok');
+  },function(){});
+  $('cSave').addEventListener('click',function(){
+    var roles=getChips('me'), d1=$('cD1').value.trim(), d2=$('cD2').value.trim();
+    if(!roles.length){ msg($('cMsg'),'1번에서 내가 맡은 일을 하나 이상 골라 주세요.','err'); return; }
+    if(d1.length<10||d2.length<10){ msg($('cMsg'),'2번 두 칸을 10자 이상 써 주세요. 무엇을 했는지와 증거를 함께요.','err'); return; }
+    var ms=[], miss='';
+    Array.prototype.forEach.call(box.querySelectorAll('.cmate'),function(el){
+      var n=el.getAttribute('data-n'), t=el.querySelector('textarea').value.trim();
+      if(t.length<6&&!miss) miss=el.querySelector('b').textContent;
+      ms.push({num:n,name:el.getAttribute('data-nm'),roles:getChips('m'+n),thanks:t});
+    });
+    if(miss){ msg($('cMsg'),miss+' 탐정에게 한 줄을 써 주세요.','err'); return; }
+    var b=this; b.disabled=true; b.textContent='남기는 중...';
+    post({action:'contribSave',cls:me.cls,num:me.num,team:RP.team,name:me.name,det:me.det||'',
+      json:JSON.stringify({roles:roles,did:[d1,d2],mates:ms,toT:$('cT').value.trim()})},function(){
+      b.disabled=false; b.textContent='다시 남기기';
+      msg($('cMsg'),'남겼어요. 고칠 게 있으면 고친 뒤 다시 남기면 됩니다.','ok');
+    },function(err){
+      b.disabled=false; b.textContent='기록 남기기';
+      msg($('cMsg'),/알 수 없는 요청/.test(String(err))?'아직 서버가 준비되지 않았어요. 소장님께 알려 주세요.':'남기지 못했어요. '+err,'err');
+    });
+  });
 }
 function rpPartCard(P,roles){
   var d=document.createElement('div'); d.className='pgc';
