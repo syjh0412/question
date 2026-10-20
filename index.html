@@ -1422,6 +1422,7 @@
             <option value="rep">보고서 검토</option>
             <option value="board">검증 현황판</option>
             <option value="cp">🍬 쿠폰 지급</option>
+            <option value="ct">🤝 기여 돌아보기</option>
           </select>
           <button class="ghost" id="tReload">새로고침</button>
           <button class="ghost" id="tPrint">인쇄</button>
@@ -5509,6 +5510,12 @@ function tLoad(){
         '소장님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
     return;
   }
+  if(v==='ct'){
+    if(!$('tCls').value){ box.innerHTML='<div class="empty">위에서 반을 먼저 고르세요.</div>'; return; }
+    call({action:'contribList',pin:PIN,cls:$('tCls').value},function(r){ drawContrib(r); },
+      function(err){ box.innerHTML='<div class="empty">'+(/알 수 없는 요청/.test(String(err))?'소장님이 서버를 새로 배포하면 열리는 화면입니다.':esc(err))+'</div>'; });
+    return;
+  }
   if(v==='b'){ call({action:'stats',pin:PIN,cls:$('tCls').value},
       function(r){ drawBadgeTools(r.items||[]); }, fail); return; }
   if(v==='s') call({action:'stats',pin:PIN,cls:$('tCls').value},
@@ -5519,6 +5526,46 @@ function tLoad(){
       function(r){ drawNotes(r.items||[]); }, fail);
   else call({action:'teacher',pin:PIN,cls:$('tCls').value,lesson:$('tLesson').value},
       function(r){ tBoard(r.items||[], tCard); }, fail);
+}
+
+/* ───────── 기여 돌아보기 (교사) ───────── */
+function drawContrib(r){
+  var box=$('tBody'), by={}, items=r.items||[], teams=r.teams||{};
+  items.forEach(function(x){ by[String(x.num)]=x; });
+  var tk=Object.keys(teams).sort(function(a,b){ return Number(a)-Number(b); });
+  var done=items.length, all=0; tk.forEach(function(t){ all+=teams[t].length; });
+  var h='<div class="count">제출 '+done+' / '+all+'명 · 친구들이 골라 준 일과 "덕분에" 한 줄을 모아 보여 줍니다. 🔒 표시는 소장님께만 쓴 글입니다.</div>';
+  var chip=function(t,n,c){ return '<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:12px;font-size:12px;background:'+(c||'#eef2f7')+';color:#1b2733">'+esc(t)+(n?' <b>×'+n+'</b>':'')+'</span>'; };
+  tk.forEach(function(t){
+    var mem=teams[t], sub=mem.filter(function(m){ return by[m.num]; }).length;
+    h+='<div style="border:1px solid #d8dee6;border-radius:12px;padding:10px 12px;margin:10px 0;background:#fff">'+
+      '<div style="font-weight:800;font-size:15px;margin-bottom:6px">'+esc(t)+'모둠 <span style="font-weight:500;color:#6b7280;font-size:12.5px">제출 '+sub+'/'+mem.length+'</span></div>';
+    mem.forEach(function(m){
+      var me_=by[m.num], got={}, thanks=[];
+      mem.forEach(function(o){
+        var od=by[o.num]&&by[o.num].d; if(!od||o.num===m.num) return;
+        (od.mates||[]).forEach(function(x){ if(String(x.num)===String(m.num)){
+          (x.roles||[]).forEach(function(rr){ got[rr]=(got[rr]||0)+1; });
+          if(x.thanks) thanks.push({from:o.det||o.name,t:x.thanks});
+        }});
+      });
+      var gk=Object.keys(got).sort(function(a,b){ return got[b]-got[a]; });
+      var warn=(!gk.length&&sub>1)?'<span style="color:#c2410c;font-weight:700;font-size:12px"> ⚠ 친구들이 골라 준 일 없음</span>':'';
+      h+='<div style="border-top:1px dashed #e5e7eb;padding:8px 0">'+
+        '<div><b>'+esc(m.num)+'번 '+esc(m.name)+'</b> <span style="color:#6b7280;font-size:12px">'+esc(m.det||'')+'</span>'+(me_?'':' <span style="color:#9ca3af;font-size:12px">· 아직 안 씀</span>')+warn+'</div>';
+      if(me_&&me_.d){
+        h+='<div style="font-size:12.5px;margin-top:4px"><span style="color:#6b7280">스스로 고른 일 </span>'+(me_.d.roles||[]).map(function(x){ return chip(x,0,gk.indexOf(x)>=0?'#dcebf7':'#eef2f7'); }).join('')+'</div>'+
+          '<div style="font-size:12.5px;margin-top:2px;color:#374151">· '+esc((me_.d.did||[])[0]||'')+'<br>· '+esc((me_.d.did||[])[1]||'')+'</div>';
+        if(me_.d.toT) h+='<div style="font-size:12.5px;margin-top:4px;background:#fff7e6;border-radius:8px;padding:4px 8px">🔒 '+esc(me_.d.toT)+'</div>';
+      }
+      if(gk.length) h+='<div style="font-size:12.5px;margin-top:4px"><span style="color:#6b7280">친구들이 골라 준 일 </span>'+gk.map(function(x){ return chip(x,got[x],'#e8f5e9'); }).join('')+'</div>';
+      if(thanks.length) h+='<div style="font-size:12.5px;margin-top:2px;color:#374151">'+thanks.map(function(x){ return '“'+esc(x.t)+'” <span style="color:#9ca3af">— '+esc(x.from)+'</span>'; }).join('<br>')+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  if(!tk.length) h+='<div class="empty">이 반의 모둠 명단이 없습니다.</div>';
+  box.innerHTML=h;
 }
 
 /* ───────── 명찰 · 승급 도구 ───────── */
