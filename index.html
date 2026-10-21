@@ -6944,7 +6944,8 @@ function trnMyFb(C){
   drawModes(); draw();
   $('tmChk').onclick=function(){
     var m=$('tmMsg'), g=geo();
-    if(!String(st.w||'').trim()){ m.textContent='화살표가 나타내는 것을 적어 주세요.'; return; }
+    if(String(st.w||'').replace(/[\sㄱ-ㅎㅏ-ㅣ.]/g,'').length<3){ m.textContent='② 화살표가 나타내는 것을 낱말로 적어 주세요. (예: 바닥의 마찰력)'; return; }
+    if(String(st.s||'').replace(/[\sㄱ-ㅎㅏ-ㅣ.]/g,'').length<15){ m.textContent='④ 한 줄 비교를 써 주세요. 위의 “이렇게 시작해 보세요”를 이어 써도 돼요.'; return; }
     if(TM.L<=2&&B.a>0){ m.textContent='㉡ 화살표를 그려 주세요.'; return; }
     m.textContent='';
     var drawn=TM.L/g.base, ok=B.a===0?TM.L<8:Math.abs(drawn-ratio)/ratio<=0.12;
