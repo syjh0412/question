@@ -3089,6 +3089,19 @@ function rpHome(){
     cb.addEventListener('click',rpContrib);
     box.appendChild(cb);
   }
+  if(TEACHER&&RP.peek&&RP.team){
+    var tc=document.createElement('div'); tc.className='casecard';
+    tc.innerHTML='<span class="ic">🤝</span><div class="tx"><b>'+esc(RP.team)+'모둠 기여 돌아보기</b><span>학생이 쓴 내가 한 일 · 친구들이 골라 준 일 · 소장님께만 쓴 글</span></div><span class="go">보기</span>';
+    var tb=document.createElement('div'); tb.style.cssText='background:#fff;color:#1b2733;border-radius:12px;padding:4px 10px;margin:-4px 0 12px';
+    show(tb,false);
+    tc.addEventListener('click',function(){
+      if(!tb.classList.contains('hide')){ show(tb,false); return; }
+      show(tb,true); tb.innerHTML='<div class="empty">불러오는 중...</div>';
+      call({action:'contribList',pin:PIN,cls:me.cls},function(res){ drawContrib(res,tb,RP.team); },
+        function(err){ tb.innerHTML='<div class="empty">'+esc(err)+'</div>'; });
+    });
+    box.appendChild(tc); box.appendChild(tb);
+  }
   if($('rpOff')) $('rpOff').addEventListener('click',function(){ this.textContent='연결하는 중...'; rpLoad(); });
   if($('rpRH')) $('rpRH').addEventListener('click',function(){ store('fd_rolehint2_'+me.cls+'_'+RP.team,'1'); this.remove(); });
   $('rpS3').addEventListener('click',function(){
@@ -5666,8 +5679,9 @@ function trnOverlay(){
 }
 
 /* ───────── 기여 돌아보기 (교사) ───────── */
-function drawContrib(r){
-  var box=$('tBody'), by={}, items=r.items||[], teams=r.teams||{};
+function drawContrib(r,box0,only){
+  var box=box0||$('tBody'), by={}, items=r.items||[], teams=r.teams||{};
+  if(only){ var t0={}; if(teams[String(only)]) t0[String(only)]=teams[String(only)]; teams=t0; }
   items.forEach(function(x){ by[String(x.num)]=x; });
   var tk=Object.keys(teams).sort(function(a,b){ return Number(a)-Number(b); });
   var done=items.length, all=0; tk.forEach(function(t){ all+=teams[t].length; });
