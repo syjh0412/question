@@ -1500,7 +1500,7 @@
 </div>
 
 <div id="trn">
-  <div class="th"><b>🎯 힘 그리기 훈련소</b><span class="pg" id="trnPg"></span><button id="trnX">닫기</button></div>
+  <div class="th"><b>🎯 힘 그리기 훈련소</b><span class="pg" id="trnPg"></span><button id="trnRs" style="margin-left:auto">↺ 처음부터</button><button id="trnX" style="margin-left:6px">닫기</button></div>
   <div class="nav" id="trnNav"></div>
   <div class="bd" id="trnBd"></div>
 </div>
@@ -6538,12 +6538,21 @@ function trnPost(k,d){
 }
 function trnR3(v){ return Math.round(v*1000)/1000; }
 function trnKey(){ return 'fd_trn_'+(me&&me.cls?me.cls+'-'+me.num:'guest'); }
-function trnLoad(){ try{ trnS=JSON.parse(localStorage.getItem(trnKey())||'{}')||{}; }catch(e){ trnS={}; } }
-function trnSave(){ try{ localStorage.setItem(trnKey(),JSON.stringify(trnS)); }catch(e){} }
+/* 소장님(교사 모드)·참관 모드는 시범용 — 열 때마다 처음부터, 기기에 남기지 않음 */
+function trnDemo(){ return !!(TEACHER||GUEST||!me||!me.cls); }
+function trnLoad(){ if(trnDemo()){ trnS={}; TM.sel={a:null,b:null}; TM.L=0; return; } try{ trnS=JSON.parse(localStorage.getItem(trnKey())||'{}')||{}; }catch(e){ trnS={}; } }
+function trnSave(){ if(trnDemo()) return; try{ localStorage.setItem(trnKey(),JSON.stringify(trnS)); }catch(e){} }
 function trnSt(k){ if(!trnS[k]) trnS[k]={o:null,a:[],obj:'',done:false}; return trnS[k]; }
-function trnOpen(){ trnLoad(); $('trn').classList.add('on'); document.body.style.overflow='hidden'; if(trnI==='my') trnMyGo(); else trnGo(trnI); }
+function trnOpen(){ trnLoad(); if(trnDemo()) trnI=0; $('trn').classList.add('on'); document.body.style.overflow='hidden'; if(trnI==='my') trnMyGo(); else trnGo(trnI); }
 function trnClose(){ $('trn').classList.remove('on'); document.body.style.overflow=''; }
 $('trnX').addEventListener('click',trnClose);
+$('trnRs').addEventListener('click',function(){
+  var b=this;
+  if(!b.dataset.arm){ b.dataset.arm='1'; b.textContent='한 번 더 누르면 모두 지워져요'; setTimeout(function(){ b.dataset.arm=''; b.textContent='↺ 처음부터'; },3000); return; }
+  b.dataset.arm=''; b.textContent='↺ 처음부터';
+  trnS={}; TM.sel={a:null,b:null}; TM.L=0; try{ localStorage.removeItem(trnKey()); }catch(e){}
+  if(trnI==='my') trnMyGo(); else trnGo(0);
+});
 function trnNav(){
   var nav=$('trnNav'); nav.innerHTML=''; var n=0;
   var mb=document.createElement('button'); mb.textContent='🧩 우리 모둠'; mb.style.cssText='width:auto;border-radius:19px;padding:0 12px;font-size:13px';
