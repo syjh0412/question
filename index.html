@@ -384,6 +384,10 @@
   .tq .ta span{flex:1;}
   .tq .ta.tea{background:var(--blue-soft);border-left-color:var(--blue);}
   .tq .ta.tea b{color:var(--blue);}
+  .tq .ta .tpick{flex-shrink:0;background:#fff;border:1.5px solid var(--gold);color:#8a5a00;font-size:11px;
+    font-weight:800;border-radius:20px;padding:2px 9px;cursor:pointer;white-space:nowrap;}
+  .tq .ta .tpick.on{background:var(--gold);color:#fff;}
+  .tq .ta .tpick:disabled{opacity:.5;cursor:default;}
   .treply{background:#fff;border:1.5px solid #b9d3e8;color:var(--blue);font-size:11.5px;
     font-weight:700;border-radius:20px;padding:3px 10px;cursor:pointer;}
   .treply.on{background:var(--blue);border-color:var(--blue);color:#fff;}
@@ -1961,7 +1965,7 @@ function openRule(){
        '대탐정이 인정 점수 <b>90점</b>에 이르면 <b>부소장 임명장</b>을 받습니다.</div>';
   h += '<h4>규칙</h4><div class="rnote">제보는 한 차시에 <b>3건</b>까지. 다시 누르면 취소됩니다.<br>'+
        '답변은 <b>20자 이상</b>(ㅋㅋ·문장부호·같은 글자 반복은 빼고 셈), 한 사건에 여러 번 이어서 쓸 수 있습니다(점수는 한 번).<br>'+
-       '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다.</div>';
+       '채택은 사건을 올린 사람이 답변 하나를 고르는 것입니다. 소장님이 채택하기도 합니다.</div>';
   if(ME){
     var nx = nextHint(ME);
     h += '<h4>지금 내 기록</h4><div class="rnote">'+
@@ -6311,13 +6315,29 @@ function tCard(it){
       if(!confirm('아직 채택된 답변이 없어서, 해결 도장을 받을 학생이 없습니다.\n그래도 해결 도장을 찍을까요?')) return;
     }
     call({action:'solve',pin:PIN,qid:it.id}, function(res){
-      it.solved=res.on;
-      sb.classList.toggle('on', res.on);
-      sb.textContent=res.on?'✅ 해결':'해결 도장';
-      d.className='tq'+(res.on?' lv3':(tWaitStamp(it)?' wait':''));
-      var wbd2=d.querySelector('.waitb'); if(wbd2) wbd2.style.display=res.on?'none':'';
+      it.solved=res.on; sync();
     }, function(err){ alert(err); });
   });
+  /* 채택·해결 상태가 바뀌면 카드 색, 도장 대기 표시, 도장 버튼을 다시 맞춤 */
+  function sync(){
+    sb.classList.toggle('on', !!it.solved);
+    sb.textContent=it.solved?'✅ 해결':'해결 도장';
+    d.className='tq'+(it.solved?' lv3':(tWaitStamp(it)?' wait':''));
+    var wb2=d.querySelector('.waitb');
+    if(tWaitStamp(it)){
+      if(!wb2){ wb2=document.createElement('span'); wb2.className='waitb';
+        wb2.textContent=it.lesson+'차시 · ⭐ 채택됨 · 도장 대기'; no.after(wb2); }
+      wb2.style.display='';
+    } else if(wb2) wb2.style.display='none';
+  }
+  /* 소장님이 채택했을 때: 아직 해결 전이면 도장도 함께 찍을지 묻기 */
+  function afterPick(on){
+    sync();
+    if(on && !it.solved && confirm('채택했습니다. 이 사건에 해결 도장도 함께 찍을까요?\n(채택된 답변을 쓴 학생이 해결 도장을 받습니다)')){
+      call({action:'solve',pin:PIN,qid:it.id}, function(res){ it.solved=res.on; sync(); },
+        function(err){ alert(err); });
+    }
+  }
   var del=document.createElement('button');
   del.className='del'; del.textContent='삭제';
   del.addEventListener('click', function(){
@@ -6358,21 +6378,45 @@ function tCard(it){
         tbs.disabled=false; tbs.textContent='올리기'; tta.value='';
         var a={id:res.id,cls:it.cls,num:0,name:'소장님',det:'소장님',text:t,adopted:false};
         (it.answers=it.answers||[]).push(a);
-        alist.appendChild(taEl(a));
+        alist.appendChild(taEl(a, it, afterPick));
         tb.classList.remove('open'); rb.classList.remove('on'); rb.textContent='답글';
       },
       function(err){ tbs.disabled=false; tbs.textContent='올리기'; alert(err); });
   });
 
-  (it.answers||[]).forEach(function(a){ alist.appendChild(taEl(a)); });
+  (it.answers||[]).forEach(function(a){ alist.appendChild(taEl(a, it, afterPick)); });
   return d;
 }
 
-function taEl(a){
+function taEl(a, it, onPick){
     var isT=String(a.num)==='0';
-    var e=document.createElement('div'); e.className='ta'+(a.adopted?' ad':'')+(isT?' tea':'');
+    var e=document.createElement('div');
     var b=document.createElement('b');
-    b.textContent=(isT?'소장님':a.cls+'-'+a.num+' '+a.name)+(a.adopted?' ⭐':'');
+    function paint(){
+      e.className='ta'+(a.adopted?' ad':'')+(isT?' tea':'');
+      b.textContent=(isT?'소장님':a.cls+'-'+a.num+' '+a.name)+(a.adopted?' ⭐':'');
+      if(pk){ pk.className='tpick'+(a.adopted?' on':''); pk.textContent=a.adopted?'채택 취소':'⭐ 채택'; }
+    }
+    var pk=null;
+    /* 소장님 채택: 학생 답변에만 (소장님 답글은 도장을 받을 학생이 없으므로 제외) */
+    if(TEACHER && it && !isT && a.id){
+      pk=document.createElement('button'); pk.type='button';
+      pk.addEventListener('click', function(){
+        if(a.adopted && it.solved &&
+           !confirm('해결 도장이 찍힌 사건입니다.\n채택을 취소하면 이 답변을 쓴 학생의 해결 도장도 함께 빠집니다. 취소할까요?')) return;
+        pk.disabled=true;
+        call({action:'tadopt',pin:PIN,qid:it.id,aid:a.id}, function(res){
+          pk.disabled=false;
+          a.adopted=!!res.on; paint();
+          if(onPick) onPick(a.adopted);
+        }, function(err){
+          pk.disabled=false;
+          alert(/action|알 수 없|unknown/i.test(String(err))?
+            '서버가 아직 소장님 채택을 모릅니다. 새 Code.gs를 배포한 뒤 다시 해 주세요.\n('+err+')':err);
+        });
+      });
+    }
+    paint();
     var sp=document.createElement('span'); sp.textContent=a.text;
     var db=document.createElement('button'); db.className='del'; db.textContent='×';
     db.addEventListener('click', function(){
@@ -6380,7 +6424,7 @@ function taEl(a){
       call({action:'dela',pin:PIN,aid:a.id}, function(){ e.remove(); },
         function(err){ alert(err); });
     });
-    e.appendChild(b); e.appendChild(sp); e.appendChild(db);
+    e.appendChild(b); e.appendChild(sp); if(pk) e.appendChild(pk); e.appendChild(db);
     return e;
 }
 
