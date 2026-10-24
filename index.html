@@ -6267,6 +6267,8 @@ function tBoard(items, make){
       if(!items.length) return;
     }
   }
+  /* 아직 채택된 답변이 없는 사건을 차시마다 맨 위로 (순서는 그대로 유지) */
+  if(make===tCard) items=tNoPickFirst(items);
   if($('tLesson').value){
     items.forEach(function(it){ box.appendChild(make(it)); });
     return;
@@ -6286,6 +6288,12 @@ function tBoard(items, make){
   box.appendChild(b);
 }
 
+function tNoPick(it){
+  return !it.solved && !(it.answers||[]).some(function(a){ return a.adopted; });
+}
+function tNoPickFirst(arr){
+  return arr.filter(tNoPick).concat(arr.filter(function(it){ return !tNoPick(it); }));
+}
 function tWaitStamp(it){
   return !it.solved && (it.answers||[]).some(function(a){ return a.adopted; });
 }
