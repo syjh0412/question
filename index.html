@@ -1257,14 +1257,14 @@
         <div><label>반</label><input type="number" id="inCls" inputmode="numeric" placeholder="1"></div>
         <div><label>번호</label><input type="number" id="inNum" inputmode="numeric" placeholder="7"></div>
       </div>
-      <div id="nameBox" class="hide"></div>
-      <div id="nameManual"><label>이름</label>
-        <input type="text" id="inNameManual" placeholder="내 이름" autocomplete="off"></div>
+      <div id="nameBox" class="namebox">명단을 불러오는 중...</div>
+      <div id="nameManual" class="hide"><label>이름</label>
+        <input type="text" id="inNameManual" placeholder="홍길동"></div>
       <input type="hidden" id="inName">
       <label>탐정 이름 <span style="font-weight:600;color:var(--hair)">· 한 번 적으면 내 입장 암호가 됩니다</span></label>
       <input type="text" id="inDet" placeholder="예) 화살표 탐정" maxlength="14">
       <div style="height:18px"></div>
-      <button class="primary" id="btnLogin">들어가기</button>
+      <button class="primary" id="btnLogin" disabled>들어가기</button>
     </div>
 
     <div class="card hide" id="tLoginCard">
@@ -1984,7 +1984,7 @@ $('rule').addEventListener('click', function(e){ if(e.target===this) show($('rul
 
 $('who').addEventListener('click', function(){
   if(!confirm('나가시겠습니까?')) return;
-  me=null; PIN=''; TEACHER=false; ROSTER=null; GUEST=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
+  me=null; PIN=''; TEACHER=false; GUEST=false; FEED=null; MATC=null; QS=[]; ME=null; document.body.classList.remove('master'); rpReset();
   show($('who'),false); show($('stampBar'),false);
   show($('tLoginCard'),false); show($('rankStrip'),true);
   ['tabWrite','tabRef','tabNote','tabTeach'].forEach(function(id){ show($(id),true); });
@@ -2046,7 +2046,7 @@ $('tLoginGo').addEventListener('click', function(){
   var b=this; b.disabled=true; b.textContent='확인 중...';
   call({action:'stats',pin:v,cls:''}, function(){
     b.disabled=false; b.textContent='들어가기';
-    PIN=v; TEACHER=true; loadRoster();
+    PIN=v; TEACHER=true;
     show($('tLoginCard'),false); show($('rankStrip'),true);
     $('tLoginPin').value=''; msg($('tLoginMsg'),'');
     enter({cls:'1',num:'0',name:'소장님',det:''});
@@ -2059,26 +2059,65 @@ $('tLoginGo').addEventListener('click', function(){
 
 var ROSTER=null, OPEN_MODE=false;
 function rKey(){ return 'fd_roster'; }
-/* 명단은 교사 비밀번호로 들어온 뒤에만 받아 오고, 기기에 저장하지 않는다 */
+function useRoster(map){
+  ROSTER=map;
+  OPEN_MODE = !map || !Object.keys(map).length;
+  show($('nameManual'), OPEN_MODE);
+  askWho();
+}
 function loadRoster(){
-  if(!PIN) return;
-  call({action:'roster',pin:PIN}, function(res){
+  try{ localStorage.removeItem(rKey()); }catch(e){}   /* 명단을 기기에 남기지 않음 */
+  call({action:'roster'}, function(res){
     var map={};
     (res.items||[]).forEach(function(s){ var t=String(s).split('|'); if(t.length>2) map[t[0]+'-'+t[1]]=t[2]; });
-    ROSTER=map;
-    try{ if(!$('teachMain').classList.contains('hide')) tLoad(); }catch(e){}
-  }, function(){});
+    useRoster(map);
+  }, function(){
+    if(!ROSTER) useRoster({});     // 못 받으면 이름을 직접 적게 해서 막히지 않게
+  });
+}
+/* 화면용 가운데 가림: 홍길동→홍○동, 김민→김○, 남궁민수→남○○수 */
+function maskName(nm){
+  nm=String(nm||''); if(nm.length<2) return nm;
+  if(nm.length===2) return nm[0]+'○';
+  return nm[0]+Array(nm.length-1).join('○')+nm[nm.length-1];
 }
 function lookName(c,n){ return ROSTER ? (ROSTER[c+'-'+n]||'') : ''; }
 /* 화면에 보일 이름: 명렬표(roster)를 우선, 없을 때만 기록에 남은 이름 */
 function realName(x){ return lookName(String(x.cls),String(x.num)) || (x.name||''); }
 
-function askWho(){ /* 반·번호로 이름을 보여 주지 않는다 (참관자에게 학생 이름 노출 방지) */ }
-try{ localStorage.removeItem('fd_roster'); }catch(e){}   /* 예전에 저장된 명단 지우기 */
+function askWho(){
+  var c=$('inCls').value.trim(), n=$('inNum').value.trim();
+  var box=$('nameBox'), bt=$('btnLogin');
+  if(OPEN_MODE){
+    box.className='namebox';
+    box.textContent='명단을 불러오지 못했습니다. 이름을 직접 적어 주세요';
+    bt.disabled=false; return;
+  }
+  if(!ROSTER){ box.className='namebox'; box.textContent='명단을 불러오는 중...'; bt.disabled=true; return; }
+  $('inName').value=''; bt.disabled=true;
+  box.className='namebox';
+  if(!c||!n){ box.textContent='반과 번호를 적으면 이름이 나옵니다'; return; }
+  var nm=lookName(c,n);
+  if(nm){
+    $('inName').value=nm;
+    box.className='namebox on'; box.textContent=c+'반 '+n+'번 · '+maskName(nm);
+    bt.disabled=false;
+  } else {
+    var has=false;
+    for(var k in ROSTER){ if(k.indexOf(c+'-')===0){ has=true; break; } }
+    box.className='namebox bad';
+    box.textContent = has ? (c+'반에는 '+n+'번이 없습니다. 번호를 확인해 주세요')
+                          : (c+'반은 명단에 없습니다. 반을 확인해 주세요');
+  }
+}
+$('inCls').addEventListener('input', askWho);
+$('inNum').addEventListener('input', askWho);
+loadRoster();
 
 $('btnLogin').addEventListener('click', function(){
   var c=$('inCls').value.trim(), n=$('inNum').value.trim(),
-      nm=$('inNameManual').value.trim(), dt=$('inDet').value.trim();
+      nm=$('inName').value.trim(), dt=$('inDet').value.trim();
+  if(OPEN_MODE) nm=$('inNameManual').value.trim();
   if(!c||!n||!nm){ msg($('loginMsg'),'반, 번호, 이름을 적어주세요.','err'); return; }
   var bt=this; bt.disabled=true; bt.textContent='확인하는 중...'; msg($('loginMsg'),'');
   var go=function(fd,saved){
@@ -2103,7 +2142,18 @@ $('btnLogin').addEventListener('click', function(){
 });
 $('btnQuick').addEventListener('click', function(){
   var c=pick('cls'), n=pick('num'), nm=pick('name'), dt=pick('det');
-  var real = '';
+  var real = lookName(c,n);
+  if(ROSTER && !OPEN_MODE && Object.keys(ROSTER).length){
+    if(!real || (nm && real!==nm)){
+      alert('저장된 정보가 명단과 다릅니다.\n'+
+            (real ? (c+'반 '+n+'번은 '+maskName(real)+'입니다.') : (c+'반 '+n+'번은 명단에 없습니다.'))+
+            '\n다시 등록해 주세요.');
+      store('cls',null); store('num',null); store('name',null); store('det',null);
+      show($('saved'),false); show($('loginForm'),true);
+      askWho();
+      return;
+    }
+  }
   var bt=this; bt.disabled=true; bt.textContent='확인하는 중...';
   call({action:'login',cls:c,num:n,name:real||nm,det:dt||''},
     function(r){
@@ -2146,7 +2196,7 @@ $('btnOther').addEventListener('click', function(){
   if(pick('name') && pick('cls') && pick('num')){
     var d=pick('det');
     $('savedBox').innerHTML='<b>'+(d||pick('name'))+'</b>'+
-      '<span>'+pick('cls')+'반 '+pick('num')+'번</span>';
+      '<span>'+pick('cls')+'반 '+pick('num')+'번 '+maskName(pick('name'))+'</span>';
     show($('saved'),true); show($('loginForm'),false);
   }
 })();
@@ -5491,7 +5541,7 @@ $('btnPin').addEventListener('click', function(){
   if(!v){ msg($('pinMsg'),'비밀번호를 입력하세요.','err'); return; }
   PIN=v;
   call({action:'stats',pin:PIN,cls:''}, function(){
-    loadRoster(); show($('pinBox'),false); show($('teachMain'),true); tLoad();
+    show($('pinBox'),false); show($('teachMain'),true); tLoad();
   }, function(err){ msg($('pinMsg'),err,'err'); PIN=''; });
 });
 ['tReload','tCls','tLesson','tView'].forEach(function(id){
