@@ -1009,6 +1009,14 @@
   #lsv .l-cv-d b{color:#d9a441;}
   #lsv .l-cv-m{color:#9fb3c8;font-size:clamp(14px,1.9vw,22px);margin-top:2vh;}
   #lsv .l-cv-b{margin-top:6vh;color:#d9a441;border:1.5px solid #d9a441;border-radius:30px;padding:.5vh 1.6vw;font-size:clamp(13px,1.6vw,18px);font-weight:800;letter-spacing:.2em;}
+  #lsv .l-cap{margin:0 18px;background:#16263a;border:1px solid #2d4260;border-radius:12px;padding:10px 14px;color:#cfdced;font-size:clamp(13px,1.6vw,17px);line-height:1.55;}
+  #lsv .l-cap b{display:inline-block;background:#d9a441;color:#12202f;border-radius:6px;padding:0 7px;margin-right:8px;font-size:.85em;}
+  .gd-lsl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;}
+  .gd-lsl span{background:#fff;border:1px solid #ece5d6;border-radius:9px;padding:5px 9px;font-size:12px;color:#4b5b6e;display:flex;flex-direction:column;}
+  .gd-lsl span b{font-size:13px;color:#1b2a3f;}
+  .gd-lsl i{font-style:normal;color:#b39552;font-weight:900;}
+  .gd-lsb{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;margin-top:12px;background:#1b2a3f;color:#f6dc8c;border:0;border-radius:10px;padding:12px 14px;font:inherit;font-weight:900;font-size:15px;cursor:pointer;text-align:left;}
+  .gd-lsb span{color:#b9c7d6;font-size:12px;font-weight:600;}
   #lsv .l-qs{display:flex;flex-direction:column;gap:2.4vh;width:100%;max-width:1150px;margin-top:2vh;}
   #lsv .l-qs .l-q{background:#16263a;border-left:8px solid #d9a441;border-radius:12px;padding:2.4vh 2vw;text-align:left;font-size:clamp(20px,3.4vw,40px);font-weight:900;color:#fff;line-height:1.4;}
   #lsv .l-qs .l-q small{display:block;color:#9fb3c8;font-size:.5em;font-weight:700;margin-top:.8vh;}
@@ -4085,7 +4093,7 @@ function lsTitle(no){
   return t?(t.title||''):'';
 }
 function lsVisitHtml(r){
-  var V=LS_VISIT[LS.cls], T=lsTeams(), N=T.length;
+  var V=GUEST?null:LS_VISIT[LS.cls], T=lsTeams(), N=T.length;
   var at=function(k,s){ return T[((k+s)%N+N)%N]; };
   var h='<div class="l-k">'+r+'라운드 · 방문 순서</div>'+
     '<div class="l-rule">'+(r===1?'<span><b>A팀</b> 우리 부스에서 발표</span><span><b>B팀</b> 다음 번호로 한 칸씩 →</span>'
@@ -4184,7 +4192,7 @@ function lsOpen(cls,items){
     v.innerHTML='<div class="l-top"><span class="l-stg" id="lsStg"></span><button class="l-tm" id="lsTm" type="button"></button>'+
       '<button class="l-tr" id="lsTr" type="button" title="처음부터">↺</button><button class="l-tr" id="lsTn" type="button" title="다음 구간">⏭</button>'+
       '<button class="l-x" id="lsX" type="button">✕ 닫기</button></div>'+
-      '<div class="l-body" id="lsBody"></div>'+
+      '<div class="l-body" id="lsBody"></div><div class="l-cap hide" id="lsCap"></div>'+
       '<div class="l-foot"><button type="button" id="lsP">◀ 이전</button><div class="l-dots" id="lsD"></div><button type="button" id="lsN">다음 ▶</button></div>';
     document.body.appendChild(v);
     $('lsX').addEventListener('click',function(){ v.classList.remove('on'); });
@@ -4236,7 +4244,7 @@ function lsPickInner(no){
   if(!show.length) h+='<div class="l-pk-e">'+(L.length?'아직 ⭐로 고르거나 판단한 카드가 없어요':'아직 받은 카드가 없어요')+'</div>';
   show.slice(0,2).forEach(function(c){
     var v=c.verdict||'';
-    h+='<div class="l-pk-c"><div class="l-pk-t"><span class="ty">'+esc(c.type||'제안')+'</span>'+(c.from?'<span class="fr">'+esc(c.from)+'</span>':'')+'</div>'+
+    h+='<div class="l-pk-c"><div class="l-pk-t"><span class="ty">'+esc(c.type||'제안')+'</span>'+(c.from&&!GUEST?'<span class="fr">'+esc(c.from)+'</span>':'')+'</div>'+
       '<div class="l-pk-x">'+esc(c.text||'')+'</div>'+
       (v?'<div class="l-pk-v"><b class="'+(v==='고침'?'fx':'kp')+'">'+esc(v)+'</b>'+(c.reason?esc(c.reason):'<i>이유를 아직 쓰지 않았어요</i>')+'</div>':'<div class="l-pk-v"><i>고침/지킴 판단 전</i></div>')+'</div>';
   });
@@ -4272,6 +4280,11 @@ function lsBoardTable(){
   var B=LS.BD;
   if(!B) return '<div class="l-pk-e" style="color:#9fb3c8">현황 불러오는 중...</div>';
   if(B.err&&!B.items) return '<div class="l-pk-e" style="color:#9fb3c8">불러오지 못했어요 · '+esc(B.err)+'</div>';
+  if(B.guest){
+    var g='<table class="bstats"><tr><th>모둠</th><th>사건</th><th>받은 카드</th></tr>';
+    visTeams(LS.cls,B.items||[]).forEach(function(t){ g+='<tr><td class="l2">'+t.team+'모둠</td><td style="text-align:left">'+esc(t.title||'')+'</td><td><b>'+t.cards+'</b></td></tr>'; });
+    return g+'</table><div class="l-pk-f" style="color:#7d93ab;margin-top:.8vh">참관 모드에서는 받은 카드 수만 보입니다 (수업 때는 고침 · 지킴 · ⭐ · 가장 많은 카드 종류도 함께)</div>';
+  }
   var h='<table class="bstats"><tr><th>모둠</th><th>받은 카드</th><th>고침</th><th>지킴</th><th>⭐</th><th>가장 많은 카드</th></tr>';
   visTeams(LS.cls,B.items||[]).forEach(function(t){
     h+='<tr><td class="l2">'+t.team+'모둠</td><td><b>'+t.cards+'</b></td><td>'+t.fix+'</td><td>'+t.keep+'</td><td>'+t.star+'</td><td>'+esc(t.top||'—')+'</td></tr>';
@@ -4284,6 +4297,11 @@ function lsBoardHtml(r){
 }
 function lsBoardLoad(){
   if(LS.BDL) return; LS.BDL=true;
+  if(GUEST){
+    call({action:'repTeams',cls:LS.cls,num:me.num},function(r){ LS.BDL=false; LS.BD={items:r.items||[],at:Date.now(),guest:true}; lsBoardPaint(); },
+      function(err){ LS.BDL=false; LS.BD={items:null,err:String(err||'오류'),at:Date.now(),guest:true}; lsBoardPaint(); });
+    return;
+  }
   call({action:'board',pin:PIN,cls:LS.cls},function(r){
     LS.BDL=false; LS.BD={items:r.items||[],at:Date.now()}; lsBoardPaint();
   },function(err){ LS.BDL=false; LS.BD={items:(LS.BD&&LS.BD.items)||null,err:String(err||'오류'),at:Date.now()}; lsBoardPaint(); });
@@ -4352,6 +4370,7 @@ function lsTimerDraw(){
 function lsDraw(){
   var s=LS.list[LS.i];
   $('lsStg').textContent=s.stage;
+  var cap=$('lsCap'); if(cap){ show(cap,!!(GUEST&&LS_CAP[s.id])); cap.innerHTML=GUEST&&LS_CAP[s.id]?'<b>해설</b>'+LS_CAP[s.id]:''; }
   if(/^bd/.test(s.id)){ var ob=document.querySelector('#tBody #btBox'); if(ob) ob.removeAttribute('id'); }
   $('lsBody').innerHTML='<div class="l-fit">'+s.html()+'</div>';
   if(/^bd/.test(s.id)){ btWire(); lsBoardTick(); }
@@ -4818,6 +4837,31 @@ function btWire(){
 
 /* ───────── 참관 모드: 단원 안내 탭 ─────────
    단원 흐름 · 참관 모드 둘러보기 · 탐정 계급과 명찰·임명장(예시) · 쿠폰·기여 돌아보기 안내 · 공개수업 자료 */
+
+/* 참관 모드에서 수업 화면을 열면 화면 아래에 붙는 해설 */
+var LS_CAP={
+  cover:'수업 전 TV에 켜 둔 표지입니다. 참관하시는 분들이 들어오는 동안 오늘의 주제를 보여 줍니다. → 키나 「다음」으로 넘겨 보세요.',
+  req:'9차시에 나눠 준 실제 사건 의뢰서입니다. “추측만 담긴 보고서는 받지 않습니다”라는 의뢰인의 약속으로 수업을 엽니다.',
+  steps:'학생들에게 나눈 수사 지침의 7단계입니다. 오늘이 6단계 「수사 검증 회의」라는 것을 함께 확인합니다.',
+  two:'오늘 할 일을 두 장면으로 줄여 보여 줍니다. 발표와, 받은 질문으로 보고서를 다시 보는 것.',
+  v1:'1라운드 방문 순서표입니다. 수업 때는 모둠마다 발표자와 방문자의 이름이 보였습니다(참관 모드에서는 A팀 · B팀). 같은 내용의 카드를 모둠 책상에도 두었습니다.',
+  bd1:'라운드 동안 띄운 현황판입니다. 큰 타이머(4분 30초)는 1분 전에 음성으로 알려 주고 끝나면 알람이 울립니다. 아래 표는 모둠별 받은 카드 수가 15초마다 바뀝니다. 타이머를 직접 눌러 보세요.',
+  swap:'라운드 사이 2분입니다. 방문했던 B팀은 다른 모둠의 수사 방법을, 발표했던 A팀은 받은 질문을 원모둠에 전해 2라운드 발표를 보완합니다.',
+  v2:'2라운드는 역할을 바꿔 B팀이 발표하고, A팀이 앞 번호로 한 칸씩 방문합니다.',
+  bd2:'2라운드 현황판입니다. 같은 타이머와 카드 현황을 다른 탭 없이 이 화면에서 봅니다.',
+  judge:'원모둠으로 돌아와 받은 카드를 읽고, 도움이 된 카드에 ⭐, 가장 중요한 카드는 고칠지 지킬지 이유와 함께 정합니다. 5분 타이머.',
+  relay:'모둠을 누르면 그 모둠이 ⭐로 채택한 카드와 고침 · 지킴 판단이 실시간으로 뜹니다. 교사가 모둠마다 카드를 찾아다니지 않고 릴레이를 이끌 수 있게 만든 화면입니다.',
+  close:'걷기와 마찰력 생각거리로 다음 시간을 예고하고, 앱에 성찰을 쓰며 마칩니다.'
+};
+/* 단원 안내 탭에서 수업 화면 열기 (참관) */
+function gdOpenLesson(btn){
+  btn.disabled=true; var lb=btn.innerHTML; btn.textContent='여는 중...';
+  call({action:'repTeams',cls:me.cls,num:me.num},function(r){
+    btn.disabled=false; btn.innerHTML=lb;
+    var gb=$('greetBox'); if(gb) gb.remove();
+    LS.i=0; LS.BD=null; lsOpen(me.cls,visTeams(me.cls,r.items||[]));
+  },function(err){ btn.disabled=false; btn.innerHTML=lb; alert(err); });
+}
 var GD_PLAN_URL='https://drive.google.com/file/d/1UIH_odShQRXhEg00erQ2eMmDTSKAKcws/view?usp=sharing';
 function gdSample(i,solved){
   var x={q:0,a:0,stamp:0,score:0,solved:0,adopted:0,ref:0};
@@ -4854,7 +4898,7 @@ function drawGuide(){
   var h='';
   h+='<div class="gd-hero"><div class="k">참관 안내 · 단원 한눈에 보기</div><h1>우리 학교 속 힘 찾기</h1>'+
     '<div class="s">질문에서 시작하는 탐구 수업 · 과학 1 Ⅴ. 힘의 작용 · 1학년 4개 반 107명</div>'+
-    '<div class="gd-nav">'+[['gdFlow','단원 흐름'],['gdTour','참관 모드 둘러보기'],['gdRank','탐정 계급 · 명찰'],['gdMot','쿠폰 · 기여 돌아보기'],['gdDocs','공개수업 자료']].map(function(x){
+    '<div class="gd-nav">'+[['gdFlow','단원 흐름'],['gdTour','참관 모드 둘러보기'],['gdRank','탐정 계급 · 명찰'],['gdMot','쿠폰 · 기여 돌아보기'],['gdLs','공개수업 수업 화면'],['gdDocs','공개수업 자료']].map(function(x){
       return '<button type="button" data-go="'+x[0]+'">'+x[1]+'</button>'; }).join('')+'</div></div>';
 
   /* 1. 단원 흐름 */
@@ -4919,7 +4963,14 @@ function drawGuide(){
       '<tr><td>동료 검증</td><td>앱 제안 카드 기록</td><td>특정 숫자나 변인을 가리키며 구체적인 의견과 대안을 제시함</td></tr>'+
       '<tr><td>수정 판단</td><td>고침/지킴 기록, 릴레이</td><td>카드를 근거와 비교해 타당한 이유로 고칠지 지킬지 결정함</td></tr></table></div>';
 
-  /* 5. 공개수업 자료 */
+  /* 5. 공개수업 수업 화면 */
+  h+='<div class="card gd-sec" id="gdLs"><h2>🎬 공개수업 수업 화면</h2>'+
+    '<div class="sub">10월 19일 수업에서 TV에 띄운 화면 12장을 그대로 넘겨 볼 수 있습니다. 화면마다 아래에 해설이 붙고, 타이머와 알람도 직접 눌러 볼 수 있습니다. 학생 이름은 보이지 않습니다.</div>'+
+    '<div class="gd-lsl">'+[['표지','공개수업 주제'],['사건 의뢰서','의뢰인의 약속'],['수사 단계','오늘은 6단계'],['오늘의 두 장면','할 일 두 가지'],['1 · 2라운드','방문 순서'],['현황판','큰 타이머 · 카드 현황'],['교대 회의','2분'],['원모둠 판단','⭐와 고침 · 지킴'],['30초 릴레이','채택 카드 실시간'],['배움 마무리','생각거리 · 성찰']].map(function(x){
+      return '<span><b>'+x[0]+'</b>'+x[1]+'</span>'; }).join('<i>→</i>')+'</div>'+
+    '<button type="button" class="gd-lsb" id="gdLsBtn">🎬 수업 화면 열어 보기<span>컴퓨터나 태블릿의 넓은 화면에서 보기 좋습니다 · ← → 키로 넘기기</span></button></div>';
+
+  /* 6. 공개수업 자료 */
   h+='<div class="card gd-sec" id="gdDocs"><h2>📄 공개수업 자료</h2><div class="sub">10월 19일 공개수업에서 나눠 드린 자료입니다. 그림을 누르면 크게 열립니다.</div>'+
     '<div class="gd-docs">'+[['handout-front','참관 안내지 · 앞면'],['handout-back','참관 안내지 · 뒷면'],['lesson-brief','교수·학습 과정안 (약안)']].map(function(x){
       return '<a href="guide/'+x[0]+'.jpg" target="_blank" rel="noopener"><img src="guide/'+x[0]+'.jpg" alt="'+x[1]+'" loading="lazy"><span>'+x[1]+'</span></a>'; }).join('')+'</div>'+
@@ -4927,6 +4978,7 @@ function drawGuide(){
 
   box.innerHTML=h;
   box.dataset.done='1';
+  $('gdLsBtn').addEventListener('click',function(){ gdOpenLesson(this); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-go]'),function(b){
     b.addEventListener('click',function(){ var t=$(b.dataset.go); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); });
   });
